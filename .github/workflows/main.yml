@@ -1,0 +1,58 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'zulu'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Docker build
+        run: |
+          docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
+          docker build -t spring-cicd .
+          docker tag spring-cicd seunnga/spring-cicd:${GITHUB_SHA::7}
+          docker push seunnga/spring-cicd:${GITHUB_SHA::7}
+      #위 내용은 지속적 통합을 위한 스크립트입니다.
+      #지속적 통합을 위한 스크립트 아래에 작성합니다.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+      - name: Start Session Manager session
+        run: aws ssm start-session --target i-064f4fc39f7a43880
+      - name: Deploy to Server
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2
+        run: |
+          aws ssm send-command \
+            --instance-ids i-064f4fc39f7a43880 \
+            --document-name "AWS-RunShellScript" \
+            --parameters "commands=[
+              'if sudo docker ps -a --format \\'{{.Names}}\\' | grep -q \\'^server$\\'; then',
+              '  sudo docker stop server',
+              '  sudo docker rm server',
+              'fi',
+              'sudo docker pull seunnga/spring-cicd:${GITHUB_SHA::7}',
+              'sudo docker tag seunnga/spring-cicd:${GITHUB_SHA::7} spring-cicd',
+              'sudo docker run -d --name server -p 8080:8080 spring-cicd'
+            ]" \
+            --output text
+    
