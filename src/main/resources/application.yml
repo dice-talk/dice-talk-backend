@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: dice-talk
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+  h2:
+    console:
+      enabled: true       # H2 콘솔을 활성화합니다.
+      path: /h2           # H2 콘솔에 접근할 수 있는 URL 경로를 설정합니다.
+  datasource:
+    url: jdbc:h2:mem:test # H2 인메모리 데이터베이스의 URL을 설정합니다.
+  jpa:
+    hibernate:
+      ddl-auto: create    # 애플리케이션 시작 시 데이터베이스 스키마를 생성합니다.
+    show-sql: true        # JPA에서 실행되는 SQL 쿼리를 콘솔에 출력합니다.
+    properties:
+      hibernate:
+        format_sql: true  # SQL 쿼리를 포맷하여 가독성을 높입니다.
+        highlight_sql: true # SQL 쿼리에서 중요한 부분을 강조합니다.
+        color-codes: true  # SQL 쿼리의 컬러 코드를 사용합니다.
+        use_sql_comments: true # SQL 쿼리에 주석을 추가합니다.
+    defer-datasource-initialization: true # 데이터 소스 초기화를 지연시킵니다.
+  #    open-in-view: false # (주석 처리됨) Open EntityManager in View 패턴을 비활성화합니다.
+  output:
+    ansi:
+      enabled: ALWAYS    # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
+  web:
+    cors:
+      allowed-origins: "http://localhost:3000"
+      allowed-methods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+  servlet:
+    multipart:
+      enabled: true #Multipart 요청 활성화
+      max-file-size: 10MB
+      file-size-threshold: 2KB
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: error       # Hibernate SQL 로그 레벨을 에러로 설정합니다.
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace # SQL 바인딩 로그를 추적 레벨로 설정합니다.
+server:
+  servlet:
+    encoding:
+      force-response: true
+mail:
+  address:
+    admin: admin@gmail.com
