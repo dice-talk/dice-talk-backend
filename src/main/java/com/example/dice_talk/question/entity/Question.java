@@ -1,5 +1,6 @@
 package com.example.dice_talk.question.entity;
 
+import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Question {
+public class Question extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questionId;
