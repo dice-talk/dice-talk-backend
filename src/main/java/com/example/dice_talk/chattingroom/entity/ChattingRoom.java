@@ -1,5 +1,6 @@
 package com.example.dice_talk.chattingroom.entity;
 
+import com.example.dice_talk.theme.entity.Theme;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
