@@ -35,4 +35,10 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    public void setQuestion(Question question){
+        this.question = question;
+        if(question != null && question.getAnswer() != this){
+            question.setAnswer(this);
+        }
+    }
 }

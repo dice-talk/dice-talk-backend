@@ -1,5 +1,6 @@
 package com.example.dice_talk.question.entity;
 
+import com.example.dice_talk.answer.entity.Answer;
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.member.entity.Member;
 import lombok.AllArgsConstructor;
@@ -32,8 +33,26 @@ public class Question extends BaseEntity {
     private String questionImage;
 
     @ManyToOne
-    @JoinColumn(name = "member-id")
+    @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Answer answer;
+
+    public void setMember(Member member){
+        this.member = member;
+        if(!member.getQuestions().contains(this)){
+            member.setQuestion(this);
+        }
+    }
+
+    public void setAnswer(Answer answer){
+        this.answer = answer;
+        if(answer != null){
+            answer.setQuestion(this);
+            this.questionStatus = QuestionStatus.QUESTION_ANSWERED;
+        }
+    }
 
     public enum QuestionStatus{
         QUESTION_REGISTERED("문의 등록 상태"),

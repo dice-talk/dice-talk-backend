@@ -1,5 +1,6 @@
 package com.example.dice_talk.chattingroom.entity;
 
+import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatPart {
+public class ChatPart extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partId;
@@ -28,12 +29,19 @@ public class ChatPart {
     private ExitStatus exitStatus = ExitStatus.MEMBER_ENTER;
 
     @ManyToOne
-    @JoinColumn(name = "member-id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "room-id")
-    private ChattingRoom room;
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
+
+    public void setMember(Member member){
+        this.member = member;
+        if(!member.getChatParts().contains(this)){
+            member.setChatPart(this);
+        }
+    }
 
     public enum ExitStatus{
         MEMBER_ENTER("참여중"),

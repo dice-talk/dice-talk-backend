@@ -1,38 +1,35 @@
-package com.example.dice_talk.chat.entity;
+package com.example.dice_talk.event.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.chattingroom.entity.ChatRoom;
-import com.example.dice_talk.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Chat extends BaseEntity {
+@DiscriminatorColumn(name = "DTYPE")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public abstract class RoomEvent extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatId;
+    private Long roomEventId;
 
     @Column(nullable = false)
-    private String message;
+    private Long receiverId;
 
-//    @Column(nullable = false)
-//    private boolean isFlagged;
-//
-//    @Column
-//    private String flaggedReason;
+    @Column(nullable = false)
+    private Long senderId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "event_id")
+    private Event event;
 
     @ManyToOne
     @JoinColumn(name = "chat_room_id")
@@ -40,8 +37,8 @@ public class Chat extends BaseEntity {
 
     public void setChatRoom(ChatRoom chatRoom){
         this.chatRoom = chatRoom;
-        if(!chatRoom.getChats().contains(this)){
-            chatRoom.setChat(this);
+        if(!chatRoom.getRoomEvents().contains(this)){
+            chatRoom.setRoomEvent(this);
         }
     }
 }

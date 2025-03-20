@@ -1,6 +1,6 @@
 package com.example.dice_talk.report.entity;
 
-import com.example.dice_talk.chattingroom.entity.ChattingRoom;
+import com.example.dice_talk.audit.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-public class Report {
+public class Report extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
@@ -29,6 +29,15 @@ public class Report {
     @Column(nullable = false)
     private Long reporterId;
 
-    @OneToMany(mappedBy = "chatReport")
+    @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST)
     private List<ChatReport> chatReports = new ArrayList<>();
+
+    public void setChatReport(ChatReport chatReport){
+        if(chatReport.getReport() != this){
+            chatReport.setReport(this);
+        }
+        if(this.getChatReports().contains(chatReport)){
+            this.getChatReports().add(chatReport);
+        }
+    }
 }

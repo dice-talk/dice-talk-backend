@@ -1,6 +1,8 @@
 package com.example.dice_talk.member.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
+import com.example.dice_talk.chattingroom.entity.ChatPart;
+import com.example.dice_talk.question.entity.Question;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,6 +55,30 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     private int totalDice;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
+    private List<Question> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
+    private List<ChatPart> chatParts = new ArrayList<>();
+
+    public void setQuestion(Question question){
+        if(question.getMember() != this){
+            question.setMember(this);
+        }
+        if(!this.questions.contains(question)){
+            questions.add(question);
+        }
+    }
+
+    public void setChatPart(ChatPart chatPart){
+        if(chatPart.getMember() != this){
+            chatPart.setMember(this);
+        }
+        if(!this.chatParts.contains(this)){
+            this.chatParts.add(chatPart);
+        }
+    }
 
     public enum MemberStatus {
         MEMBER_ACTIVE("일반 회원"),
