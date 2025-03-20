@@ -27,6 +27,10 @@ public class ChattingRoom {
     @Enumerated(value = EnumType.STRING)
     private RoomStatus roomStatus = RoomStatus.ROOM_ACTIVE;
 
+    @ManyToOne
+    @JoinColumn(name = "theme-id")
+    private Theme theme;
+
 //    @Column
 //    private String aiSuggestedTopic;
 //
