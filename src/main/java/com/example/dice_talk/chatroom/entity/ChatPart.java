@@ -1,4 +1,4 @@
-package com.example.dice_talk.chattingroom.entity;
+package com.example.dice_talk.chatroom.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.member.entity.Member;

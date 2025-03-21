@@ -8,14 +8,12 @@ public enum ExceptionCode {
     LOGOUT_FAILED(404, "Logout failed"),
     USERNAME_NOT_FOUND(404, "Username Not Found"),
     INVALID_MEMBER_STATUS(400, "Invalid member status"),
-    CANNOT_UNLIKE(403, "Like can not change"),
-    LIKE_NOT_FOUND(404, "Like not found"),
-    ALREADY_LIKED(409, "Already liked this question"),
     UNAUTHORIZED_OPERATION(403, "Can not access this resource"),
     ANSWER_NOT_FOUND(404, "Answer not found"),
     ANSWER_EXISTS(409, "Answer exists"),
     CANNOT_CHANGE_QUESTION(403, "Question already answered"),
-    QUESTION_NOT_FOUND(404, "Question not found");
+    QUESTION_NOT_FOUND(404, "Question not found"),
+    ITEM_NOT_EXIST(404, "Item not found");
 
     @Getter
     private int status;
