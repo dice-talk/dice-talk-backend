@@ -1,10 +1,9 @@
-package com.example.dice_talk.item;
+package com.example.dice_talk.item.service;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
 import com.example.dice_talk.item.repository.ItemRepository;
-import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
