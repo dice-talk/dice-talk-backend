@@ -1,10 +1,9 @@
-package com.example.dice_talk.item;
+package com.example.dice_talk.item.service;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
 import com.example.dice_talk.item.repository.ItemRepository;
-import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -53,13 +52,13 @@ public class ItemService {
     }
 
     public void deleteItem(long itemId){
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
         itemRepository.delete(item);
     }
 
     public Item findVerifiedItem(long itemId){
         // itemId로 DB에서 조회 후 없으면 예외 발생
-        return  itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
+        return  itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
 
     }
 }
