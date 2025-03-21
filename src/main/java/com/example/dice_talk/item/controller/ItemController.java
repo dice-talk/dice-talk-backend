@@ -2,7 +2,7 @@ package com.example.dice_talk.item.controller;
 
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
-import com.example.dice_talk.item.ItemService;
+import com.example.dice_talk.item.service.ItemService;
 import com.example.dice_talk.item.dto.ItemDto;
 import com.example.dice_talk.item.entity.Item;
 import com.example.dice_talk.item.mapper.ItemMapper;

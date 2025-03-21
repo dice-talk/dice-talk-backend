@@ -13,7 +13,8 @@ public enum ExceptionCode {
     ANSWER_EXISTS(409, "Answer exists"),
     CANNOT_CHANGE_QUESTION(403, "Question already answered"),
     QUESTION_NOT_FOUND(404, "Question not found"),
-    ITEM_NOT_EXIST(404, "Item not found");
+    THEME_NOT_FOUND(404, "Theme not found"),
+    ITEM_NOT_FOUND(404, "Item not found");
 
     @Getter
     private int status;
