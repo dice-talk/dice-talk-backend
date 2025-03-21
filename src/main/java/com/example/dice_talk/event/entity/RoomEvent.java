@@ -1,7 +1,7 @@
 package com.example.dice_talk.event.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
-import com.example.dice_talk.chattingroom.entity.ChatRoom;
+import com.example.dice_talk.chatroom.entity.ChatRoom;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
