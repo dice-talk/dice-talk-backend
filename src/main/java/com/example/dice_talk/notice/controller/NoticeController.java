@@ -65,7 +65,7 @@ public class NoticeController {
                 HttpStatus.OK);
     }
 
-    @DeleteMapping("/{notice-id")
+    @DeleteMapping("/{notice-id}")
     public ResponseEntity deleteNotice(@PathVariable("notice-id") @Positive long noticeId){
         noticeService.deleteNotice(noticeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

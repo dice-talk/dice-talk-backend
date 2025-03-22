@@ -16,10 +16,7 @@ public class AuthService {
         this.jwtTokenizer = jwtTokenizer;
     }
 
-    public void logout(String username){
-        boolean isDeleted = jwtTokenizer.deleteRegisterToken(username);
-        if(!isDeleted){
-            throw new BusinessLogicException(ExceptionCode.LOGOUT_FAILED);
-        }
+    public boolean logout(String username){
+        return jwtTokenizer.deleteRegisterToken(username);
     }
 }
