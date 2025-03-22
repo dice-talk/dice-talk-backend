@@ -75,7 +75,7 @@ public class MemberDto {
         private Member.Gender gender;
         private String region;
         private int totalDice;
-        private List<String> roles = new ArrayList<>();
+        private List<String> roles;
         private Member.MemberStatus memberStatus;
         private String notification;
 
