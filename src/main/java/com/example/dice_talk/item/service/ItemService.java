@@ -52,13 +52,12 @@ public class ItemService {
     }
 
     public void deleteItem(long itemId){
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
         itemRepository.delete(item);
     }
 
     public Item findVerifiedItem(long itemId){
         // itemId로 DB에서 조회 후 없으면 예외 발생
-        return  itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-
+        return  itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
     }
 }

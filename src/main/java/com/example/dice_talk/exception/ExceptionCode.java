@@ -1,5 +1,6 @@
 package com.example.dice_talk.exception;
 
+import com.example.dice_talk.notice.entity.Notice;
 import lombok.Getter;
 
 public enum ExceptionCode {
@@ -13,6 +14,8 @@ public enum ExceptionCode {
     ANSWER_EXISTS(409, "Answer exists"),
     CANNOT_CHANGE_QUESTION(403, "Question already answered"),
     QUESTION_NOT_FOUND(404, "Question not found"),
+    ITEM_NOT_EXIST(404, "Item not found"),
+    NOTICE_NOT_EXIST(404, "Notice not found");
     THEME_NOT_FOUND(404, "Theme not found"),
     ITEM_NOT_FOUND(404, "Item not found");
 
