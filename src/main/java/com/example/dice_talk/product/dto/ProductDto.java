@@ -1,4 +1,4 @@
-package com.example.dice_talk.item.dto;
+package com.example.dice_talk.product.dto;
 
 import com.example.dice_talk.validator.NotSpace;
 import lombok.AllArgsConstructor;
@@ -9,21 +9,20 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
-public class ItemDto {
-
+public class ProductDto {
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Post{
-        @NotBlank(message = "아이템의 이름은 필수 입력란입니다.")
-        private String itemName;
+        @NotBlank(message = "상품의 이름은 필수 입력란입니다.")
+        private String productName;
 
-        @NotBlank(message = "아이템 설명은 필수 입력란입니다.")
-        private String description;
+        @NotBlank(message = "상품의 가격은 필수 입력란입니다.")
+        private int price;
 
-        @NotBlank(message = "아이템의 가격은 필수 입력란입니다.")
-        private int dicePrice;
+        @NotBlank(message = "상품의 수량은 필수 입력란입니다.")
+        private int quantity;
     }
 
     @Getter
@@ -31,25 +30,25 @@ public class ItemDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Patch{
-        private long itemId;
+        private long productId;
 
         @NotSpace
-        private String itemName;
+        private String productName;
 
         @NotSpace
-        private String description;
+        private int price;
 
         @NotSpace
-        private int dicePrice;
+        private int quantity;
     }
 
     @Getter
     @AllArgsConstructor
     public static class Response{
-        private long itemId;
-        private String itemName;
-        private String description;
-        private int dicePrice;
+        private long productId;
+        private String productName;
+        private int price;
+        private int quantity;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
     }
