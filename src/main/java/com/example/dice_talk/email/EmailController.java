@@ -1,6 +1,6 @@
-package com.example.dice_talk.member.email;
+package com.example.dice_talk.email;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,24 +8,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/auth")
-public class AuthController {
+//@RequiredArgsConstructor
+@RequestMapping("/auth")
+public class EmailController {
 
     //이메일 인증 API
-    private final EmailVerificationService verificationService;
+    private final EmailService emailService;
+
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     //이메일로 인증번호 전송
-    @PostMapping("/send-code")
+    @PostMapping("/email")
     public ResponseEntity<String> sendVerificationCode(@RequestBody VerificationRequest request) {
-        verificationService.sendVerificationCode(request.getEmail());
+        emailService.sendVerificationCode(request.getEmail());
         return ResponseEntity.ok("인증번호가 이메일로 전송되었습니다.");
     }
 
     //입력한 인증번호 검증
     @PostMapping("/verify-code")
     public ResponseEntity<String> verifyCode(@RequestBody VerificationRequest request) {
-        boolean isValid = verificationService.verifyCode(request.getEmail(), request.getCode());
+        boolean isValid = emailService.verifyCode(request.getEmail(), request.getCode());
         if (!isValid) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증번호가 올바르지 않거나 만료되었습니다.");
         }

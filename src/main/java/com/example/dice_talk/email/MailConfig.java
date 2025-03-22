@@ -1,4 +1,4 @@
-package com.example.dice_talk.member.email;
+package com.example.dice_talk.email;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,8 @@ public class MailConfig {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com"); // SMTP 서버 설정 (Gmail 기준)
         mailSender.setPort(587);
-        mailSender.setUsername("your-email@gmail.com");
-        mailSender.setPassword("your-app-password"); // 앱 비밀번호 사용
+        mailSender.setUsername("taekho1225@gmail.com");
+        mailSender.setPassword("vkczcjqpznybegvz"); // 앱 비밀번호 사용
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

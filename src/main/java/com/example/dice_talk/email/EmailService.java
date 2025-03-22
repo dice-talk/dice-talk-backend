@@ -1,6 +1,7 @@
-package com.example.dice_talk.member.email;
+package com.example.dice_talk.email;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,10 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class EmailVerificationService {
+public class EmailService {
  //이메일 인증 로직
-    private final JavaMailSender mailSender;
-    private final StringRedisTemplate redisTemplate;
+    private final JavaMailSender mailSender; //스프링에서 제공하는 이메일 전송을 위한 API -> MailSender 인터페이스 확장
+    private final RedisTemplate<String, String> redisTemplate;
     private static final long EXPIRATION_TIME = 5; // 인증번호 유효 시간 (5분)
 
     public void sendVerificationCode(String email) {

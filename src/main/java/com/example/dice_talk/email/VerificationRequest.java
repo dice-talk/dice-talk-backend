@@ -1,4 +1,4 @@
-package com.example.dice_talk.member.email;
+package com.example.dice_talk.email;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
