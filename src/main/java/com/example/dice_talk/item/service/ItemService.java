@@ -29,10 +29,10 @@ public class ItemService {
         // 변경가능한 필드 확인 후 변경
         Optional.ofNullable(item.getItemName())
                 .ifPresent(itemName -> findItem.setItemName(itemName));
-        Optional.ofNullable(item.getQuantity())
-                .ifPresent(quantity -> findItem.setQuantity(quantity));
-        Optional.ofNullable(item.getPrice())
-                .ifPresent(price -> findItem.setPrice(price));
+        Optional.ofNullable(item.getDescription())
+                .ifPresent(quantity -> findItem.setDescription(quantity));
+        Optional.of(item.getDicePrice())
+                .ifPresent(price -> findItem.setDicePrice(price));
         // 저장 후 반환
         return itemRepository.save(findItem);
     }

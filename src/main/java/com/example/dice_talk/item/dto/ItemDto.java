@@ -19,11 +19,11 @@ public class ItemDto {
         @NotBlank(message = "상품의 이름은 필수 입력란입니다.")
         private String itemName;
 
-        @NotBlank(message = "다이스 수량은 필수 입력란입니다.")
-        private int quantity;
+        @NotBlank(message = "상품 설명은 필수 입력란입니다.")
+        private String description;
 
         @NotBlank(message = "상품의 가격은 필수 입력란입니다.")
-        private int price;
+        private int dicePrice;
     }
 
     @Getter
@@ -37,10 +37,10 @@ public class ItemDto {
         private String itemName;
 
         @NotSpace
-        private int quantity;
+        private String description;
 
         @NotSpace
-        private int price;
+        private int dicePrice;
     }
 
     @Getter
@@ -48,8 +48,8 @@ public class ItemDto {
     public static class Response{
         private long itemId;
         private String itemName;
-        private int quantity;
-        private int price;
+        private String description;
+        private int dicePrice;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
     }
