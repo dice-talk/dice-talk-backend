@@ -28,6 +28,15 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
+    public Report updateReport(Report report){
+        // 상태만 수정가능
+        Report findReport = reportRepository.findById(report.getReportId())
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.REPORT_NOT_FOUND));
+        Optional.ofNullable(report.getReportStatus())
+                        .ifPresent(status -> findReport.setReportStatus(status) );
+        return reportRepository.save(findReport);
+    }
+
     public Report findReport (long reportId){
         return findVerifiedReport(reportId);
     }
