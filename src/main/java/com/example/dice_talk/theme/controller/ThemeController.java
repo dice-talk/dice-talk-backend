@@ -22,11 +22,11 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/theme")
+@RequestMapping("/themes")
 @Validated
 @Slf4j
 public class ThemeController {
-    private final static String THEME_DEFAULT_URL = "/theme";
+    private final static String THEME_DEFAULT_URL = "/themes";
     private final ThemeService themeService;
     private final ThemeMapper mapper;
 

@@ -22,7 +22,22 @@ public class Event extends BaseEntity {
     @Column(nullable = false)
     private String eventName;
 
+    @Enumerated(EnumType.STRING)
+    private EventStatus eventStatus = EventStatus.EVENT_OPEN;
+
     @ManyToOne
     @JoinColumn(name = "theme_id")
     private Theme theme;
+
+    public enum EventStatus{
+        EVENT_OPEN("활성화"),
+        EVENT_CLOSE("비활성화");
+
+        @Getter
+        private String status;
+
+        EventStatus(String status) {
+            this.status = status;
+        }
+    }
 }
