@@ -27,8 +27,23 @@ public class Theme extends BaseEntity {
     @Column
     private String description;
 
-    @Column(nullable = false)
+    @Column
     private String image;
+
+    @Enumerated(value = EnumType.STRING)
+    private ThemeStatus themeStatus = ThemeStatus.THEME_ON;
+
+    public enum ThemeStatus{
+        THEME_ON("진행중"),
+        THEME_CLOSE("종료");
+
+        @Getter
+        private String status;
+
+        ThemeStatus(String status) {
+            this.status = status;
+        }
+    }
 
     @OneToMany(mappedBy = "theme")
     private List<Event> events = new ArrayList<>();

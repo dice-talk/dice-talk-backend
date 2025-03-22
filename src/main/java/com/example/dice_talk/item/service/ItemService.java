@@ -59,6 +59,5 @@ public class ItemService {
     public Item findVerifiedItem(long itemId){
         // itemId로 DB에서 조회 후 없으면 예외 발생
         return  itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
-
     }
 }
