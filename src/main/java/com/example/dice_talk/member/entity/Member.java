@@ -62,6 +62,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
     private List<ChatPart> chatParts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<DiceLog> diceLogs = new ArrayList<>();
+
     public void setQuestion(Question question){
         if(question.getMember() != this){
             question.setMember(this);
