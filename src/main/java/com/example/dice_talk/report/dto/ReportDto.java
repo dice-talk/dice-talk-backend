@@ -1,6 +1,7 @@
 package com.example.dice_talk.report.dto;
 
 import com.example.dice_talk.report.entity.ChatReport;
+import com.example.dice_talk.report.entity.Report;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +20,6 @@ public class ReportDto {
         @NotBlank
         private String reason;
 
-        private String image;
-
         @NotBlank
         private long reporterId;
 
@@ -36,11 +35,11 @@ public class ReportDto {
 
         private String reason;
 
-        private String image;
-
         private long reporterId;
 
         private List<ChatReportDto> chatReports;
+
+        private Report.ReportStatus reportStatus = Report.ReportStatus.REPORT_RECEIVED;
     }
 
     @Getter
@@ -52,5 +51,6 @@ public class ReportDto {
         private String reason;
         private long reporterId;
         private List<ChatReportDto.Response> chatReports;
+        private Report.ReportStatus reportStatus;
     }
 }
