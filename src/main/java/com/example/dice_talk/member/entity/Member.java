@@ -83,6 +83,12 @@ public class Member extends BaseEntity {
         }
     }
 
+    //member 상태변경
+    public void deactivate(){
+        this.memberStatus = MemberStatus.MEMBER_DELETED;
+        this.questions.forEach(question -> question.decativate());
+    }
+
     public enum MemberStatus {
         MEMBER_ACTIVE("일반 회원"),
         MEMBER_SLEEP("휴면 회원"),
