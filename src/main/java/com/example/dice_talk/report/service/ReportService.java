@@ -2,6 +2,7 @@ package com.example.dice_talk.report.service;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.report.entity.ChatReport;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.repository.ReportRepository;
 import org.springframework.data.domain.Page;

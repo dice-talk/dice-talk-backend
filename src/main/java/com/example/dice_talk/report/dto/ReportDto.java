@@ -20,10 +20,9 @@ public class ReportDto {
         @NotBlank
         private String reason;
 
-        @NotBlank
         private long reporterId;
 
-        private List<ChatReportDto> chatReports;
+        private List<ChatReportDto.Post> chatReports;
     }
 
     @Getter

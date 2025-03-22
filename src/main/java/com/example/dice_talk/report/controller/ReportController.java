@@ -18,9 +18,9 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/reports")
 public class ReportController {
-    private final static String REPORT_DEFAULT_URL = "/report";
+    private final static String REPORT_DEFAULT_URL = "/reports";
     private final ReportService reportService;
     private final ReportMapper mapper;
 
