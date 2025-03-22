@@ -26,8 +26,8 @@ public class AuthController {
         CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
         String username = principal.getEmail();
 
-        authService.logout(username);
-        return new ResponseEntity(HttpStatus.OK);
+        return authService.logout(username) ?
+         new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.FORBIDDEN);
     }
 }
 
