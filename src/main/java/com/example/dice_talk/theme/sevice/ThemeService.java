@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -58,6 +59,10 @@ public class ThemeService {
     public Theme findVerifiedTheme(long themeId){
         // themeId로 DB에서 조회 후 없으면 예외 발생
         return themeRepository.findById(themeId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.THEME_NOT_FOUND));
+    }
+
+    public List<Theme> findAllThemesOn(){
+        return themeRepository.findAllByThemeStatus(Theme.ThemeStatus.THEME_ON);
     }
 
 
