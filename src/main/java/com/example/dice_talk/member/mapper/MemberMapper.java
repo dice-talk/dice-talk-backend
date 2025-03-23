@@ -13,11 +13,11 @@ public interface MemberMapper {
     MemberDto.Response memberToMemberResponse(Member member);
     List<Member> membersToMemberResponses(List<Member> members);
 
-    default MemberDto.Response memberToMemberResponseDto(Member member){
-        MemberDto.Response dto = new MemberDto.Response();
-        dto.setMemberId(member.getMemberId());
-        dto.setMem
-
-    }
+//    default MemberDto.Response memberToMemberResponseDto(Member member){
+//        MemberDto.Response dto = new MemberDto.Response();
+//        dto.setMemberId(member.getMemberId());
+//        dto.setMem
+//
+//    }
 
 }

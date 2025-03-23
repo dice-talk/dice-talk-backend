@@ -52,6 +52,8 @@ public class MemberDto {
     @Setter
     public static class Patch{
 
+        private Long memberId;
+
         @NotBlank
         @Pattern(regexp = "^010-\\d{3,4}-\\d{4}$", message = "휴대폰 번호는 010으로 시작되는 11자리 숫자와 '-'로 구성되어야 합니다. 예시)010-1234-5678")
         private String phone;
@@ -70,7 +72,7 @@ public class MemberDto {
     @AllArgsConstructor
     @Getter
     @Setter
-    public static class Response{
+    public static class MyInfoResponse{
         private Long memberId;
         private String email;
         private String phone;
@@ -82,8 +84,13 @@ public class MemberDto {
         private List<String> roles;
         private Member.MemberStatus memberStatus;
         private String notification;
-
-
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class MyPageResponse{
+
+    }
 }
