@@ -44,4 +44,38 @@ public class TossAuthService {
         //access Token 반환
         return (String) response.getBody().get("access_token");
     }
+
+    //Toss 인증 서버에 본인인증 결과 조회 요청 -> Map으로 반환
+    public Map<String, Object> getVerificationResult(String accessToken, String txId) {
+        // RestTemplate 객체 생성: HTTP 클라이언트
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Toss 인증 서버의 본인인증 결과를 조회하는 API URL
+        String url = "https://cert.toss.im/api/v2/sign/user/auth/id/result";
+
+        HttpHeaders headers = new HttpHeaders();
+        // Authorization 헤더에 Bearer + 토큰(Access Token)을 설정 ->  인증
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> body = new HashMap<>();
+        //txId: 본인인증 요청 시 Toss 서버에서 발급한 트랜잭션 ID
+        body.put("txId", txId);
+
+        // HTTP 요청 엔티티(Entity) 생성
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        // RestTemplate으로 HTTP POST 요청을 보내고, 응답을 ResponseEntity로 받음
+        ResponseEntity<Map> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                request,
+                Map.class
+        );
+
+        // 응답 본문 반환: 응답에서 본문(Body)을 Map 형태로 반환
+        // 응답 본문에는 "이름, 생년월일, 성별, CI(Connecting Information)" 등 개인 정보가 포함됨
+        return response.getBody();
+    }
 }
