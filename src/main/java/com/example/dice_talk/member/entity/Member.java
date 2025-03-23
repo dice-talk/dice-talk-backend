@@ -86,7 +86,7 @@ public class Member extends BaseEntity {
     //member 상태변경
     public void deactivate(){
         this.memberStatus = MemberStatus.MEMBER_DELETED;
-        this.questions.forEach(question -> question.decativate());
+        this.questions.forEach(question -> question.deactivate());
     }
 
     public enum MemberStatus {

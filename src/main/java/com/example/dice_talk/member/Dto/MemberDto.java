@@ -1,6 +1,7 @@
 package com.example.dice_talk.member.Dto;
 
 import com.example.dice_talk.member.entity.Member;
+import com.example.dice_talk.question.entity.Question;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -65,8 +66,10 @@ public class MemberDto {
 
     }
 
+    @NoArgsConstructor
     @AllArgsConstructor
     @Getter
+    @Setter
     public static class Response{
         private Long memberId;
         private String email;
@@ -79,6 +82,7 @@ public class MemberDto {
         private List<String> roles;
         private Member.MemberStatus memberStatus;
         private String notification;
+
 
     }
 

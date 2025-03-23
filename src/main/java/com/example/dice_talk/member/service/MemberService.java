@@ -30,6 +30,7 @@ public class MemberService {
         //비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(member.getPassword());
         member.setPassword(encryptedPassword);
+
         //role 초기화
         List<String> roles = authorityUtils.createRoles(member.getEmail());
         member.setRoles(roles);
@@ -102,4 +103,10 @@ public class MemberService {
         return memberRepository.findById(memberId).orElseThrow(
                 ()-> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
+
+    public void updateNotificationConsent(String email, boolean consent){
+
+        Member member = verifyExistsEmail();l(email);
+    }
 }
+
