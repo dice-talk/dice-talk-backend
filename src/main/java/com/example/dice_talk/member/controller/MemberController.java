@@ -3,10 +3,13 @@ package com.example.dice_talk.member.controller;
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
+import com.example.dice_talk.exception.BusinessLogicException;
+import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.mapper.MemberMapper;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.member.toss.TossAuthService;
 import com.example.dice_talk.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,11 +33,33 @@ public class MemberController {
     private final String MEMBER_DEFAULT_URL = "/";
     private final MemberService memberService;
     private final MemberMapper mapper;
+    private final TossAuthService tossAuthService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity postMember(@RequestParam @Valid MemberDto.Post post){
-        Member createMember = memberService.createMember(mapper.memberPostToMember(post));
-        URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createMember.getMemberId());
+    public ResponseEntity postMember(@RequestParam String txId,
+                                     @RequestParam @Valid MemberDto.Post post){
+        //Toss Access Token 발급
+        String accessToken = tossAuthService.getAccessToken();
+        //txId를 통해 Toss 본인 인증 결과 조회
+        Map<String, Object> result = tossAuthService.getVerificationResult(accessToken, txId);
+
+        //본인 인증 후 필요한 정보 추출
+        String name = (String) result.get("name");
+        String birth= (String) result.get("birthDate");
+        Member.Gender gender = (Member.Gender) result.get("gender");
+        String ci = (String) result.get("ci");
+
+        //CI 중복 확인
+        if (memberService.isCiAlreadyRegistered(ci)) {
+            // 이미 등록된 CI일 경우 예외처리
+            throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
+        }
+
+        //Toss 인증에서 가져온 회원 정보
+        Member createdMember = memberService.createMember(mapper.memberPostToMember(post),
+                name, birth, gender, ci);
+
+        URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
         return ResponseEntity.created(location).build();
     }
 
