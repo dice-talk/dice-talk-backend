@@ -39,6 +39,10 @@ public class Question extends BaseEntity {
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Answer answer;
 
+    public void deactivate(){
+        this.questionStatus = QuestionStatus.QUESTION_DEACTIVED;
+    }
+
     public void setMember(Member member){
         this.member = member;
         if(!member.getQuestions().contains(this)){
