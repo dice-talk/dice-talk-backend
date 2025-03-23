@@ -10,6 +10,7 @@ import com.example.dice_talk.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/notice")
+@Validated
 public class NoticeController {
     private final static String NOTICE_DEFAULT_URL = "/notice";
     private final NoticeService noticeService;

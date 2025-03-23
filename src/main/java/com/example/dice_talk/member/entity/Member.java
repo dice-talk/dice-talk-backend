@@ -56,6 +56,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private int totalDice;
 
+    @Column(nullable = false)
+    private String ci;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
     private List<Question> questions = new ArrayList<>();
 
