@@ -59,4 +59,6 @@ public class ThemeService {
         // themeId로 DB에서 조회 후 없으면 예외 발생
         return themeRepository.findById(themeId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.THEME_NOT_FOUND));
     }
+
+
 }
