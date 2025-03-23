@@ -57,7 +57,7 @@ public class Member extends BaseEntity {
     private int totalDice;
 
     @Column(nullable = false)
-    private String ci;
+    private String ci;  //사용자 CI 저장하는 필드
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
     private List<Question> questions = new ArrayList<>();
