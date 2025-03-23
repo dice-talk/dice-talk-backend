@@ -14,7 +14,8 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@DiscriminatorColumn(name = "DTYPE")
+// DTYPE -> EVENT_TYPE
+@DiscriminatorColumn(name = "event_type", discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class RoomEvent extends BaseEntity {
     @Id

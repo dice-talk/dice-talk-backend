@@ -1,9 +1,14 @@
 package com.example.dice_talk.chatroom.repository;
 
 import com.example.dice_talk.chatroom.entity.ChatRoom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 /*특정 채팅방 조회 시 연관된 메세지도 즉시 로딩*/
@@ -22,4 +27,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     // 특정 채팅방이 존재하는지 확인
     boolean existsById(Long id);
+
+    // 내가 참여했던 1대1채팅방 목록 조회
+    @Query("SELECT cr FROM ChatRoom cr JOIN FETCH cr.chatParts cp WHERE cp.memberId = :memberId AND cr.roomType = :roomType")
+    Page<ChatRoom> findAllByMemberIdAndRoomType(@Param("memberId") Long memberId, @Param("roomType") ChatRoom.RoomType roomStatus, Pageable pageable);
 }
