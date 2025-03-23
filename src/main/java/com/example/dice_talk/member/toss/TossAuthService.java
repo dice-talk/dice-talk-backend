@@ -60,7 +60,6 @@ public class TossAuthService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = new HashMap<>();
-        //txId: 본인인증 요청 시 Toss 서버에서 발급한 트랜잭션 ID
         body.put("txId", txId);
 
         // HTTP 요청 엔티티(Entity) 생성

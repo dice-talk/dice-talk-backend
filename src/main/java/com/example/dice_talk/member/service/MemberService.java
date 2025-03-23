@@ -47,6 +47,26 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
+    //Toss 본인 인증으로 받은 정보 DB에 저장
+    public void saveMember(String email, String name, String birth, Member.Gender gender, String ci){
+        Member member = new Member();
+        member.setEmail(email);
+        member.setName(name);
+        member.setBirth(birth);
+        member.setGender(gender);
+        member.setCi(ci);
+        //저장
+        memberRepository.save(member);
+    }
+
+    // CI가 이미 등록되어 있는지 확인하는 메서드
+    public boolean isCiAlreadyRegistered(String ci) {
+        // MemberRepository의 findByCi 메서드를 호출하여 해당 CI가 존재하는지 확인
+            // true (이미 등록된 CI), false (등록되지 않은 CI)
+        return memberRepository.findByCi(ci).isPresent();
+
+    }
+
     public Member updateMember(Member member, long loginId){
         Member findMember = findVerifiedMember(member.getMemberId());
         //권한 확인 : 로그인된 사용자와 동일한지 확인
