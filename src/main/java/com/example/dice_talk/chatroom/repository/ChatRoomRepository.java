@@ -19,4 +19,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @return 해당 ID의 채팅방 객체(Optional)*/
     @EntityGraph(attributePaths = {"chats"}) // messages 컬렉션을 즉시 로딩
     Optional<ChatRoom> findById(Long id);
+
+    // 특정 채팅방이 존재하는지 확인
+    boolean existsById(Long id);
 }

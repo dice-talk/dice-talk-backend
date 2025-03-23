@@ -35,7 +35,8 @@ public class Report extends BaseEntity {
     public enum ReportStatus{
         REPORT_RECEIVED("신고 접수"),
         REPORT_UNDER_REVIEW("검토중"),
-        REPORT_COMPLETED("처리 완료");
+        REPORT_COMPLETED("처리 완료"),
+        REPORT_DELETED("신고 삭제");
 
         private String status;
 

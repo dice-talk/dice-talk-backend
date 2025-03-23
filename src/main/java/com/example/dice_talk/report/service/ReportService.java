@@ -2,6 +2,7 @@ package com.example.dice_talk.report.service;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.report.entity.ChatReport;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.repository.ReportRepository;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,15 @@ public class ReportService {
         // verifyExistsChats(report.getChatReports());
         report.setReporterId(memberId);
         return reportRepository.save(report);
+    }
+
+    public Report updateReport(Report report){
+        // 상태만 수정가능
+        Report findReport = reportRepository.findById(report.getReportId())
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.REPORT_NOT_FOUND));
+        Optional.ofNullable(report.getReportStatus())
+                        .ifPresent(status -> findReport.setReportStatus(status) );
+        return reportRepository.save(findReport);
     }
 
     public Report findReport (long reportId){

@@ -18,7 +18,10 @@ public enum ExceptionCode {
     NOTICE_NOT_EXIST(404, "Notice not found"),
     THEME_NOT_FOUND(404, "Theme not found"),
     ITEM_NOT_FOUND(404, "Item not found"),
-    REPORT_NOT_FOUND(404, "Report Not found");
+    PRODUCT_NOT_FOUND(404, "Product not found"),
+    REPORT_NOT_FOUND(404, "Report Not found"),
+    EVENT_NOT_FOUND(404, "Event not found"),
+    CHATROOM_NOT_FOUND(404, "Chatroom not found");
 
     @Getter
     private int status;

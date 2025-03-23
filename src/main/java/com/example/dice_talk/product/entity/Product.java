@@ -1,4 +1,4 @@
-package com.example.dice_talk.item.entity;
+package com.example.dice_talk.product.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
 import lombok.AllArgsConstructor;
@@ -13,17 +13,17 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-public class Item extends BaseEntity {
+public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long itemId;
+    private Long productId;
 
     @Column(nullable = false)
-    private String itemName;
-
-    @Column
-    private String description;
+    private String productName;
 
     @Column(nullable = false)
-    private int dicePrice;
+    private int price;
+
+    @Column(nullable = false)
+    private int quantity;
 }
