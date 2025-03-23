@@ -60,4 +60,9 @@ public class EventService {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EVENT_NOT_FOUND));
     }
+
+    // themeId를 통해 theme에 해당하는 event를 조회하는 메서드
+    public List<Event> findEventsByThemeId(long themeId){
+        return findEventsByThemeId(themeId);
+    }
 }
