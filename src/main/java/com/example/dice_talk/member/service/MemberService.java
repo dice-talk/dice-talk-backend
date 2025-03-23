@@ -4,7 +4,9 @@ import com.example.dice_talk.auth.utils.AuthorityUtils;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
+import com.example.dice_talk.member.repository.DeletedMemberRepository;
 import com.example.dice_talk.member.repository.MemberRepository;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final DeletedMemberRepository deletedMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityUtils authorityUtils;
 
@@ -30,8 +34,8 @@ public class MemberService {
         //중복 검증 -> EmailController 에 구현
 //        verifyExistsEmail(member.getEmail());
 
-        //탈퇴한 회원은 6개월이 지나지 않으면 재 회원가입 불가
-        //정지된 회원은 회원가입 할 수 없다.
+        //탈퇴한 회원은 6개월이 지나지 않았거나, 정지된 회원이라면 회원가입 할 수 없다.
+        verifyEligibilityForRegistration(ci);
 
         //Toss 본인 인증으로 받은 정보 추가
         member.setName(name);
@@ -103,21 +107,25 @@ public class MemberService {
     }
 
     //회원 탈퇴
-    public void deleteMember(long memberId, long loginId) {
+    public void deleteMember(long memberId, long loginId, String reason) {
         //로그인한 사용자와 동일한지(관리자, 해당 사용자 권한)
         AuthorizationUtils.isAdminOrOwner(memberId, loginId);
         //DB에서 회원 조회
         Member findMember = findVerifiedMember(memberId);
-        //회원 상태 변경 - MEMBER_DELETED || MEMBER_BANNED : 예외발생
-        if (findMember.getMemberStatus() == Member.MemberStatus.MEMBER_DELETED
-                || findMember.getMemberStatus() == Member.MemberStatus.MEMBER_BANNED) {
-            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
-        }
+        //이미 탈퇴한 회원 또는 정지된 회원은 예외 발생
+        ineligibleMember(findMember);
         //탈퇴상태로 변경
         findMember.deactivate();
         //저장
         memberRepository.save(findMember);
 
+        //탈퇴 정보 저장
+        DeletedMember deletedMember = new DeletedMember();
+        deletedMember.setDMemberId(findMember.getMemberId());
+        deletedMember.setReason(reason);
+        deletedMember.setDeletedAt(LocalDateTime.now());
+        //저장
+        deletedMemberRepository.save(deletedMember);
     }
 
 
@@ -145,18 +153,30 @@ public class MemberService {
         memberRepository.save(findMember);
     }
 
-    //검증로직 : 회원 탈퇴 후 6개월 이하인 경우 회원가입 불가(예외처리) + CI로 확인 해야해
+    //이미 탈퇴한 회원이거나, 정지된 회원이라면 예외발생
+    public void ineligibleMember(Member member) {
 
-    //검증로직 :
+        if (member.getMemberStatus() == Member.MemberStatus.MEMBER_DELETED
+                || member.getMemberStatus() == Member.MemberStatus.MEMBER_BANNED) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }
+    }
+
+    //탈퇴회원, 정지회원에 대한 로직
     private void verifyEligibilityForRegistration(String ci) {
         //ci 로 회원 찾기
         Optional<Member> findMember = memberRepository.findByCi(ci);
         //DB에 등록된 회원이 있다면,
         if (findMember.isPresent()) {
             Member member = findMember.get();
+            //탈퇴한 회원인지 확인
+            if (member.getMemberStatus() == Member.MemberStatus.MEMBER_DELETED) {
+                DeletedMember deletedMember = deletedMemberRepository.findByMemberId(member.getMemberId()).orElseThrow();
 
-            if (member.getMemberStatus() == Member.MemberStatus.MEMBER_DELETED && !isSixMonthsPassed(member.getModifiedAt())) {
-                throw new IllegalStateException("탈퇴 후 6개월이 지나지 않았습니다.");
+                //탈퇴 후 6개월이 지나지 않았다면 회원가입 불가
+                if (LocalDateTime.now().isBefore(deletedMember.getDeletedAt().plusMonths(6))) {
+                    throw new IllegalStateException("탈퇴 후 6개월 이내에는 재가입할 수 없습니다.");
+                }
             }
             //정지된 회원(MEMBER_BANNED)은 회원가입 불가
             if (member.getMemberStatus() == Member.MemberStatus.MEMBER_BANNED) {
@@ -164,5 +184,4 @@ public class MemberService {
             }
         }
     }
-
 }

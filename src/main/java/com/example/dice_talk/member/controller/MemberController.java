@@ -40,7 +40,7 @@ public class MemberController {
                                      @RequestParam @Valid MemberDto.Post post){
         //Toss Access Token 발급
         String accessToken = tossAuthService.getAccessToken();
-        //txId를 통해 Toss 본인 인증 결과 조회
+        //txId(트랜잭션ID) 를 통해 Toss 본인 인증 결과 조회
         Map<String, Object> result = tossAuthService.getVerificationResult(accessToken, txId);
 
         //본인 인증 후 필요한 정보 추출
@@ -111,9 +111,10 @@ public class MemberController {
 
     @DeleteMapping("/my-info/{member-id}")
     public ResponseEntity deleteMember(@PathVariable("member-id") @Positive long memberId,
-                                       @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                       @AuthenticationPrincipal CustomPrincipal customPrincipal,
+                                       @RequestParam("reason") String reason){
 
-        memberService.deleteMember(memberId, customPrincipal.getMemberId());
+        memberService.deleteMember(memberId, customPrincipal.getMemberId(), reason);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
