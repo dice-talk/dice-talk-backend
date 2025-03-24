@@ -1,7 +1,6 @@
 package com.example.dice_talk.member.Dto;
 
 import com.example.dice_talk.member.entity.Member;
-import com.example.dice_talk.question.entity.Question;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -90,7 +89,22 @@ public class MemberDto {
     @NoArgsConstructor
     @Getter
     @Setter
-    public static class MyPageResponse{
+    public static class MyPageResponse {
+        private long memberId;
+        private String nickname;
+        private RoomParticipation exitStatus;
 
+
+        public enum RoomParticipation {
+            ROOM_ENTER("참가중"),
+            ROOM_EXIT("퇴장");
+
+            @Getter
+            private String status;
+
+            RoomParticipation(String status) {
+                this.status = status;
+            }
+        }
     }
 }

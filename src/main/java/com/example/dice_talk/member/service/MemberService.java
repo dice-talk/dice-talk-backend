@@ -84,14 +84,12 @@ public class MemberService {
         return findVerifiedMember(memberId);
     }
 
-//    //AppMyPage(앱프로필-익명) 단일 조회 (my-page/{member-id})
-//    public ChatPart findAppMyPage(long memberId, long loginId) {
-//        //회원 본인만 조회 가능 : 로그인한 회원과 동일한지 검증
-//        AuthorizationUtils.isOwner(memberId, loginId);
-
-    //
-//        return findVerifiedMember(memberId);
-//    }
+    //AppMyPage(앱프로필-익명) 단일 조회 (my-page/{member-id})
+    public Member findAppMyPage(long memberId, long loginId) {
+        //회원 본인만 조회 가능 : 로그인한 회원과 동일한지 검증
+        AuthorizationUtils.isOwner(memberId, loginId);
+        return findVerifiedMember(memberId);
+    }
 
     //전체조회(관리자)
     public Page<Member> findMembers(int page, int size) {

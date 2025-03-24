@@ -3,8 +3,6 @@ package com.example.dice_talk.member.controller;
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
-import com.example.dice_talk.exception.BusinessLogicException;
-import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.mapper.MemberMapper;
@@ -23,7 +21,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +43,7 @@ public class MemberController {
     }
 
 
-    @PostMapping("/notification/{member-id")
+    @PostMapping("/notification/{member-id}")
     //앱 푸쉬 알림 수신동의 여부 저장
     public ResponseEntity setNotificationConsent(@PathVariable("member-id") @Positive long memberId,
                                                  @Valid  @RequestParam boolean consent){
@@ -61,7 +58,7 @@ public class MemberController {
         //수정할 Member
         patch.setMemberId(memberId);
         Member member = memberService.updateMember(mapper.memberPatchToMember(patch), customPrincipal.getMemberId());
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberInfoToMemberInfoResponse(member)), HttpStatus.OK);
     }
 
     //나의 정보 조회
@@ -69,7 +66,7 @@ public class MemberController {
     public ResponseEntity getMember(@PathVariable("member-id") @Positive long memberId,
                                     @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Member member = memberService.findMember(memberId, customPrincipal.getMemberId());
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)),
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberInfoToMemberInfoResponse(member)),
                 HttpStatus.OK);
     }
 
@@ -78,7 +75,9 @@ public class MemberController {
     public ResponseEntity getAppMyPage(@PathVariable("member-id") @Positive long memberId,
                                        @AuthenticationPrincipal CustomPrincipal customPrincipal){
 
-        return new ResponseEntity<>(new SingleResponseDto<>())
+        Member member = memberService.findAppMyPage(memberId, customPrincipal.getMemberId());
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberMyPageResponseDtos(member)),
+                HttpStatus.OK);
     }
 
     @GetMapping("/office/member-page")
