@@ -35,33 +35,16 @@ public class MemberController {
     private final MemberMapper mapper;
     private final TossAuthService tossAuthService;
 
+
     @PostMapping("/auth/register")
-    public ResponseEntity postMember(@RequestParam String txId,
-                                     @RequestParam @Valid MemberDto.Post post){
-        //Toss Access Token 발급
-        String accessToken = tossAuthService.getAccessToken();
-        //txId(트랜잭션ID) 를 통해 Toss 본인 인증 결과 조회
-        Map<String, Object> result = tossAuthService.getVerificationResult(accessToken, txId);
-
-        //본인 인증 후 필요한 정보 추출
-        String name = (String) result.get("name");
-        String birth= (String) result.get("birthDate");
-        Member.Gender gender = (Member.Gender) result.get("gender");
-        String ci = (String) result.get("ci");
-
-        //CI 중복 확인
-        if (memberService.isCiAlreadyRegistered(ci)) {
-            // 이미 등록된 CI일 경우 예외처리
-            throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
-        }
-
-        //Toss 인증에서 가져온 회원 정보
-        Member createdMember = memberService.createMember(mapper.memberPostToMember(post),
-                name, birth, gender, ci);
+    public ResponseEntity registerMember(@RequestBody @Valid MemberDto.Post postDto) {
+        // 회원가입 로직 실행
+        Member createdMember = memberService.createMember(mapper.memberPostToMember(postDto));
 
         URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
         return ResponseEntity.created(location).build();
     }
+
 
     @PostMapping("/notification/{member-id")
     //앱 푸쉬 알림 수신동의 여부 저장

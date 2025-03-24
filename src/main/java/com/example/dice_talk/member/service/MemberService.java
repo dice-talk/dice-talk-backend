@@ -29,32 +29,27 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final AuthorityUtils authorityUtils;
 
-    public Member createMember(Member member, String name, String birth,
-                               Member.Gender gender, String ci) {
-        //중복 검증 -> EmailController 에 구현
-//        verifyExistsEmail(member.getEmail());
 
+    public Member createMember(Member member){
+//        CI 중복 확인
+        if (isCiAlreadyRegistered(member.getCi())) {
+            // 이미 등록된 CI일 경우 예외처리
+            throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
+        }
         //탈퇴한 회원은 6개월이 지나지 않았거나, 정지된 회원이라면 회원가입 할 수 없다.
-        verifyEligibilityForRegistration(ci);
-
-        //Toss 본인 인증으로 받은 정보 추가
-        member.setName(name);
-        member.setBirth(birth);
-        member.setGender(gender);
-        member.setCi(ci);
-
+        verifyEligibilityForRegistration(member.getCi());
         //비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(member.getPassword());
         member.setPassword(encryptedPassword);
-
         //role 초기화
         List<String> roles = authorityUtils.createRoles(member.getEmail());
         member.setRoles(roles);
+        //회원가입 직후 0으로 초기화
+        member.setTotalDice(0);
 
         //저장
         return memberRepository.save(member);
     }
-
 
     // CI가 이미 등록되어 있는지 확인하는 메서드
     public boolean isCiAlreadyRegistered(String ci) {
@@ -89,12 +84,14 @@ public class MemberService {
         return findVerifiedMember(memberId);
     }
 
-    //AppMyPage(앱프로필-익명) 단일 조회 (my-page/{member-id})
-    public ChatPart findAppMyPage(long memberId, long loginId) {
-        //회원 본인만 조회 가능 : 로그인한 회원과 동일한지 검증
-        AuthorizationUtils.isOwner(memberId, loginId);
-        return findVerifiedMember(memberId);
-    }
+//    //AppMyPage(앱프로필-익명) 단일 조회 (my-page/{member-id})
+//    public ChatPart findAppMyPage(long memberId, long loginId) {
+//        //회원 본인만 조회 가능 : 로그인한 회원과 동일한지 검증
+//        AuthorizationUtils.isOwner(memberId, loginId);
+
+    //
+//        return findVerifiedMember(memberId);
+//    }
 
     //전체조회(관리자)
     public Page<Member> findMembers(int page, int size) {
@@ -123,7 +120,6 @@ public class MemberService {
         DeletedMember deletedMember = new DeletedMember();
         deletedMember.setDMemberId(findMember.getMemberId());
         deletedMember.setReason(reason);
-        deletedMember.setDeletedAt(LocalDateTime.now());
         //저장
         deletedMemberRepository.save(deletedMember);
     }
@@ -174,7 +170,7 @@ public class MemberService {
                 DeletedMember deletedMember = deletedMemberRepository.findByMemberId(member.getMemberId()).orElseThrow();
 
                 //탈퇴 후 6개월이 지나지 않았다면 회원가입 불가
-                if (LocalDateTime.now().isBefore(deletedMember.getDeletedAt().plusMonths(6))) {
+                if (LocalDateTime.now().isBefore(deletedMember.getCreatedAt().plusMonths(6))) {
                     throw new IllegalStateException("탈퇴 후 6개월 이내에는 재가입할 수 없습니다.");
                 }
             }

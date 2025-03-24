@@ -1,5 +1,6 @@
 package com.example.dice_talk.member.entity;
 
+import com.example.dice_talk.audit.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeletedMember {
+public class DeletedMember extends BaseEntity {
     @Id //JPA에서 PK 없는 엔티티 관리 어려움, 기본키 없이 데이터 저장하려면 Native Query 사용
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long dMemberId;
@@ -23,7 +24,4 @@ public class DeletedMember {
 
     @Column(nullable = false)
     private String reason;
-
-    @Column(nullable = false)
-    private LocalDateTime deletedAt;
 }
