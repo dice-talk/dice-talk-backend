@@ -1,5 +1,6 @@
 package com.example.dice_talk.chatroom.service;
 
+import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.repository.ChatRoomRepository;
 import com.example.dice_talk.event.service.EventService;
@@ -57,9 +58,11 @@ public class ChatRoomService {
     }
 
     // 채팅방 상태시 상태만 종료로 변경
+    @Transactional
     public void deleteChatRoom(long chatRoomId){
         ChatRoom chatRoom = findVerifiedChatRoom(chatRoomId);
         chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_DEACTIVE);
+        chatRoom.getChatParts().stream().forEach(chatPart -> chatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT));
         chatRoomRepository.save(chatRoom);
     }
 

@@ -1,6 +1,5 @@
 package com.example.dice_talk.exception;
 
-import com.example.dice_talk.notice.entity.Notice;
 import lombok.Getter;
 
 public enum ExceptionCode {
@@ -21,7 +20,11 @@ public enum ExceptionCode {
     PRODUCT_NOT_FOUND(404, "Product not found"),
     REPORT_NOT_FOUND(404, "Report Not found"),
     EVENT_NOT_FOUND(404, "Event not found"),
-    CHATROOM_NOT_FOUND(404, "Chatroom not found");
+    CHATROOM_NOT_FOUND(404, "Chatroom not found"),
+    DICE_LOG_NOT_FOUND(404, "DiceLog not found"),
+    NOT_ENOUGH_DICE(400, "Dice not Enough"),
+    CANNOT_CANCEL(400, "Cannot cancel log"),
+    LOG_TYPE_INVALID(400, "LogType invalid");
 
     @Getter
     private int status;
