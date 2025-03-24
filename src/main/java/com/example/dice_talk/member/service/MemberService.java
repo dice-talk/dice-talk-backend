@@ -190,7 +190,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
-        //재설정한 비밀번호 암호화 및 저장
+        //재설정한 비밀번호 암호화 및 저장 -> 기존 비밀번호는 DB에 덮어씌어짐(따로 삭제X)
         String encryptedPassword = passwordEncoder.encode(newPassword);
         member.setPassword(encryptedPassword);
         memberRepository.save(member);
