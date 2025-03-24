@@ -33,7 +33,7 @@ public interface ChatRoomMapper {
 
     ChatRoom chatRoomPatchToChatRoom(ChatRoomDto.Patch dto);
 
-    @Mapping(target = "themeName", source = "theme.themeName")
+    @Mapping(target = "themeName", source = "theme.name")
     ChatRoomDto.SingleResponse chatRoomToChatRoomSingleResponse(ChatRoom chatRoom);
 
     default ChatRoomDto.MultiResponse chatRoomToChatRoomMultiResponse(ChatRoom chatRoom) {

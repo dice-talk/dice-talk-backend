@@ -64,13 +64,14 @@ public class QuestionService {
         if(page < 1){
             throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
         }
+        Pageable pageable = PageRequest.of(page -1, size, Sort.by("question_id").descending());
         memberService.findVerifiedMember(memberId);
-        return questionRepository.findAllByMemberId(memberId);
+        return questionRepository.findAllByMemberId(memberId, pageable);
     }
 
-    public Question findQuestion(Long questionId, Long memberId, boolean isAdmin){
+    public Question findQuestion(Long questionId){
         // Authentication 통해서 memberId와 관리자인지 받아와서 권한 없는 글에 접근 시 예외처리
-        return questionRepository.findQuestionByIdAndAccess(questionId, memberId, isAdmin)
+        return questionRepository.findById(questionId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
     }
 

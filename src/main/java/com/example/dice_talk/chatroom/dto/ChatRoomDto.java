@@ -2,7 +2,7 @@ package com.example.dice_talk.chatroom.dto;
 
 import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
-import com.example.dice_talk.event.dto.SuperRoomEventDto;
+import com.example.dice_talk.event.dto.RoomEventDto;
 import com.example.dice_talk.event.entity.RoomEvent;
 import com.example.dice_talk.theme.dto.ThemeDto;
 import lombok.AllArgsConstructor;
@@ -46,7 +46,8 @@ public class ChatRoomDto {
         private String themeName;
         private List<ChatDto.Response> chats;
         private List<ChatPartDto.Response> chatParts;
-        private List<SuperRoomEventDto.Response> roomEvents;
+        // 수정해야함
+        private List<RoomEventDto.Response> roomEvents;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
     }

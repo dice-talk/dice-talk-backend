@@ -10,8 +10,8 @@ import org.mapstruct.SubclassMapping;
 @Mapper(componentModel = "spring", uses = {PickMessageMapper.class, RoomEventMapper.class})
 public interface RoomEventMapperResolver {
 
-    @SubclassMapping(source = PickMessage.class, target = PickMessageDto.Response.class)
-    RoomEventDto.Response roomEventToDto(RoomEvent roomEvent);
+//    @SubclassMapping(source = PickMessage.class, target = PickMessageDto.Response.class)
+//    RoomEventDto.Response roomEventToDto(RoomEvent roomEvent);
 
     default RoomEventDto.Response mapByType(RoomEvent roomEvent) {
         if (roomEvent == null) {

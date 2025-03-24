@@ -78,6 +78,15 @@ public class Member extends BaseEntity {
         }
     }
 
+    public void setDiceLog(DiceLog diceLog){
+        if(diceLog.getMember() != this){
+            diceLog.setMember(this);
+        }
+        if(!this.diceLogs.contains(diceLog)){
+            diceLogs.add(diceLog);
+        }
+    }
+
     public void setChatPart(ChatPart chatPart){
         if(chatPart.getMember() != this){
             chatPart.setMember(this);

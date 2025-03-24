@@ -29,6 +29,10 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     boolean existsById(Long id);
 
     // 내가 참여했던 1대1채팅방 목록 조회
-    @Query("SELECT cr FROM ChatRoom cr JOIN FETCH cr.chatParts cp WHERE cp.memberId = :memberId AND cr.roomType = :roomType")
+//    @Query("SELECT cr FROM ChatRoom cr JOIN FETCH cr.chatParts cp WHERE cp.memberId = :memberId AND cr.roomType = :roomType")
+//    Page<ChatRoom> findAllByMemberIdAndRoomType(@Param("memberId") Long memberId, @Param("roomType") ChatRoom.RoomType roomStatus, Pageable pageable);
+
+    @Query("SELECT cr FROM ChatRoom cr JOIN cr.chatParts cp WHERE cp.member.memberId = :memberId AND cr.roomType = :roomType")
     Page<ChatRoom> findAllByMemberIdAndRoomType(@Param("memberId") Long memberId, @Param("roomType") ChatRoom.RoomType roomStatus, Pageable pageable);
+
 }

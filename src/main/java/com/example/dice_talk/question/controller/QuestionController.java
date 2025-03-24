@@ -75,7 +75,7 @@ public class QuestionController {
             @PathVariable("question-id") @Positive long questionId,
             @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Question question = questionService.findQuestion(
-                questionId, customPrincipal.getMemberId(), AuthorizationUtils.isAdmin());
+                questionId);
         return new ResponseEntity(new SingleResponseDto<>(questionMapper.questionToQuestionResponse(question)), HttpStatus.OK);
     }
 

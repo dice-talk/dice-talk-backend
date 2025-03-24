@@ -18,7 +18,6 @@ public interface QuestionMapper {
     AnswerDto.Response answerToAnswerResponse(Answer answer);
     @Mapping(target = "answer", source = "answer")
     @Mapping(target = "memberId", source = "member.memberId")
-    @Mapping(target = "memberName", source = "member.name")
     QuestionDto.Response questionToQuestionResponse(Question question);
     List<QuestionDto.Response> questionsToQuestionResponses(List<Question> questions);
 }

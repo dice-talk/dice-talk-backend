@@ -11,6 +11,8 @@ import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.service.ProductService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +65,7 @@ public class DiceLogService {
         }
         memberService.findVerifiedMember(memberId);
         // 각 member에 해당하는 DiceLog 찾기
-        Page<DiceLog> diceLogPage = diceLogRepository.findAllByMemberId(memberId);
+        Page<DiceLog> diceLogPage = diceLogRepository.findAllByMember_MemberId(memberId, PageRequest.of(page, size, Sort.by("dice_log_id").descending()));
         return diceLogPage;
     }
 
