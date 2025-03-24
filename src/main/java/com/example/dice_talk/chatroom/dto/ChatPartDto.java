@@ -1,5 +1,6 @@
 package com.example.dice_talk.chatroom.dto;
 
+import com.example.dice_talk.chatroom.entity.ChatPart;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,7 @@ public class ChatPartDto {
         private String profile;
         private long memberId;
         private long chatRoomId;
+        private ChatPart.ExitStatus exitStatus;
     }
+
 }
