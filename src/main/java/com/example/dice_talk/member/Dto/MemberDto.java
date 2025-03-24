@@ -30,7 +30,7 @@ public class MemberDto {
            {8,16} : 비밀번호는 8~16자여야 한다.
        */
         @NotBlank
-        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[~!@#$%^&*+=()_-])(?=.*[0-9])+$.{8,16}",
+        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[~!@#$%^&*+=()_-])(?=.*[0-9]).{8,16}$",
                 message = "비밀번호는 8~16자 영문 대, 소문자, 숫자, 특수문자를 사용하세요.")
         private String password;
 
@@ -93,6 +93,7 @@ public class MemberDto {
         private long memberId;
         private String nickname;
         private RoomParticipation exitStatus;
+        private int totalDice;
 
 
         public enum RoomParticipation {

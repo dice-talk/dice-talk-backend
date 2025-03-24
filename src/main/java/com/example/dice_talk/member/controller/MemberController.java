@@ -36,8 +36,10 @@ public class MemberController {
     @PostMapping("/auth/register")
     public ResponseEntity registerMember(@RequestBody @Valid MemberDto.Post postDto) {
         // 회원가입 로직 실행
-        Member createdMember = memberService.createMember(mapper.memberPostToMember(postDto));
-
+        // Member createdMember = memberService.createMember(mapper.memberPostToMember(postDto));
+        Member tempMember = mapper.memberPostToMember(postDto);
+        tempMember.setCi("abcdefghijklmnop");
+        Member createdMember = memberService.createMember(tempMember);
         URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
         return ResponseEntity.created(location).build();
     }
@@ -76,7 +78,7 @@ public class MemberController {
                                        @AuthenticationPrincipal CustomPrincipal customPrincipal){
 
         Member member = memberService.findAppMyPage(memberId, customPrincipal.getMemberId());
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberMyPageResponseDtos(member)),
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberMyPageResponseDto(member)),
                 HttpStatus.OK);
     }
 
