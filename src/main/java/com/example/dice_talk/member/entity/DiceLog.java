@@ -2,6 +2,7 @@ package com.example.dice_talk.member.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.item.entity.Item;
+import com.example.dice_talk.product.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,9 +35,9 @@ public class DiceLog extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-//    @ManyToOne
-//    @JoinColumn(name = "productId")
-//    private Product product;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     @ManyToOne
     @JoinColumn(name = "item_id")

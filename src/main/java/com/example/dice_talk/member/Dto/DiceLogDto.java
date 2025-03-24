@@ -1,6 +1,7 @@
 package com.example.dice_talk.member.Dto;
 
 import com.example.dice_talk.member.entity.DiceLog;
+import com.example.dice_talk.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,9 @@ public class DiceLogDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Post {
+        @NotBlank
+        private int quantity;
+
         @NotBlank(message = "log 타입을 작성해주세요. 예시) 충전내역 / 사용내역 중 택 1 작성")
         private DiceLog.LogType logType;
 
@@ -24,18 +28,26 @@ public class DiceLogDto {
                 "예시) 충전내역(type): 다이스 10개(product) or 사용내역(type): 채팅방 나가기(item)")
         private String info;
 
-        @NotBlank
-        private int quantity;
+        private Long memberId;
+
+        private Long productId;
+
+        private Long itemId;
 
     }
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
     public static class Response{
         private Long logId;
+        private int quantity;
         private DiceLog.LogType logType;
         private String info;
-        private int quantity;
+        private Long memberId;
+        private Long productId;
+        private Long itemId;
         private LocalDateTime createdAt;
     }
 }

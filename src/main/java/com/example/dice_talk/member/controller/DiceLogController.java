@@ -1,0 +1,56 @@
+package com.example.dice_talk.member.controller;
+
+import com.example.dice_talk.auth.CustomPrincipal;
+import com.example.dice_talk.dto.MultiResponseDto;
+import com.example.dice_talk.dto.SingleResponseDto;
+import com.example.dice_talk.member.Dto.DiceLogDto;
+import com.example.dice_talk.member.entity.DiceLog;
+import com.example.dice_talk.member.mapper.DiceLogMapper;
+import com.example.dice_talk.member.service.DiceLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/dice")
+public class DiceLogController {
+    private final DiceLogService diceLogService;
+    private final DiceLogMapper mapper;
+
+    public DiceLogController(DiceLogService diceLogService, DiceLogMapper mapper) {
+        this.diceLogService = diceLogService;
+        this.mapper = mapper;
+    }
+
+    @PostMapping("/charge")
+    public ResponseEntity postChargeLog(@RequestBody DiceLogDto.Post dto,
+                                        @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        dto.setMemberId(customPrincipal.getMemberId());
+        DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
+        DiceLog createdLog = diceLogService.createDiceLogCharge(diceLog, customPrincipal.getMemberId());
+        return new ResponseEntity(new SingleResponseDto<>(mapper.diceLogToDiceLogResponse(createdLog)), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/used")
+    public ResponseEntity postUsedLog(@RequestBody DiceLogDto.Post dto,
+                                        @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        dto.setMemberId(customPrincipal.getMemberId());
+        DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
+        DiceLog createdLog = diceLogService.createDiceLogUsed(diceLog, customPrincipal.getMemberId());
+        return new ResponseEntity(new SingleResponseDto<>(mapper.diceLogToDiceLogResponse(createdLog)), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{member-id}")
+    public ResponseEntity getMemberDiceLog(@PathVariable("memberId") long memberId,
+                                           @RequestParam int page, @RequestParam int size,
+                                           @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        Page<DiceLog> logPage = diceLogService.findDiceLogs(page, size, customPrincipal.getMemberId());
+        List<DiceLog> logs = logPage.getContent();
+        return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.NO_CONTENT);
+    }
+
+}
