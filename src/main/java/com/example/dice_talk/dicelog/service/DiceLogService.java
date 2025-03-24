@@ -1,12 +1,13 @@
-package com.example.dice_talk.member.service;
+package com.example.dice_talk.dicelog.service;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
 import com.example.dice_talk.item.service.ItemService;
-import com.example.dice_talk.member.entity.DiceLog;
+import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.member.entity.Member;
-import com.example.dice_talk.member.repository.DiceLogRepository;
+import com.example.dice_talk.dicelog.repository.DiceLogRepository;
+import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.service.ProductService;
 import org.springframework.data.domain.Page;

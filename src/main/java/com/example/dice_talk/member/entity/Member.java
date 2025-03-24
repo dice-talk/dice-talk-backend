@@ -2,6 +2,7 @@ package com.example.dice_talk.member.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.chatroom.entity.ChatPart;
+import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.question.entity.Question;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

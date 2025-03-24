@@ -1,12 +1,12 @@
-package com.example.dice_talk.member.controller;
+package com.example.dice_talk.dicelog.controller;
 
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
-import com.example.dice_talk.member.Dto.DiceLogDto;
-import com.example.dice_talk.member.entity.DiceLog;
-import com.example.dice_talk.member.mapper.DiceLogMapper;
-import com.example.dice_talk.member.service.DiceLogService;
+import com.example.dice_talk.dicelog.dto.DiceLogDto;
+import com.example.dice_talk.dicelog.entity.DiceLog;
+import com.example.dice_talk.dicelog.mapper.DiceLogMapper;
+import com.example.dice_talk.dicelog.service.DiceLogService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

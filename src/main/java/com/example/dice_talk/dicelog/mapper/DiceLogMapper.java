@@ -1,10 +1,10 @@
-package com.example.dice_talk.member.mapper;
+package com.example.dice_talk.dicelog.mapper;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
-import com.example.dice_talk.member.Dto.DiceLogDto;
-import com.example.dice_talk.member.entity.DiceLog;
+import com.example.dice_talk.dicelog.dto.DiceLogDto;
+import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.product.entity.Product;
 import org.mapstruct.Mapper;

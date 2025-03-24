@@ -1,16 +1,15 @@
-package com.example.dice_talk.member.entity;
+package com.example.dice_talk.dicelog.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.item.entity.Item;
+import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.product.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor

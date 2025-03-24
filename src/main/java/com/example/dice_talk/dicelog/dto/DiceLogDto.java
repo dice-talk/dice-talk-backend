@@ -1,7 +1,6 @@
-package com.example.dice_talk.member.Dto;
+package com.example.dice_talk.dicelog.dto;
 
-import com.example.dice_talk.member.entity.DiceLog;
-import com.example.dice_talk.member.entity.Member;
+import com.example.dice_talk.dicelog.entity.DiceLog;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
