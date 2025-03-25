@@ -17,12 +17,12 @@ public interface MemberMapper {
 
     MemberDto.MyInfoResponse memberInfoToMemberInfoResponse(Member member);
 
-    MemberDto.MyPageResponse memberToMemberResponse(Member member);
+//    MemberDto.MyPageResponse memberToMemberResponseDto(Member member);
 
     List<Member> membersToMemberResponses(List<Member> members);
 
     //List<ChatPart> -> MyInfoResponse
-    default MemberDto.MyPageResponse memberToMemberMyPageResponseDtos(Member member) {
+    default MemberDto.MyPageResponse memberToMemberMyPageResponseDto(Member member) {
         MemberDto.MyPageResponse myPageResponse = new MemberDto.MyPageResponse();
         myPageResponse.setMemberId(member.getMemberId());
 
