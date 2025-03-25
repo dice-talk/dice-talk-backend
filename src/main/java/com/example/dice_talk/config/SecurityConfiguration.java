@@ -125,7 +125,7 @@ public class SecurityConfiguration {
             // JwtAuthenticationFilter에서 사용되는 AuthenticationManager와 JwtTokenizer를 DI
             JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
             // setFilterProcessesUrl() 메서드를 통해 디폴트 request URL인 “/login”을 “/v11/auth/login”으로 변경
-            jwtAuthenticationFilter.setFilterProcessesUrl("/qna/auth/login");
+            jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
             // success handler 등록
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
