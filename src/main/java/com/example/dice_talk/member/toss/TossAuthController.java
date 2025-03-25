@@ -19,7 +19,7 @@ import java.util.Map;
 public class TossAuthController {
 
     private final MemberService memberService;
-    private TossAuthService tossAuthService;
+   private final TossAuthService tossAuthService;
 
     @PostMapping("/cert")
     public ResponseEntity getCertResult(@RequestParam String txId) {
