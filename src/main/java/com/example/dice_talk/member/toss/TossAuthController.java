@@ -19,7 +19,7 @@ import java.util.Map;
 public class TossAuthController {
 
     private final MemberService memberService;
-   private final TossAuthService tossAuthService;
+    private final TossAuthService tossAuthService;
 
     @PostMapping("/cert")
     public ResponseEntity getCertResult(@RequestParam String txId) {
@@ -36,7 +36,14 @@ public class TossAuthController {
         response.put("gender", result.get("gender"));
         response.put("ci", result.get("ci"));
 
-        return ResponseEntity.ok(response); // 본인 인증 결과 반환
+        return new ResponseEntity<>(response, HttpStatus.OK); // 본인 인증 결과 반환
+    }
+
+    @PostMapping("/request")
+    public ResponseEntity requestAuthUrl(){
+        Map<String, String> response = tossAuthService.createTossAuthRequest();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //이메일 찾기 로직

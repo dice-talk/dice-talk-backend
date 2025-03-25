@@ -195,4 +195,5 @@ public class MemberService {
         member.setPassword(encryptedPassword);
         memberRepository.save(member);
     }
+
 }
