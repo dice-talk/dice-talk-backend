@@ -24,7 +24,7 @@ public class DiceLog extends BaseEntity {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private LogType logType = LogType.DICE_CHARGE;
 
     @Column(nullable = false)
