@@ -26,14 +26,14 @@ spring:
   output:
     ansi:
       enabled: ALWAYS    # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
-  web:
-    cors:
-      allowed-origins: "http://localhost:3000"
-      allowed-methods:
-        - GET
-        - POST
-        - PATCH
-        - DELETE
+#  web:
+#    cors:
+#      allowed-origins: "http://localhost:3000"
+#      allowed-methods:
+#        - GET
+#        - POST
+#        - PATCH
+#        - DELETE
   servlet:
     multipart:
       enabled: true #Multipart 요청 활성화

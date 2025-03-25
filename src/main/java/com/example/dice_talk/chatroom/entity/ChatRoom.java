@@ -3,7 +3,7 @@ package com.example.dice_talk.chatroom.entity;
 import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.theme.entity.Theme;
-import com.example.dice_talk.event.entity.RoomEvent;
+import com.example.dice_talk.roomevent.entity.RoomEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
