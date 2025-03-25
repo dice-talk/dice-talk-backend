@@ -51,14 +51,6 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    // CI가 이미 등록되어 있는지 확인하는 메서드
-    public boolean isCiAlreadyRegistered(String ci) {
-        // MemberRepository의 findByCi 메서드를 호출하여 해당 CI가 존재하는지 확인
-        // true (이미 등록된 CI), false (등록되지 않은 CI)
-        return memberRepository.findByCi(ci).isPresent();
-
-    }
-
     public Member updateMember(Member member, long loginId) {
         Member findMember = findVerifiedMember(member.getMemberId());
         //권한 확인 : 로그인된 사용자와 동일한지 확인
@@ -177,5 +169,30 @@ public class MemberService {
                 throw new IllegalStateException("정지된 회원은 가입할 수 없습니다.");
             }
         }
+    }
+    // CI가 이미 등록되어 있는지 확인하는 메서드
+    public boolean isCiAlreadyRegistered(String ci) {
+        // MemberRepository의 findByCi 메서드를 호출하여 해당 CI가 존재하는지 확인
+        // true (이미 등록된 CI), false (등록되지 않은 CI)
+        return memberRepository.findByCi(ci).isPresent();
+    }
+
+    //Ci를 통해 등록된 회원인지 확인, 없다면 404
+    public Member isCifindMember(String ci){
+        Member findMember = memberRepository.findByCi(ci).orElseThrow(
+                ()-> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+
+        return findMember;
+    }
+
+    public void resetPassword (String email, String newPassword){
+        //이메일로 회원 조회
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+
+        //재설정한 비밀번호 암호화 및 저장 -> 기존 비밀번호는 DB에 덮어씌어짐(따로 삭제X)
+        String encryptedPassword = passwordEncoder.encode(newPassword);
+        member.setPassword(encryptedPassword);
+        memberRepository.save(member);
     }
 }
