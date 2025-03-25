@@ -1,32 +1,37 @@
-package com.example.dice_talk.event.dto;
+package com.example.dice_talk.roomevent.dto;
 
+import com.example.dice_talk.roomevent.entity.RoomEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class RoomEventDto {
 
-    // 이벤트 타입은 자식 클래스에서 구현
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Post {
-        @NotNull
+        @NotBlank
         private Long receiverId;
 
-        @NotNull
+        @NotBlank
         private Long senderId;
 
-        @NotNull
+        @NotBlank
+        private Long eventId;
+
+        @NotBlank
         private Long chatRoomId;
 
-        private Long eventId;
+        private String message;
+
+        @NotBlank
+        private RoomEvent.RoomEventType roomEventType;
     }
 
     @Getter
@@ -38,7 +43,8 @@ public class RoomEventDto {
         private Long receiverId;
         private Long senderId;
         private Long chatRoomId;
-        private String eventType;
+        private String message;
+        private RoomEvent.RoomEventType roomEventType;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
     }

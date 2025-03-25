@@ -2,9 +2,7 @@ package com.example.dice_talk.chatroom.dto;
 
 import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
-import com.example.dice_talk.event.dto.RoomEventDto;
-import com.example.dice_talk.event.entity.RoomEvent;
-import com.example.dice_talk.theme.dto.ThemeDto;
+import com.example.dice_talk.roomevent.dto.RoomEventDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
