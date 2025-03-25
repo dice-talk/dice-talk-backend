@@ -4,11 +4,13 @@ import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.event.entity.Event;
 import com.example.dice_talk.roomevent.dto.RoomEventDto;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
+import org.mapstruct.Mapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Mapper(componentModel = "spring")
 public interface RoomEventMapper {
     default RoomEvent roomEventPostToRoomEvent(RoomEventDto.Post dto){
         RoomEvent roomEvent = new RoomEvent();
