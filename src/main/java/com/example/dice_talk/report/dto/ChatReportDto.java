@@ -15,6 +15,10 @@ public class ChatReportDto {
         private long chatId;
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Response{
         private long chatReportId;
         private long reportId;

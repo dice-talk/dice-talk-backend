@@ -70,7 +70,7 @@ public class NoticeService {
             throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
         }
         return noticeRepository.findAll(
-                PageRequest.of(page - 1, size, Sort.by("noticeCreatedAt").descending()));
+                PageRequest.of(page - 1, size, Sort.by("createdAt").descending()));
     }
 
     //notice 삭제: 상태변경

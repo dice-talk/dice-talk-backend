@@ -16,21 +16,16 @@ public class RoomEventDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Post {
-        @NotBlank
         private Long receiverId;
 
-        @NotBlank
         private Long senderId;
 
-        @NotBlank
         private Long eventId;
 
-        @NotBlank
         private Long chatRoomId;
 
         private String message;
 
-        @NotBlank
         private RoomEvent.RoomEventType roomEventType;
     }
 

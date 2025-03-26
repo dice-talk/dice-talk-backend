@@ -38,7 +38,9 @@ public class MemberController {
         // 회원가입 로직 실행
         // Member createdMember = memberService.createMember(mapper.memberPostToMember(postDto));
         Member tempMember = mapper.memberPostToMember(postDto);
-        tempMember.setCi("abcdefghijklmnop"+postDto.getEmail()+postDto.getPhone());
+
+        tempMember.setCi("abcdefghijklmnop" + postDto.getEmail() + postDto.getPhone());
+
         Member createdMember = memberService.createMember(tempMember);
         URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
         return ResponseEntity.created(location).build();
