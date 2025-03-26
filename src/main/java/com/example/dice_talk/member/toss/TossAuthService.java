@@ -2,6 +2,8 @@ package com.example.dice_talk.member.toss;
 
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -28,16 +30,16 @@ public class TossAuthService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         //요청 본문에 포함될 데이터
-        Map<String, String> body = new HashMap<>();
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         //OAuth2 "Client credentials Grant" 방식 사용
-        body.put("grant_type", "client_credentials");
-        body.put("client_id", CLIENT_ID);
-        body.put("client_secret", CLIENT_SECRET);
+        body.add("grant_type", "client_credentials");
+        body.add("client_id", CLIENT_ID);
+        body.add("client_secret", CLIENT_SECRET);
         //OAuth Scope : ca 인증기관
-        body.put("scope", "ca");
+        body.add("scope", "ca");
 
         //HTTP 요청 Body +header 포한한 HttpEntity 객체 생성
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
         //RestTemplate 사용으로 POST 요청 (요청보내는 Url, Http 메서드 Post 요청, 요청데이터(header+body), 응답데이터(Map)
         ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, request, Map.class);
 
