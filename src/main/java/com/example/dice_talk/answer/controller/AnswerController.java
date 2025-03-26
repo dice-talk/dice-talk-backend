@@ -15,7 +15,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
 @RestController
-@RequestMapping("/qna/questions/{question-id}/answers")
+@RequestMapping("/questions/{question-id}/answers")
 @Validated
 public class AnswerController {
     private final AnswerService answerService;

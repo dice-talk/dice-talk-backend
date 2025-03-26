@@ -30,6 +30,7 @@ public class AnswerService {
         memberService.findVerifiedMember(answer.getMember().getMemberId());
         AuthorizationUtils.isAdmin();
         Question question = verifyExistsAnswerInQuestion(answer);
+        question.setQuestionStatus(Question.QuestionStatus.QUESTION_ANSWERED);
         return answerRepository.save(answer);
     }
 

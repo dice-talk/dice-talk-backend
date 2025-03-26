@@ -1,5 +1,6 @@
 package com.example.dice_talk.chatroom.service;
 
+import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.repository.ChatRoomRepository;
@@ -7,6 +8,7 @@ import com.example.dice_talk.event.service.EventService;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.theme.sevice.ThemeService;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,12 +48,14 @@ public class ChatRoomService {
         return chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));
     }
 
+    //관리자 조회
     public Page<ChatRoom> findChatRooms(int page, int size){
         return chatRoomRepository.findAll(PageRequest.of(page, size, Sort.by("chatRoomId").descending()));
     }
 
     // 내가 참여했던 1대1 채팅방 목록 조회
-    public Page<ChatRoom> findMyCoupleChatRooms(int page, int size, long memberId){
+    public Page<ChatRoom> findMyCoupleChatRooms(int page, int size, long memberId, long loginId){
+        AuthorizationUtils.isOwner(memberId, loginId);
         Page<ChatRoom> chatRooms = chatRoomRepository.findAllByMemberIdAndRoomType(
                         memberId, ChatRoom.RoomType.COUPLE, PageRequest.of(page-1, size, Sort.by("chatRoomId").descending()));
         return chatRooms;

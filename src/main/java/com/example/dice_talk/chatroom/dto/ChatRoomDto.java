@@ -28,6 +28,7 @@ public class ChatRoomDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Patch{
+        private Long chatRoomId;
         private String notice;
         private ChatRoom.RoomStatus roomStatus;
     }
