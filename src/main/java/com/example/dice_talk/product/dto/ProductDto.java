@@ -18,10 +18,10 @@ public class ProductDto {
         @NotBlank(message = "상품의 이름은 필수 입력란입니다.")
         private String productName;
 
-        @NotBlank(message = "상품의 가격은 필수 입력란입니다.")
+//        @NotBlank(message = "상품의 가격은 필수 입력란입니다.")
         private int price;
 
-        @NotBlank(message = "상품의 수량은 필수 입력란입니다.")
+//        @NotBlank(message = "상품의 수량은 필수 입력란입니다.")
         private int quantity;
     }
 
@@ -32,13 +32,13 @@ public class ProductDto {
     public static class Patch{
         private long productId;
 
-        @NotSpace
+//        @NotSpace
         private String productName;
 
-        @NotSpace
+//        @NotSpace
         private int price;
 
-        @NotSpace
+//        @NotSpace
         private int quantity;
     }
 

@@ -22,7 +22,6 @@ public class ItemDto {
         @NotBlank(message = "아이템 설명은 필수 입력란입니다.")
         private String description;
 
-        @NotBlank(message = "아이템의 가격은 필수 입력란입니다.")
         private int dicePrice;
     }
 
@@ -39,7 +38,6 @@ public class ItemDto {
         @NotSpace
         private String description;
 
-        @NotSpace
         private int dicePrice;
     }
 

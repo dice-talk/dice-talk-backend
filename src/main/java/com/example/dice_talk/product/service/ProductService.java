@@ -1,11 +1,13 @@
 package com.example.dice_talk.product.service;
 
+import com.example.dice_talk.auth.utils.AuthorityUtils;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
 import com.example.dice_talk.item.repository.ItemRepository;
 import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.repository.ProductRepository;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,10 +26,14 @@ public class ProductService {
 
     public Product createProduct(Product product){
         // 아이템 등록 후 반환
+        AuthorizationUtils.verifyAdmin();
         return productRepository.save(product);
     }
 
     public Product updateProduct(Product product){
+        //관리자만 수정 가능
+        AuthorizationUtils.verifyAdmin();
+        //저장된 product 가져오기
         Product findProduct = findVerifiedProduct(product.getProductId());
         // 변경가능한 필드 확인 후 변경
         Optional.ofNullable(product.getProductName())
@@ -55,6 +61,8 @@ public class ProductService {
     }
 
     public void deleteProduct(long productId){
+        //관리지만 삭제 가능
+        AuthorizationUtils.verifyAdmin();
         Product product = productRepository.findById(productId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND));
         productRepository.delete(product);
     }

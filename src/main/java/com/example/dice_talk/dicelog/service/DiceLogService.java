@@ -66,7 +66,7 @@ public class DiceLogService {
         }
         memberService.findVerifiedMember(memberId);
         // 각 member에 해당하는 DiceLog 찾기
-        Page<DiceLog> diceLogPage = diceLogRepository.findAllByMember_MemberId(memberId, PageRequest.of(page, size, Sort.by("dice_log_id").descending()));
+        Page<DiceLog> diceLogPage = diceLogRepository.findAllByMember_MemberId(memberId, PageRequest.of(page, size, Sort.by("logId").descending()));
         return diceLogPage;
     }
 
