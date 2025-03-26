@@ -28,6 +28,7 @@ public class RoomEventController {
         this.mapper = mapper;
     }
 
+    // 채팅방 내 이벤트 결과 등록
     @PostMapping
     public ResponseEntity postRoomEvent(@Valid @RequestBody RoomEventDto.Post postDto){
         RoomEvent roomEvent = mapper.roomEventPostToRoomEvent(postDto);
@@ -36,10 +37,11 @@ public class RoomEventController {
         return ResponseEntity.created(location).build();
     }
 
+    // 채팅방 번호로 채팅방 조회 후 채팅방 내 이벤트 결과 전체 조회
     @GetMapping("/chat-room/{chat-room-id}")
     public ResponseEntity getRoomEventsByChatRoom(@PathVariable("chat-room-id") @Positive long chatRoomId){
         List<RoomEvent> roomEvents = roomEventService.findRoomEventsByChatRoomId(chatRoomId);
-        return new ResponseEntity(new ListResponseDto<>(roomEvents), HttpStatus.OK);
+        return new ResponseEntity(new ListResponseDto<>(mapper.roomEventsToResponses(roomEvents)), HttpStatus.OK);
     }
 
     // 이벤트 상세 조회

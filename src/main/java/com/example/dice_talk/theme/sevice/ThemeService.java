@@ -51,7 +51,7 @@ public class ThemeService {
     }
 
     public void deleteTheme(long themeId){
-        Theme theme = themeRepository.findById(themeId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.THEME_NOT_FOUND));
+        Theme theme = findVerifiedTheme(themeId);
         theme.setThemeStatus(Theme.ThemeStatus.THEME_CLOSE);
         themeRepository.save(theme);
     }

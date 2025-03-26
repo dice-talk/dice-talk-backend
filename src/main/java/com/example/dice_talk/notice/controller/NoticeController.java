@@ -19,7 +19,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notice")
+@RequestMapping("/notices")
 @Validated
 public class NoticeController {
     private final static String NOTICE_DEFAULT_URL = "/notice";
