@@ -47,13 +47,13 @@ public class ProductController {
     @PatchMapping("/{product-id}")
     public ResponseEntity patchProduct(
             @PathVariable("product-id") @Positive long productId,
-            @Valid @RequestBody ProductDto.Patch patchDto
-    ){
+            @Valid @RequestBody ProductDto.Patch patchDto){
         patchDto.setProductId(productId);
         Product product = productService.updateProduct(mapper.productPatchToProduct(patchDto));
         return new ResponseEntity(new SingleResponseDto<>(mapper.productToProductResponse(product)), HttpStatus.OK);
     }
 
+    //
     @GetMapping
     public ResponseEntity getProducts(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Product> productPage = productService.findProducts(page, size);

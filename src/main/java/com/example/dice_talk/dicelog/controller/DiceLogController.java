@@ -7,6 +7,7 @@ import com.example.dice_talk.dicelog.dto.DiceLogDto;
 import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.dicelog.mapper.DiceLogMapper;
 import com.example.dice_talk.dicelog.service.DiceLogService;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class DiceLogController {
 
     @PostMapping("/used")
     public ResponseEntity postUsedLog(@RequestBody DiceLogDto.Post dto,
-                                        @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                      @AuthenticationPrincipal CustomPrincipal customPrincipal){
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
         DiceLog createdLog = diceLogService.createDiceLogUsed(diceLog, customPrincipal.getMemberId());
@@ -45,12 +46,14 @@ public class DiceLogController {
     }
 
     @GetMapping("/{member-id}")
-    public ResponseEntity getMemberDiceLog(@PathVariable("memberId") long memberId,
+    public ResponseEntity getMemberDiceLog(@PathVariable("member-id") long memberId,
                                            @RequestParam int page, @RequestParam int size,
                                            @AuthenticationPrincipal CustomPrincipal customPrincipal){
-        Page<DiceLog> logPage = diceLogService.findDiceLogs(page, size, customPrincipal.getMemberId());
+        AuthorizationUtils.isOwner(memberId, customPrincipal.getMemberId());
+        Page<DiceLog> logPage = diceLogService.findDiceLogs(page, size, memberId);
         List<DiceLog> logs = logPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.NO_CONTENT);
+        return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
     }
+
 
 }

@@ -4,6 +4,7 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
 import com.example.dice_talk.item.repository.ItemRepository;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,11 +21,15 @@ public class ItemService {
     }
 
     public Item createItem(Item item){
+        //관리자만 등록 가능
+        AuthorizationUtils.verifyAdmin();
         // 아이템 등록 후 반환
         return itemRepository.save(item);
     }
 
     public Item updateItem(Item item){
+        //관리자만 수정 가능
+        AuthorizationUtils.verifyAdmin();
         Item findItem = findVerifiedItem(item.getItemId());
         // 변경가능한 필드 확인 후 변경
         Optional.ofNullable(item.getItemName())
@@ -52,6 +57,8 @@ public class ItemService {
     }
 
     public void deleteItem(long itemId){
+        //관리자만 등록 가능
+        AuthorizationUtils.verifyAdmin();
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
         itemRepository.delete(item);
     }

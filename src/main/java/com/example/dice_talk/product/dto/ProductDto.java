@@ -32,13 +32,13 @@ public class ProductDto {
     public static class Patch{
         private long productId;
 
-        @NotSpace
+//        @NotSpace
         private String productName;
 
-        @NotSpace
+//        @NotSpace
         private int price;
 
-        @NotSpace
+//        @NotSpace
         private int quantity;
     }
 
