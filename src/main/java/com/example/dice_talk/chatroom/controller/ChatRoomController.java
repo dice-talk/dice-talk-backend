@@ -48,9 +48,11 @@ public class ChatRoomController {
     @PatchMapping("/{chat-room-id}")
     public ResponseEntity patchChatRoom(
             @PathVariable("chat-room-id") @Positive long chatRoomId,
-            @Valid @RequestBody ChatRoomDto.Patch dto){
+            @Valid @RequestBody ChatRoomDto.Patch dto,
+            @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        dto.setChatRoomId(chatRoomId);
         ChatRoom chatRoom = chatRoomService.updateChatRoom(mapper.chatRoomPatchToChatRoom(dto));
-        return new ResponseEntity(new SingleResponseDto<>(chatRoom), HttpStatus.OK);
+        return new ResponseEntity(new SingleResponseDto<>(mapper.chatRoomToChatRoomSingleResponse(chatRoom)), HttpStatus.OK);
     }
 
     // 채팅방 전체조회 (관리자용)
@@ -71,7 +73,7 @@ public class ChatRoomController {
                                          @Positive @RequestParam int page,
                                          @Positive @RequestParam int size,
                                          @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        Page<ChatRoom> chatRoomPage = chatRoomService.findMyCoupleChatRooms(page, size, memberId);
+        Page<ChatRoom> chatRoomPage = chatRoomService.findMyCoupleChatRooms(page, size, memberId, customPrincipal.getMemberId());
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(
                 mapper.chatRoomsToChatRoomMultiResponses(chatRooms), chatRoomPage
