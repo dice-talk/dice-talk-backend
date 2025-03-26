@@ -49,8 +49,20 @@ public class DiceLogController {
     public ResponseEntity getMemberDiceLog(@PathVariable("member-id") long memberId,
                                            @RequestParam int page, @RequestParam int size,
                                            @AuthenticationPrincipal CustomPrincipal customPrincipal){
+
         AuthorizationUtils.isOwner(memberId, customPrincipal.getMemberId());
+
         Page<DiceLog> logPage = diceLogService.findDiceLogs(page, size, memberId);
+        List<DiceLog> logs = logPage.getContent();
+        return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
+    }
+
+
+    // 관리자용 전체조회
+    @GetMapping("/logs")
+    public ResponseEntity getAllDiceLogs(@RequestParam int page, @RequestParam int size,
+                                         @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        Page<DiceLog> logPage = diceLogService.findAllDiceLogs(page, size);
         List<DiceLog> logs = logPage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
     }

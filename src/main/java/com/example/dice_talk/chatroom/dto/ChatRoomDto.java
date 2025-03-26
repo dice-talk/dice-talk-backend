@@ -30,7 +30,6 @@ public class ChatRoomDto {
     public static class Patch{
         private Long chatRoomId;
         private String notice;
-        private ChatRoom.RoomStatus roomStatus;
     }
 
     @Getter

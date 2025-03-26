@@ -3,6 +3,7 @@ package com.example.dice_talk.chatroom.service;
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
+import com.example.dice_talk.chatroom.repository.ChatPartRepository;
 import com.example.dice_talk.chatroom.repository.ChatRoomRepository;
 import com.example.dice_talk.event.service.EventService;
 import com.example.dice_talk.exception.BusinessLogicException;
@@ -25,9 +26,20 @@ import java.util.Optional;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatPartRepository chatPartRepository;
 
-    public ChatRoomService(ChatRoomRepository chatRoomRepository) {
+    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatPartRepository chatPartRepository) {
         this.chatRoomRepository = chatRoomRepository;
+        this.chatPartRepository = chatPartRepository;
+    }
+
+    public boolean isMemberPossibleToPart(long memberId){
+        Optional<ChatPart> lastChatPart = chatPartRepository.findFirstByMember_MemberIdOrderByPartIdDesc(memberId);
+        if(lastChatPart.isPresent()){
+            ChatPart chatPart = lastChatPart.get();
+            return chatPart.getExitStatus().equals(ChatPart.ExitStatus.MEMBER_EXIT);
+        }
+        return true;
     }
 
     public ChatRoom createChatRoom(ChatRoom chatRoom){
