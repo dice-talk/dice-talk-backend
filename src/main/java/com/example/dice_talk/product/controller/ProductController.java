@@ -1,5 +1,6 @@
 package com.example.dice_talk.product.controller;
 
+import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
@@ -35,6 +37,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity postProduct(@Valid @RequestBody ProductDto.Post postDto){
+
         Product product = mapper.productPostToProduct(postDto);
         Product createdProduct = productService.createProduct(product);
         URI location = UriCreator.createUri(PRODUCT_DEFAULT_URL, createdProduct.getProductId());

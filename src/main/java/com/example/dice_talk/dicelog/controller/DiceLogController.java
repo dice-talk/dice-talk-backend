@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/dice")
+@RequestMapping("/dices")
 public class DiceLogController {
     private final DiceLogService diceLogService;
     private final DiceLogMapper mapper;
