@@ -19,7 +19,7 @@ public interface MemberMapper {
 
 //    MemberDto.MyPageResponse memberToMemberResponseDto(Member member);
 
-    List<Member> membersToMemberResponses(List<Member> members);
+    List<MemberDto.MyInfoResponse> membersToMemberResponses(List<Member> members);
 
     //List<ChatPart> -> MyInfoResponse
     default MemberDto.MyPageResponse memberToMemberMyPageResponseDto(Member member) {

@@ -4,6 +4,7 @@ import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.event.service.EventService;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
 import org.springframework.stereotype.Service;
@@ -15,14 +16,18 @@ public class RoomEventService {
     private final RoomEventRepository roomEventRepository;
     private final EventService eventService;
     private final ChatRoomService chatRoomService;
+    private final MemberService memberService;
 
-    public RoomEventService(RoomEventRepository roomEventRepository, EventService eventService, ChatRoomService chatRoomService) {
+    public RoomEventService(RoomEventRepository roomEventRepository, EventService eventService, ChatRoomService chatRoomService, MemberService memberService) {
         this.roomEventRepository = roomEventRepository;
         this.eventService = eventService;
         this.chatRoomService = chatRoomService;
+        this.memberService = memberService;
     }
 
     public RoomEvent createRoomEvent(RoomEvent roomEvent){
+        memberService.findVerifiedMember(roomEvent.getReceiverId());
+        memberService.findVerifiedMember(roomEvent.getSenderId());
         eventService.findVerifiedEvent(roomEvent.getEvent().getEventId());
         chatRoomService.findVerifiedChatRoom(roomEvent.getChatRoom().getChatRoomId());
         return roomEventRepository.save(roomEvent);
