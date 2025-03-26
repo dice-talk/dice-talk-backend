@@ -57,7 +57,7 @@ public class ChatRoomService {
         return chatRooms;
     }
 
-    // 채팅방 상태시 상태만 종료로 변경
+    // 채팅방 삭제시 상태만 종료로 변경
     @Transactional
     public void deleteChatRoom(long chatRoomId){
         ChatRoom chatRoom = findVerifiedChatRoom(chatRoomId);

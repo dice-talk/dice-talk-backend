@@ -1,5 +1,6 @@
 package com.example.dice_talk.report.controller;
 
+import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.report.dto.ReportDto;
@@ -10,6 +11,7 @@ import com.example.dice_talk.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,10 +32,11 @@ public class ReportController {
     }
 
     @PostMapping
-    public ResponseEntity postReport(@Valid @RequestBody ReportDto.Post postDto, long memberId){
+    public ResponseEntity postReport(@Valid @RequestBody ReportDto.Post postDto,
+                                     @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        postDto.setReporterId(customPrincipal.getMemberId());
         Report report = mapper.reportPostToReport(postDto);
-        report.setReporterId(memberId);
-        Report createdReport = reportService.createReport(report, memberId);
+        Report createdReport = reportService.createReport(report, customPrincipal.getMemberId());
         URI location = UriCreator.createUri(REPORT_DEFAULT_URL, createdReport.getReportId());
         return ResponseEntity.created(location).build();
     }
