@@ -10,6 +10,7 @@ import com.example.dice_talk.dicelog.repository.DiceLogRepository;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.service.ProductService;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -67,6 +68,15 @@ public class DiceLogService {
         // 각 member에 해당하는 DiceLog 찾기
         Page<DiceLog> diceLogPage = diceLogRepository.findAllByMember_MemberId(memberId, PageRequest.of(page, size, Sort.by("dice_log_id").descending()));
         return diceLogPage;
+    }
+
+    // 관리자용 DiceLog 전체 조회
+    public Page<DiceLog> findAllDiceLogs(int page, int size){
+        AuthorizationUtils.verifyAdmin();
+        if(page < 1){
+            throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
+        }
+        return diceLogRepository.findAll(PageRequest.of(page, size, Sort.by("logId").descending()));
     }
 
     // 충전 취소

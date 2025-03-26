@@ -114,6 +114,13 @@ public class MemberService {
         deletedMemberRepository.save(deletedMember);
     }
 
+    // 회원 영구정지
+    public void banMember(long memberId){
+        Member member = findVerifiedMember(memberId);
+        member.setMemberStatus(Member.MemberStatus.MEMBER_BANNED);
+        memberRepository.save(member);
+    }
+
 
     //검증로직 : 회원가입 시 이메일 중복 확인
     public void verifyExistsEmail(String email) {
@@ -126,8 +133,12 @@ public class MemberService {
 
     //검증로직 : 등록된 member 조회
     public Member findVerifiedMember(long memberId) {
-        return memberRepository.findById(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        if(member.getMemberStatus().equals(Member.MemberStatus.MEMBER_BANNED)){
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_OPERATION);
+        }
+        return member;
     }
 
     //검증 로직 : 회원가입 직후에 사용자에게 앱 푸쉬알림 허용 여부 받기

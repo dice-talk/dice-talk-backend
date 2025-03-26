@@ -4,6 +4,7 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.theme.entity.Theme;
 import com.example.dice_talk.theme.repository.ThemeRepository;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,11 +22,14 @@ public class ThemeService {
     }
 
     public Theme createTheme(Theme theme){
+        AuthorizationUtils.verifyAdmin();
         // 테마 등록 후 반환
         return themeRepository.save(theme);
     }
 
     public Theme updateTheme(Theme theme){
+        AuthorizationUtils.verifyAdmin();
+
         Theme findTheme =findVerifiedTheme(theme.getThemeId());
         // 변경 가능한 필드 확인 후 변경
         Optional.ofNullable(theme.getName())
@@ -41,6 +45,7 @@ public class ThemeService {
         return findVerifiedTheme(themeId);
     }
 
+    // 관리자용 (비활성화 테마까지 조회)
     public Page<Theme> findThemes(int page, int size){
         // page 번호 검증
         if(page < 1){
@@ -51,6 +56,8 @@ public class ThemeService {
     }
 
     public void deleteTheme(long themeId){
+        AuthorizationUtils.verifyAdmin();
+
         Theme theme = findVerifiedTheme(themeId);
         theme.setThemeStatus(Theme.ThemeStatus.THEME_CLOSE);
         themeRepository.save(theme);
@@ -61,6 +68,7 @@ public class ThemeService {
         return themeRepository.findById(themeId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.THEME_NOT_FOUND));
     }
 
+    // 활성화된 테마 목록 조회 (회원용)
     public List<Theme> findAllThemesOn(){
         return themeRepository.findAllByThemeStatus(Theme.ThemeStatus.THEME_ON);
     }

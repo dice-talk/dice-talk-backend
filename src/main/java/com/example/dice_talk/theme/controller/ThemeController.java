@@ -1,5 +1,6 @@
 package com.example.dice_talk.theme.controller;
 
+import com.example.dice_talk.dto.ListResponseDto;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.item.dto.ItemDto;
@@ -53,8 +54,16 @@ public class ThemeController {
         return new ResponseEntity(new SingleResponseDto<>(mapper.themeToThemeResponse(theme)), HttpStatus.OK);
     }
 
+    // 활성화 상태의 테마 목록 조회 (회원용)
     @GetMapping
-    public ResponseEntity getThemes(@Positive @RequestParam int page, @Positive @RequestParam int size){
+    public ResponseEntity getThemes(){
+        List<Theme> themes = themeService.findAllThemesOn();
+        return new ResponseEntity(new ListResponseDto<>(mapper.themesToThemeResponses(themes)), HttpStatus.OK);
+    }
+
+    // 비활성화 상태의 테마까지 조회 (관리자용)
+    @GetMapping("/admin")
+    public ResponseEntity getAllThemes(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Theme> themePage = themeService.findThemes(page, size);
         List<Theme> themes = themePage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(mapper.themesToThemeResponses(themes), themePage), HttpStatus.OK);

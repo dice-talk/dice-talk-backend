@@ -8,6 +8,7 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.mapper.MemberMapper;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.member.toss.TossAuthService;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import com.example.dice_talk.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -88,7 +89,7 @@ public class MemberController {
     public ResponseEntity getMembers(@RequestParam("page") @Positive int page,
                                      @RequestParam("size") @Positive int size,
                                      @AuthenticationPrincipal CustomPrincipal customPrincipal){
-
+        AuthorizationUtils.verifyAdmin();
         Page<Member> memberPage = memberService.findMembers(page, size);
         List<Member> members = memberPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.membersToMemberResponses(members), memberPage),
@@ -102,5 +103,13 @@ public class MemberController {
 
         memberService.deleteMember(memberId, customPrincipal.getMemberId(), reason);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/office/member-page/{member-id}")
+    public ResponseEntity banMember(@PathVariable("member-id") @Positive long memberId,
+                                    @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        AuthorizationUtils.verifyAdmin();
+        memberService.banMember(memberId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

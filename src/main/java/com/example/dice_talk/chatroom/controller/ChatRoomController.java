@@ -37,6 +37,7 @@ public class ChatRoomController {
         this.mapper = mapper;
     }
 
+    // 채팅방 생성
     @PostMapping
     public ResponseEntity postChatRoom(@Valid @RequestBody ChatRoomDto.Post dto) {
         ChatRoom chatRoom = mapper.chatRoomPostToChatRoom(dto);
@@ -45,6 +46,7 @@ public class ChatRoomController {
         return ResponseEntity.created(location).build();
     }
 
+    // 공지 수정
     @PatchMapping("/{chat-room-id}")
     public ResponseEntity patchChatRoom(
             @PathVariable("chat-room-id") @Positive long chatRoomId,
@@ -97,5 +99,11 @@ public class ChatRoomController {
     ){
         chatRoomService.deleteChatRoom(chatRoomId);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    // 대기열을 등록할 때 참여중인 채팅방이 있는지 확인하는 API 엔ㄷ포인트
+    @GetMapping("/isPossible/{member-id}")
+    public ResponseEntity verifyChatPart(@PathVariable("member-id") long memberId){
+        return new ResponseEntity(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
     }
 }
