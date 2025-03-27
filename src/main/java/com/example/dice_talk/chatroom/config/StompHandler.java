@@ -1,6 +1,7 @@
 package com.example.dice_talk.chatroom.config;
 
 import com.example.dice_talk.auth.jwt.JwtTokenizer;
+import com.example.dice_talk.member.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StompHandler implements ChannelInterceptor {
 
     private final JwtTokenizer jwtTokenizer;
+    private final MemberService memberService;
 
     // WebSocket 세션 ID와 사용자 이름 매핑
     private static final Map<String, String> userSessionMap = new ConcurrentHashMap<>();
@@ -61,18 +63,19 @@ public class StompHandler implements ChannelInterceptor {
                 Claims claims = claimsJws.getBody(); // 토큰에서 클레임 추출
 
                 // 사용자 정보 추출(JwtAuthenticationFilter 에서 토큰 생성 시 "username", "memberId" 키로 저장함)
-                String username = claims.get("username", String.class);
+//                String username = claims.get("username", String.class);
                 Long memberId = claims.get("memberId", Long.class);
+                String nickname = memberService.findNicknameByMemberId(memberId);
 
                 // WebSocket 세션 ID 가져오기 (각 클라이언트는 고유한 세션 ID를 가짐)
                 String sessionId = accessor.getSessionId();
 
                 // 세션 ID -> 사용자 정보 저장(이후 메세지 주고받을 때 활용)
-                userSessionMap.put(sessionId, username);
+                userSessionMap.put(sessionId, nickname);
                 sessionMemberMap.put(sessionId, memberId);
 
                 // WebSocket 세션에 사용자 정보 저장(메세지 핸들러에서 사용 가능)
-                accessor.getSessionAttributes().put("username", username);
+                accessor.getSessionAttributes().put("nickname", nickname);
                 accessor.getSessionAttributes().put("memberId", memberId);
             } catch (Exception e){
                 throw new AccessDeniedException("Invalid token"); // 토큰 검증 실패 시 예외 발생
@@ -83,13 +86,13 @@ public class StompHandler implements ChannelInterceptor {
 
     // 세션 ID를 기반으로 username을 가져오는 메서드
     // 특정 사용자가 보낸 메세지가 누구의 것인지 확인할 때 사용
-    public static String getUsernameBySessionId(String sessionId){
+    public static String getNicknameBySessionId(String sessionId){
         return userSessionMap.get(sessionId);
     }
 
     // 세션 ID를 기반으로 memeberId를 가져오는 메서드
     // 메세지를 저장할 때 memberId를 사용하여 해당 사용자 식별 가능
-    public static Long getMemberIdBySession(String sessionId){
+    public static Long getMemberIdBySessionId(String sessionId){
         return sessionMemberMap.get(sessionId);
     }
 }
