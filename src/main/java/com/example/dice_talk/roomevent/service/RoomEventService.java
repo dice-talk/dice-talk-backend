@@ -7,6 +7,9 @@ import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,5 +48,16 @@ public class RoomEventService {
     public RoomEvent findVerifiedEvent(long eventId){
         return roomEventRepository.findById(eventId).orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.EVENT_NOT_FOUND));
+    }
+
+    // 하트 히스토리 찾기 ( RoomEvent 중 이벤트가 Heart With Message 이고, receiverId가 전달받은 memberId인 RoomEventList )
+    public Page<RoomEvent> findRoomEventsByEventAndMemberId(long memberId, long loginId){
+        if(memberId != loginId){
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_OPERATION);
+        }
+        memberService.findVerifiedMember(memberId);
+        return roomEventRepository.findAllByEvent_EventNameAndReceiverId("Heart With Message", memberId,
+                PageRequest.of(0, 5, Sort.by("roomEventId").descending()));
+
     }
 }

@@ -52,7 +52,6 @@ public class ChatRoomService {
     public ChatRoom updateChatRoom(ChatRoom chatRoom){
         ChatRoom findChatRoom = findVerifiedChatRoom(chatRoom.getChatRoomId());
         Optional.ofNullable(chatRoom.getNotice()).ifPresent(notice -> findChatRoom.setNotice(notice));
-        Optional.ofNullable(chatRoom.getRoomStatus()).ifPresent(status -> findChatRoom.setRoomStatus(status));
         return chatRoomRepository.save(findChatRoom);
     }
 
