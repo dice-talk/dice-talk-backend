@@ -4,6 +4,7 @@ import com.example.dice_talk.auth.utils.AuthorityUtils;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.Dto.ResetPasswordDto;
 import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.repository.DeletedMemberRepository;
@@ -196,13 +197,17 @@ public class MemberService {
         return findMember;
     }
 
-    public void resetPassword (String email, String newPassword){
+    public void resetPassword (long memberId, ResetPasswordDto resetDto){
         //이메일로 회원 조회
-        Member member = memberRepository.findByEmail(email).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
+        //이중 검증!!
+        if(!member.getEmail().equals(resetDto.getEmail())) {
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED);
+        }
         //재설정한 비밀번호 암호화 및 저장 -> 기존 비밀번호는 DB에 덮어씌어짐(따로 삭제X)
-        String encryptedPassword = passwordEncoder.encode(newPassword);
+        String encryptedPassword = passwordEncoder.encode(resetDto.getNewPassword());
         member.setPassword(encryptedPassword);
         memberRepository.save(member);
     }

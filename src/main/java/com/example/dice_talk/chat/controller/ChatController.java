@@ -41,6 +41,12 @@ public class ChatController {
     public void sendMessage(@DestinationVariable String roomId,   //@PathVariable : 구독 및 발행 Url
                             ChatDto.Post chatDto,
                             SimpMessageHeaderAccessor headerAccessor) {
+        /*SimpMessageHeaderAccessor
+        - 메세지 헤더 관리 : 세션ID, 사용자 정보, 메시지 타입 등 중요한 메타데이터 관리
+        - 세션정보 접근 : gerSessionId() 메소드를 통해 현재 WebSocket 세션의 고유 ID를 얻음, 세션 속성을 저장, 검색기능 제공
+        - 메세지 타입 설정 : setMessageTypeIfNotSet() 메소드로 메세지 타입(Connect, Subscribe, Message 등) 지정
+        -
+         */
 
         // ✅ STOMP 세션 ID 가져오기
         String sessionId = headerAccessor.getSessionId();

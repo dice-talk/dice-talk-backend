@@ -25,7 +25,8 @@ public enum ExceptionCode {
     NOT_ENOUGH_DICE(400, "Dice not Enough"),
     CANNOT_CANCEL(400, "Cannot cancel log"),
     LOG_TYPE_INVALID(400, "LogType invalid"),
-    CHAT_NOT_FOUND(404, "Chat not found");
+    CHAT_NOT_FOUND(404, "Chat not found"),
+    UNAUTHORIZED(401, "Unauthorized");
 
     @Getter
     private int status;

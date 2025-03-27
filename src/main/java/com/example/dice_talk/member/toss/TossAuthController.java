@@ -5,11 +5,14 @@ import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.ResetPasswordDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Positive;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class TossAuthController {
-
+    private final static String PASSWORD_DEFAULT_URI = "/auth/recover/password";
     private final MemberService memberService;
     private final TossAuthService tossAuthService;
 
@@ -67,7 +70,7 @@ public class TossAuthController {
     }
 
     //비밀번호 찾기 -> 성공시 비밀번호 재설정
-    @PostMapping("/recorver/password")
+    @PostMapping("/recover/password")
     public ResponseEntity findPassword(@RequestParam String txId,
                                        @RequestParam String email) {
         // Toss Access Token 발급
@@ -86,13 +89,16 @@ public class TossAuthController {
             throw new IllegalStateException("이메일이 잘못 입력되었습니다.");
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        URI location = UriCreator.createUri(PASSWORD_DEFAULT_URI, member.getMemberId());
+
+        return ResponseEntity.created(location).body(member.getEmail());
     }
 
-    @PostMapping("/resetting/password")
-    public ResponseEntity resetPassword(@RequestBody ResetPasswordDto resetDto){
+    @PostMapping("/resetting/password/{member-id}")
+    public ResponseEntity resetPassword(@PathVariable("member-id") @Positive long memberId,
+                                        @RequestBody ResetPasswordDto resetDto){
         //비밀번호 재설정 로직
-        memberService.resetPassword(resetDto.getEmail(), resetDto.getNewPassword());
+        memberService.resetPassword(memberId, resetDto);
         //비밀 번경 성공 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
