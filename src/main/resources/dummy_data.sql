@@ -18,7 +18,9 @@ VALUES ('q@q.q', '01012345678', '{bcrypt}$2a$10$4z8P8wHcqQgRlvxjNKDeCufjNuCA1GbC
        ('user4@example.com', '01045678901', '$2a$10$abcdefghijklmnopqrstuv', '정다혜', 'FEMALE', '1995-08-22', '인천',
         'MEMBER_SLEEP', true, 200, 'ci45678901234', NOW()),
        ('user5@example.com', '01056789012', '$2a$10$abcdefghijklmnopqrstuv', '최지훈', 'MALE', '1985-03-15', '광주',
-        'MEMBER_ACTIVE', true, 120, 'ci56789012345', NOW());
+        'MEMBER_ACTIVE', true, 120, 'ci56789012345', NOW()),
+        ('dice@gmail.com', '010-2401-5119', '{bcrypt}$2a$10$GIuq/QnyYvUXOpHSKcz5k.0cfY4cevVtAjIAwfCunNJGNQddbOfFC', '남택호', 'MALE', '1998-12-25', '인천시 연수구',
+        'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2401-5119', NOW());
 
 -- Add member roles
 INSERT INTO member_roles (member_member_id, roles)
