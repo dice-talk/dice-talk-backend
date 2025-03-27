@@ -24,7 +24,8 @@ public enum ExceptionCode {
     DICE_LOG_NOT_FOUND(404, "DiceLog not found"),
     NOT_ENOUGH_DICE(400, "Dice not Enough"),
     CANNOT_CANCEL(400, "Cannot cancel log"),
-    LOG_TYPE_INVALID(400, "LogType invalid");
+    LOG_TYPE_INVALID(400, "LogType invalid"),
+    CHAT_NOT_FOUND(404, "Chat not found");
 
     @Getter
     private int status;

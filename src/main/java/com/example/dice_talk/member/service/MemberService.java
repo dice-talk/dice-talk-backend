@@ -207,4 +207,10 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public String findNicknameByMemberId(long memberId) {
+        Member member = findVerifiedMember(memberId);
+        List<ChatPart> chatParts = member.getChatParts();
+        //마지막 참여했던 채팅방에서 nickname 가져오기
+        return chatParts.get(chatParts.size()-1).getNickname();
+    }
 }

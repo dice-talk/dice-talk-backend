@@ -50,9 +50,8 @@ public class ChatRoomService {
     // 트랜잭션 격리를 `SERIALIZABLE`로 설정 -> 동시성 문제 방지
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
     public ChatRoom updateChatRoom(ChatRoom chatRoom){
-        ChatRoom findChatRoom = findVerifiedChatRoom(chatRoom.getChatRoomId());
-        Optional.ofNullable(chatRoom.getNotice()).ifPresent(notice -> findChatRoom.setNotice(notice));
-        Optional.ofNullable(chatRoom.getRoomStatus()).ifPresent(status -> findChatRoom.setRoomStatus(status));
+        ChatRoom findChatRoom = findVerifiedChatRoom(chatRoom.getChatRoomId()); //기존 채팅방 확인
+        Optional.ofNullable(chatRoom.getNotice()).ifPresent(notice -> findChatRoom.setNotice(notice)); //notice 수정
         return chatRoomRepository.save(findChatRoom);
     }
 
@@ -60,7 +59,7 @@ public class ChatRoomService {
         return chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));
     }
 
-    //관리자 조회
+    //관리자 조회 (단체, 1대1 채팅방)
     public Page<ChatRoom> findChatRooms(int page, int size){
         return chatRoomRepository.findAll(PageRequest.of(page, size, Sort.by("chatRoomId").descending()));
     }
