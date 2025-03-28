@@ -110,6 +110,6 @@ public class MemberController {
                                     @AuthenticationPrincipal CustomPrincipal customPrincipal){
         AuthorizationUtils.verifyAdmin();
         memberService.banMember(memberId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

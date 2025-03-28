@@ -48,7 +48,7 @@ public class RoomEventController {
     @GetMapping("/chat-room/{chat-room-id}")
     public ResponseEntity getRoomEventsByChatRoom(@PathVariable("chat-room-id") @Positive long chatRoomId){
         List<RoomEvent> roomEvents = roomEventService.findRoomEventsByChatRoomId(chatRoomId);
-        return new ResponseEntity(new ListResponseDto<>(mapper.roomEventsToResponses(roomEvents)), HttpStatus.OK);
+        return new ResponseEntity<>(new ListResponseDto<>(mapper.roomEventsToResponses(roomEvents)), HttpStatus.OK);
     }
 
     // 이벤트 상세 조회
@@ -56,7 +56,7 @@ public class RoomEventController {
     public ResponseEntity getAllRoomEventsByEvent(@PathVariable("room-event-id") @Positive long roomEventId){
         RoomEvent roomEvent = roomEventService.findRoomEvent(roomEventId);
         RoomEventDto.Response response = mapper.roomEventToResponse(roomEvent);
-        return new ResponseEntity(new SingleResponseDto<>(response), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);
     }
 
     // 하트 히스토리 조회
@@ -65,7 +65,7 @@ public class RoomEventController {
                                             @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Page<RoomEvent> eventPage = roomEventService.findRoomEventsByEventAndMemberId(memberId, customPrincipal.getMemberId());
         List<RoomEvent> roomEvents = eventPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.roomEventsToResponses(roomEvents), eventPage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.roomEventsToResponses(roomEvents), eventPage), HttpStatus.OK);
     }
 
 

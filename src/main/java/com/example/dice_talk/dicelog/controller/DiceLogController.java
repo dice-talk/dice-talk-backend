@@ -33,7 +33,7 @@ public class DiceLogController {
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
         DiceLog createdLog = diceLogService.createDiceLogCharge(diceLog, customPrincipal.getMemberId());
-        return new ResponseEntity(new SingleResponseDto<>(mapper.diceLogToDiceLogResponse(createdLog)), HttpStatus.CREATED);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.diceLogToDiceLogResponse(createdLog)), HttpStatus.CREATED);
     }
 
     @PostMapping("/used")
@@ -42,7 +42,7 @@ public class DiceLogController {
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
         DiceLog createdLog = diceLogService.createDiceLogUsed(diceLog, customPrincipal.getMemberId());
-        return new ResponseEntity(new SingleResponseDto<>(mapper.diceLogToDiceLogResponse(createdLog)), HttpStatus.CREATED);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.diceLogToDiceLogResponse(createdLog)), HttpStatus.CREATED);
     }
 
     @GetMapping("/{member-id}")
@@ -54,7 +54,7 @@ public class DiceLogController {
 
         Page<DiceLog> logPage = diceLogService.findDiceLogs(page, size, memberId);
         List<DiceLog> logs = logPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
     }
 
 
@@ -64,7 +64,7 @@ public class DiceLogController {
                                          @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Page<DiceLog> logPage = diceLogService.findAllDiceLogs(page, size);
         List<DiceLog> logs = logPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);
     }
 
 

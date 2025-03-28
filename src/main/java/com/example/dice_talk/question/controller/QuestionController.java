@@ -66,7 +66,7 @@ public class QuestionController {
         patchDto.setMemberId(customPrincipal.getMemberId());
         Question updatedQuestion = questionService.updateQuestion(questionMapper
                 .questionPatchToQuestion(patchDto), customPrincipal.getMemberId());
-        return new ResponseEntity(
+        return new ResponseEntity<>(
                 new SingleResponseDto<>(questionMapper.questionToQuestionResponse(updatedQuestion)), HttpStatus.OK);
     }
 
@@ -76,7 +76,7 @@ public class QuestionController {
             @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Question question = questionService.findQuestion(
                 questionId);
-        return new ResponseEntity(new SingleResponseDto<>(questionMapper.questionToQuestionResponse(question)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(questionMapper.questionToQuestionResponse(question)), HttpStatus.OK);
     }
 
     // 관리자용 전체조회
@@ -87,7 +87,7 @@ public class QuestionController {
         Member currentMember = memberService.findVerifiedMember(customPrincipal.getMemberId());
         Page<Question> questionPage = questionService.findQuestions(page, size, sortType, currentMember);
         List<Question> questions = questionPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>
+        return new ResponseEntity<>(new MultiResponseDto<>
                 (questionMapper.questionsToQuestionResponses(questions), questionPage), HttpStatus.OK);
     }
 
@@ -101,7 +101,7 @@ public class QuestionController {
         }
         Page<Question> questionPage = questionService.findMyQuestions(page, size, memberId);
         List<Question> questions = questionPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>
+        return new ResponseEntity<>(new MultiResponseDto<>
                 (questionMapper.questionsToQuestionResponses(questions), questionPage), HttpStatus.OK);
     }
 
@@ -109,6 +109,6 @@ public class QuestionController {
     public ResponseEntity deleteQuestion(@PathVariable("question-id") long questionId,
                                          @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         questionService.deleteQuestion(questionId, customPrincipal.getMemberId());
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

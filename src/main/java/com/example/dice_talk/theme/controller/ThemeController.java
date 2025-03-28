@@ -51,14 +51,14 @@ public class ThemeController {
     ){
         patchDto.setThemeId(themeId);
         Theme theme = themeService.updateTheme(mapper.themePatchToTheme(patchDto));
-        return new ResponseEntity(new SingleResponseDto<>(mapper.themeToThemeResponse(theme)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.themeToThemeResponse(theme)), HttpStatus.OK);
     }
 
     // 활성화 상태의 테마 목록 조회 (회원용)
     @GetMapping
     public ResponseEntity getThemes(){
         List<Theme> themes = themeService.findAllThemesOn();
-        return new ResponseEntity(new ListResponseDto<>(mapper.themesToThemeResponses(themes)), HttpStatus.OK);
+        return new ResponseEntity<>(new ListResponseDto<>(mapper.themesToThemeResponses(themes)), HttpStatus.OK);
     }
 
     // 비활성화 상태의 테마까지 조회 (관리자용)
@@ -66,18 +66,18 @@ public class ThemeController {
     public ResponseEntity getAllThemes(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Theme> themePage = themeService.findThemes(page, size);
         List<Theme> themes = themePage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.themesToThemeResponses(themes), themePage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.themesToThemeResponses(themes), themePage), HttpStatus.OK);
     }
 
     @GetMapping("/{theme-id}")
     public ResponseEntity getTheme(@PathVariable("theme-id") @Positive long themeId){
         Theme theme = themeService.findTheme(themeId);
-        return new ResponseEntity(new SingleResponseDto<>(mapper.themeToThemeResponse(theme)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.themeToThemeResponse(theme)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{theme-id}")
     public ResponseEntity deleteTheme(@PathVariable("theme-id") long themeId){
         themeService.deleteTheme(themeId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

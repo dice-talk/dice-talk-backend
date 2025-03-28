@@ -48,25 +48,25 @@ public class ItemController {
     ){
         patchDto.setItemId(itemId);
         Item item = itemService.updateItem(mapper.itemPatchToItem(patchDto));
-        return new ResponseEntity(new SingleResponseDto<>(mapper.itemToItemResponse(item)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.itemToItemResponse(item)), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity getItems(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Item> itemPage = itemService.findItems(page, size);
         List<Item> items = itemPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.itemsToItemResponses(items), itemPage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.itemsToItemResponses(items), itemPage), HttpStatus.OK);
     }
 
     @GetMapping("/{item-id}")
     public ResponseEntity getItem(@PathVariable("item-id") @Positive long itemId){
         Item item = itemService.findItem(itemId);
-        return new ResponseEntity(new SingleResponseDto<>(mapper.itemToItemResponse(item)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.itemToItemResponse(item)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{item-id}")
     public ResponseEntity deleteItem(@PathVariable("item-id") long itemId){
         itemService.deleteItem(itemId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
