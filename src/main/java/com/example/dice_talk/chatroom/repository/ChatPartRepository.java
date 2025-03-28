@@ -11,4 +11,6 @@ import java.util.Optional;
 
 public interface ChatPartRepository extends JpaRepository<ChatPart, Long> {
     Optional<ChatPart> findFirstByMember_MemberIdOrderByPartIdDesc(long memberId);
+    List<ChatPart> findByChatRoom_ChatRoomId(Long chatRoomId);
+
 }

@@ -46,25 +46,25 @@ public class EventController {
     ){
         patchDto.setEventId(eventId);
         Event event = eventService.updateEvent(mapper.eventPatchToEvent(patchDto));
-        return new ResponseEntity(new SingleResponseDto<>(mapper.eventToEventResponse(event)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.eventToEventResponse(event)), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity getEvents(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Event> eventPage = eventService.findEvents(page, size);
         List<Event> events = eventPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.eventsToEventResponses(events), eventPage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.eventsToEventResponses(events), eventPage), HttpStatus.OK);
     }
 
     @GetMapping("/{event-id}")
     public ResponseEntity getEvent(@PathVariable("event-id") @Positive long eventId){
         Event event = eventService.findEvent(eventId);
-        return new ResponseEntity(new SingleResponseDto<>(mapper.eventToEventResponse(event)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.eventToEventResponse(event)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{event-id}")
     public ResponseEntity deleteEvent(@PathVariable("event-id") long eventId){
         eventService.deleteEvent(eventId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

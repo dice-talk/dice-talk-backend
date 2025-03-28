@@ -50,7 +50,7 @@ public class ProductController {
             @Valid @RequestBody ProductDto.Patch patchDto){
         patchDto.setProductId(productId);
         Product product = productService.updateProduct(mapper.productPatchToProduct(patchDto));
-        return new ResponseEntity(new SingleResponseDto<>(mapper.productToProductResponse(product)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.productToProductResponse(product)), HttpStatus.OK);
     }
 
     //
@@ -58,18 +58,18 @@ public class ProductController {
     public ResponseEntity getProducts(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Product> productPage = productService.findProducts(page, size);
         List<Product> products = productPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(mapper.productsToProductResponses(products), productPage), HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(mapper.productsToProductResponses(products), productPage), HttpStatus.OK);
     }
 
     @GetMapping("/{product-id}")
     public ResponseEntity getProduct(@PathVariable("product-id") @Positive long productId){
         Product product = productService.findProduct(productId);
-        return new ResponseEntity(new SingleResponseDto<>(mapper.productToProductResponse(product)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.productToProductResponse(product)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{product-id}")
     public ResponseEntity deleteItem(@PathVariable("product-id") long productId){
         productService.deleteProduct(productId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -4,6 +4,7 @@ import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.chatroom.dto.ChatRoomDto;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.mapper.ChatRoomMapper;
+//import com.example.dice_talk.chatroom.queue.ChatRoomQueue;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
@@ -31,11 +32,20 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final ChatRoomMapper mapper;
+//    private final ChatRoomQueue chatRoomQueue;
 
     public ChatRoomController(ChatRoomService chatRoomService, ChatRoomMapper mapper) {
         this.chatRoomService = chatRoomService;
         this.mapper = mapper;
     }
+
+//    @PostMapping("/queue")
+//    public ResponseEntity addToQueue(@AuthenticationPrincipal CustomPrincipal customPrincipal){
+//        chatRoomQueue.addToQueue(customPrincipal.getMemberId());
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
+
+
 
     // 채팅방 생성
     @PostMapping
@@ -54,7 +64,7 @@ public class ChatRoomController {
             @AuthenticationPrincipal CustomPrincipal customPrincipal){
         dto.setChatRoomId(chatRoomId);
         ChatRoom chatRoom = chatRoomService.updateChatRoom(mapper.chatRoomPatchToChatRoom(dto));
-        return new ResponseEntity(new SingleResponseDto<>(mapper.chatRoomToChatRoomSingleResponse(chatRoom)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.chatRoomToChatRoomSingleResponse(chatRoom)), HttpStatus.OK);
     }
 
     // 채팅방 전체조회 (관리자용)
@@ -64,7 +74,7 @@ public class ChatRoomController {
                                        @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Page<ChatRoom> chatRoomPage = chatRoomService.findChatRooms(page, size);
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(
+        return new ResponseEntity<>(new MultiResponseDto<>(
                 mapper.chatRoomsToChatRoomMultiResponses(chatRooms), chatRoomPage
         ), HttpStatus.OK);
     }
@@ -77,7 +87,7 @@ public class ChatRoomController {
                                          @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Page<ChatRoom> chatRoomPage = chatRoomService.findMyCoupleChatRooms(page, size, memberId, customPrincipal.getMemberId());
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(
+        return new ResponseEntity<>(new MultiResponseDto<>(
                 mapper.chatRoomsToChatRoomMultiResponses(chatRooms), chatRoomPage
         ), HttpStatus.OK);
     }
@@ -87,7 +97,7 @@ public class ChatRoomController {
     public ResponseEntity getChatRoom(@PathVariable @Positive long chatRoomId,
                                       @AuthenticationPrincipal CustomPrincipal customPrincipal){
         ChatRoom chatRoom = chatRoomService.findVerifiedChatRoom(chatRoomId);
-        return new ResponseEntity(new SingleResponseDto<>(
+        return new ResponseEntity<>(new SingleResponseDto<>(
                 mapper.chatRoomToChatRoomSingleResponse(chatRoom)
         ), HttpStatus.OK);
     }
@@ -98,12 +108,12 @@ public class ChatRoomController {
             @PathVariable("chat-room-id") @Positive long chatRoomId
     ){
         chatRoomService.deleteChatRoom(chatRoomId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // 대기열을 등록할 때 참여중인 채팅방이 있는지 확인하는 API 엔ㄷ포인트
     @GetMapping("/isPossible/{member-id}")
     public ResponseEntity verifyChatPart(@PathVariable("member-id") long memberId){
-        return new ResponseEntity(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
+        return new ResponseEntity<>(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
     }
 }

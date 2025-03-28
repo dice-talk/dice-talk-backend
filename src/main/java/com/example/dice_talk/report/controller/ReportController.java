@@ -44,14 +44,14 @@ public class ReportController {
     @GetMapping("/{report-id}")
     public ResponseEntity getReport(@PathVariable("report-id") @Positive long reportId){
         Report report = reportService.findReport(reportId);
-        return new ResponseEntity(new SingleResponseDto<>(mapper.reportToReportResponse(report)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.reportToReportResponse(report)), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity getReports(@Positive @RequestParam int page, @Positive @RequestParam int size){
         Page<Report> reportPage = reportService.findReports(page, size);
         List<Report> reports = reportPage.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(
+        return new ResponseEntity<>(new MultiResponseDto<>(
                 mapper.reportsToReportResponses(reports), reportPage
         ), HttpStatus.OK);
     }
@@ -61,6 +61,6 @@ public class ReportController {
         Report report = reportService.findReport(reportId);
         report.setReportStatus(Report.ReportStatus.REPORT_DELETED);
         reportService.updateReport(report);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
