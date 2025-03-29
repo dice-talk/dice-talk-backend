@@ -8,6 +8,7 @@ import com.example.dice_talk.chatroom.mapper.ChatRoomMapper;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import com.example.dice_talk.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -108,6 +109,16 @@ public class ChatRoomController {
             @PathVariable("chat-room-id") @Positive long chatRoomId
     ){
         chatRoomService.deleteChatRoom(chatRoomId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // 특정 채팅방에 소속된 특정 회원의 상태를 '퇴장 상태' 로 변경하는 메서드
+    @DeleteMapping("/{chat-room-id}/{member-id}")
+    public ResponseEntity exitFromChatRoom(@PathVariable("chat-room-id") @Positive long chatRoomId,
+                                           @PathVariable("chat-room-id") @Positive long memberId,
+                                           @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        AuthorizationUtils.isAdminOrOwner(memberId, customPrincipal.getMemberId());
+        chatRoomService.exitChatPart(chatRoomId, memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
