@@ -37,8 +37,11 @@ public class ChatController {
      * @param chatDto 클라이언트가 보낸 메시지 DTO
      * @param headerAccessor STOMP 헤더 정보 (세션 정보 포함)
      */
-    @MessageMapping("/chat/{roomId}/sendMessage") // ✅ 클라이언트에서 이 경로로 메시지 발행
-    public void sendMessage(@DestinationVariable String roomId,   //@PathVariable : 구독 및 발행 Url
+
+    // ✅ 클라이언트에서 이 경로로 메시지 발행
+    // webSocketConfig /-> registry.enableSimpleBroker("/sub");
+    @MessageMapping("/chat/{roomId}/sendMessage")
+    public void sendMessage(@DestinationVariable long roomId,   //@PathVariable : 구독 및 발행 Url
                             ChatDto.Post chatDto,
                             SimpMessageHeaderAccessor headerAccessor) {
         /*SimpMessageHeaderAccessor
