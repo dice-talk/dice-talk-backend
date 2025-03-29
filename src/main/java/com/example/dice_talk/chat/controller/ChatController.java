@@ -4,6 +4,7 @@ import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.mapper.ChatMapper;
 import com.example.dice_talk.chat.service.ChatService;
+import com.example.dice_talk.chatroom.config.SessionRegistry;
 import com.example.dice_talk.chatroom.config.StompHandler;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,33 @@ public class ChatController {
     private final ChatRoomService chatRoomService; // ✅ 채팅방 서비스 (채팅방 검증 및 관리)
     private final ChatMapper mapper; // ✅ DTO <-> 엔티티 변환
     private final SimpMessagingTemplate messagingTemplate; // ✅ WebSocket을 통해 메시지를 전송하는 객체
+    private final SessionRegistry sessionRegistry;  // ✅ 세션 정보 관리
+
+    @MessageMapping("/chat/{roomId}/enter")
+    public void enterChatRoom(@DestinationVariable long roomId,
+                              ChatDto.Enter enter,
+                              SimpMessageHeaderAccessor headerAccessor) {
+        // 세션 ID 가져오기
+        String sessionId = headerAccessor.getSessionId();
+
+        // 사용자 정보 설정
+        Long memberId = enter.getMemberId();
+        String nickname = enter.getNickname();
+
+        // 사용자 등록 (세션 ID와 사용자 정보 매핑)
+        sessionRegistry.registerUserInChatRoom(String.valueOf(roomId), memberId, sessionId);
+
+        // StompHandler에 사용자 정보 저장 (전역 관리)
+        StompHandler.saveSessionInfo(sessionId, memberId, nickname);
+
+//        // 입장 메시지 생성 및 전송 (선택적)
+//        ChatDto.Response enterNotification = new ChatDto.Response();
+//        enterNotification.setNickName(nickname);
+//        enterNotification.setMessage(nickname + "님이 입장하셨습니다.");
+
+        // 해당 채팅방을 구독 중인 모든 클라이언트에게 입장 메시지 전송
+        messagingTemplate.convertAndSend("/sub/chat/" + roomId, enterNotification);
+    }
 
     /**
      * ✅ sendMessage - 클라이언트가 보낸 메시지를 처리하는 메서드
@@ -58,7 +86,7 @@ public class ChatController {
         String nickname = StompHandler.getNicknameBySessionId(sessionId);
         Long memberId = StompHandler.getMemberIdBySessionId(sessionId); // ✅ memberId도 함께 가져오기
 
-        // ✅ 메시지 작성자 정보 설정 (유저 이름 & 멤버 ID)
+        // ✅ 메시지 작성자 정보 설정 (유저 이름, 멤버 ID)
         chatDto.setNickname(nickname);
         chatDto.setMemberId(memberId);
 

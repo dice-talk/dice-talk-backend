@@ -16,6 +16,17 @@ import java.time.LocalDateTime;
  */
 public class ChatDto {
 
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Enter {
+        private Long memberId;
+        private String nickname;
+        private Long chatRoomId;
+    }
+
     /*
     Post 메시지 전송 요청
     - 클라이언트가 채팅 메세지를 보낼 때 사용하는 DTO
