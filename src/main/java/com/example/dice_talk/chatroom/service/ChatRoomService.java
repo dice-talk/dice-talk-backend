@@ -50,16 +50,29 @@ public class ChatRoomService {
         return true;
     }
 
+    // 채팅방 생성 시 'RoomType' 에 따라서 종료시간 설정
     public ChatRoom createChatRoom(ChatRoom chatRoom){
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
+        if(savedChatRoom.getRoomType().equals(ChatRoom.RoomType.GROUP)){
         // 채팅방 생성 시 48시간 후 상태 변경 작업 예약
-        scheduleDeactivation(savedChatRoom);
+        scheduleDeactivationGroup(savedChatRoom);
+        } else {
+            scheduleDeactivationCouple(savedChatRoom);
+        }
+
         return savedChatRoom;
     }
 
-    private void scheduleDeactivation(ChatRoom chatRoom){
-        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(48);
+    private void scheduleDeactivationGroup(ChatRoom chatRoom){
+        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(49);
+        Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
+    }
+
+    private void scheduleDeactivationCouple(ChatRoom chatRoom){
+        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(24);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
@@ -113,6 +126,14 @@ public class ChatRoomService {
         chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_DEACTIVE);
         chatRoom.getChatParts().stream().forEach(chatPart -> chatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT));
         chatRoomRepository.save(chatRoom);
+    }
+
+    // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경
+    public void exitChatPart(long chatRoomId, long memberId){
+        Optional<ChatPart> chatPart = chatPartRepository.findByChatRoom_ChatRoomIdAndMember_MemberId(chatRoomId, memberId);
+        ChatPart foundChatPart = chatPart.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
+        chatPartRepository.save(foundChatPart);
     }
 
     public ChatRoom findVerifiedChatRoom(long chatRoomId){
