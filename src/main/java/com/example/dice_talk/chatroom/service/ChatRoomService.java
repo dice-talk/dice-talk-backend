@@ -1,6 +1,8 @@
 package com.example.dice_talk.chatroom.service;
 
 import com.example.dice_talk.auth.CustomPrincipal;
+import com.example.dice_talk.chat.entity.Chat;
+import com.example.dice_talk.chat.service.ChatService;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.repository.ChatPartRepository;
@@ -34,11 +36,14 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatPartRepository chatPartRepository;
     private final TaskScheduler taskScheduler;
+    //종료된 채팅방의 구독 취소 추가
+    private final ChatService chatService;
 
-    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatPartRepository chatPartRepository, TaskScheduler taskScheduler) {
+    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatPartRepository chatPartRepository, TaskScheduler taskScheduler, ChatService chatService) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatPartRepository = chatPartRepository;
         this.taskScheduler = taskScheduler;
+        this.chatService = chatService;
     }
 
     public boolean isMemberPossibleToPart(long memberId){
@@ -55,8 +60,9 @@ public class ChatRoomService {
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
         if(savedChatRoom.getRoomType().equals(ChatRoom.RoomType.GROUP)){
-        // 채팅방 생성 시 48시간 후 상태 변경 작업 예약
+        // 채팅방 생성 시 49시간 후 상태 변경 작업 예약
         scheduleDeactivationGroup(savedChatRoom);
+        //채팅방 내 사용자 구독 취소
         } else {
             scheduleDeactivationCouple(savedChatRoom);
         }
@@ -64,6 +70,7 @@ public class ChatRoomService {
         return savedChatRoom;
     }
 
+    //49시간 뒤 그룹 채팅방 비활성화
     private void scheduleDeactivationGroup(ChatRoom chatRoom){
         LocalDateTime deactivationTime = LocalDateTime.now().plusHours(49);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -71,18 +78,37 @@ public class ChatRoomService {
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
 
+    //24시간 뒤 1:1 채팅방 비활성화
     private void scheduleDeactivationCouple(ChatRoom chatRoom){
         LocalDateTime deactivationTime = LocalDateTime.now().plusHours(24);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
+//수정전
+//    public void deactivateChatRoom(Long chatRoomId){
+//       //채팅방 상태 변경
+//        ChatRoom chatRoom = findVerifiedChatRoom(chatRoomId);
+//        chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_DEACTIVE);
+//
+//        // 멤버 상태도 업데이트
+//        List<ChatPart> chatParts = chatPartRepository.findByChatRoom_ChatRoomId(chatRoomId);
+//        for(ChatPart chatPart : chatParts){
+//            chatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
+//            chatPartRepository.save(chatPart);
+//        }
+//
+//        // 채팅방 상태 저장
+//        chatRoomRepository.save(chatRoom);
+//    }
 
+//수정 후
     public void deactivateChatRoom(Long chatRoomId){
+        //채팅방 상태 변경
         ChatRoom chatRoom = findVerifiedChatRoom(chatRoomId);
         chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_DEACTIVE);
 
-        // 멤버 상태도 업데이트
+        // 멤버 상태 업데이트
         List<ChatPart> chatParts = chatPartRepository.findByChatRoom_ChatRoomId(chatRoomId);
         for(ChatPart chatPart : chatParts){
             chatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
@@ -91,6 +117,9 @@ public class ChatRoomService {
 
         // 채팅방 상태 저장
         chatRoomRepository.save(chatRoom);
+
+        //채팅방의 모든 사용자의 구독 취소
+        chatService.unsubscribeAllUsersFromChatRoom(chatRoomId);
     }
 
     // 특정 채팅방이 존재하는지 확인 후 업데이트

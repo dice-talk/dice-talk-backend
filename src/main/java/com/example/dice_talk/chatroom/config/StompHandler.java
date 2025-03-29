@@ -1,6 +1,7 @@
 package com.example.dice_talk.chatroom.config;
 
 import com.example.dice_talk.auth.jwt.JwtTokenizer;
+import com.example.dice_talk.chat.UserInfo;
 import com.example.dice_talk.member.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -28,22 +29,18 @@ import java.util.concurrent.ConcurrentHashMap;
  4. 이후 채팅을 보낼 때, 저장된 `memberId`를 활용해 사용자 식별
 * */
 
+//인증 및 WebSocket 연결관리
+
 @RequiredArgsConstructor
 @Component
 public class StompHandler implements ChannelInterceptor {
 
     private final JwtTokenizer jwtTokenizer;
     private final MemberService memberService;
-
-    // WebSocket 세션 ID와 사용자 이름 매핑
-    private static final Map<String, String> userSessionMap = new ConcurrentHashMap<>();
-
-    // WebSocket 세션 ID와 사용자 ID 매핑
-    private static final Map<String, Long> sessionMemberMap = new ConcurrentHashMap<>();
+    private final SessionRegistry sessionRegistry;
 
     // WebSocket 메세지가 전송되기 전에 호출되는 메서드
     // 클라이언트가 처음 연결할 때(CONNECT) JWT 토큰을 검증하고 사용자 정보를 저장
-
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         // 메세지에서 STOMP 관련 정보 추출
@@ -66,13 +63,14 @@ public class StompHandler implements ChannelInterceptor {
 //                String username = claims.get("username", String.class);
                 Long memberId = claims.get("memberId", Long.class);
                 String nickname = memberService.findNicknameByMemberId(memberId);
-
                 // WebSocket 세션 ID 가져오기 (각 클라이언트는 고유한 세션 ID를 가짐)
                 String sessionId = accessor.getSessionId();
 
-                // 세션 ID -> 사용자 정보 저장(이후 메세지 주고받을 때 활용)
-                userSessionMap.put(sessionId, nickname);
-                sessionMemberMap.put(sessionId, memberId);
+                // SessionRegistry에 사용자 정보 저장
+                sessionRegistry.registerSession(sessionId, new UserInfo(memberId, null));
+
+                // 정적 메서드를 위한 정보 저장 (하위 호환성 유지)
+                saveSessionInfo(sessionId, memberId, nickname);
 
                 // WebSocket 세션에 사용자 정보 저장(메세지 핸들러에서 사용 가능)
                 accessor.getSessionAttributes().put("nickname", nickname);
@@ -80,9 +78,20 @@ public class StompHandler implements ChannelInterceptor {
             } catch (Exception e){
                 throw new AccessDeniedException("Invalid token"); // 토큰 검증 실패 시 예외 발생
             }
+        //DISCONNECT 이벤트 발생 시 SessionRegistry 에서 세션 정보 제거
+        } else if(StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+            //연결 종료 시 세션 정보 제거
+            String sessionId = accessor.getSessionId();
+            if(sessionId != null) {
+                sessionRegistry.removeSession(sessionId);
+            }
+
         }
         return message;
     }
+
+    private static final Map<String, String> userSessionMap = new ConcurrentHashMap<>();
+    private static final Map<String, Long> sessionMemberMap = new ConcurrentHashMap<>();
 
     // 세션 ID를 기반으로 username을 가져오는 메서드
     // 특정 사용자가 보낸 메세지가 누구의 것인지 확인할 때 사용
@@ -95,4 +104,11 @@ public class StompHandler implements ChannelInterceptor {
     public static Long getMemberIdBySessionId(String sessionId){
         return sessionMemberMap.get(sessionId);
     }
+
+    //새로운 WebSocket 연결이 수립될 때 호출되어, 해당 세션의 사용자 정보를 저장
+    public static void saveSessionInfo(String sessionId, Long memberId, String nickname) {
+        userSessionMap.put(sessionId, nickname);
+        sessionMemberMap.put(sessionId, memberId);
+    }
+
 }
