@@ -62,7 +62,7 @@ public class StompHandler implements ChannelInterceptor {
                 // 사용자 정보 추출(JwtAuthenticationFilter 에서 토큰 생성 시 "username", "memberId" 키로 저장함)
 //                String username = claims.get("username", String.class);
                 Long memberId = claims.get("memberId", Long.class);
-                String nickname = memberService.findNicknameByMemberId(memberId);
+//                String nickname = memberService.findNicknameByMemberId(memberId);
                 // WebSocket 세션 ID 가져오기 (각 클라이언트는 고유한 세션 ID를 가짐)
                 String sessionId = accessor.getSessionId();
 
@@ -88,7 +88,6 @@ public class StompHandler implements ChannelInterceptor {
         }
         return message;
     }
-
 
     // 세션 ID를 기반으로 memeberId를 가져오는 메서드
     // 메세지를 저장할 때 memberId를 사용하여 해당 사용자 식별 가능

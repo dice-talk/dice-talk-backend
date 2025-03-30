@@ -86,7 +86,6 @@ public class ChatController {
 
         // ✅ 저장된 메시지를 구독 중인 클라이언트들에게 전송
         ChatDto.Response responseChat = mapper.chatToChatResponse(savedChat);
-//            responseChat.setNickName(nickname); // 메시지 작성자 정보 추가
 
         // ✅ 해당 채팅방을 구독 중인 모든 클라이언트에게 메시지 전송
         messagingTemplate.convertAndSend("/sub/chat/" + roomId, responseChat);

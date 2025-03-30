@@ -14,7 +14,7 @@ public class SessionRegistry {
     private final ConcurrentHashMap<String, Map<Long, String>> roomMemberSessionMap = new ConcurrentHashMap<>();
 
     // 세션 ID → 사용자 정보 매핑
-    private final ConcurrentHashMap<String, UserInfo> sessionMemberMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, UserInfo> sessionMemberMap = new ConcurrentHashMap<>();
 
 
 

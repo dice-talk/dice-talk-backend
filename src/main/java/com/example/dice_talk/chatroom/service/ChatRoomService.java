@@ -85,24 +85,8 @@ public class ChatRoomService {
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
-//수정전
-//    public void deactivateChatRoom(Long chatRoomId){
-//       //채팅방 상태 변경
-//        ChatRoom chatRoom = findVerifiedChatRoom(chatRoomId);
-//        chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_DEACTIVE);
-//
-//        // 멤버 상태도 업데이트
-//        List<ChatPart> chatParts = chatPartRepository.findByChatRoom_ChatRoomId(chatRoomId);
-//        for(ChatPart chatPart : chatParts){
-//            chatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
-//            chatPartRepository.save(chatPart);
-//        }
-//
-//        // 채팅방 상태 저장
-//        chatRoomRepository.save(chatRoom);
-//    }
 
-//수정 후
+    @Transactional
     public void deactivateChatRoom(Long chatRoomId){
         //채팅방 상태 변경
         ChatRoom chatRoom = findVerifiedChatRoom(chatRoomId);
@@ -170,48 +154,3 @@ public class ChatRoomService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));
     }
 }
-
-
-
-//@Service
-//@Transactional
-//public class ChatRoomService {
-//    private final ChatRoomRepository chatRoomRepository;
-//    private final ChatRoomQueue chatRoomQueue;
-//    private final SimpMessagingTemplate messagingTemplate;
-//
-//    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatRoomQueue chatRoomQueue, SimpMessagingTemplate messagingTemplate) {
-//        this.chatRoomRepository = chatRoomRepository;
-//        this.chatRoomQueue = chatRoomQueue;
-//        this.messagingTemplate = messagingTemplate;
-//    }
-//
-//    public void addToQueue(Long memberId) {
-//        chatRoomQueue.addToQueue(memberId);
-//        checkAndCreateRoom();
-//    }
-//
-//    private void checkAndCreateRoom() {
-//        if (chatRoomQueue.isQueueReady()) {
-//            List<Long> members = chatRoomQueue.removeFromQueue();
-//            ChatRoom chatRoom = createChatRoom(members);
-//            notifyMembers(chatRoom, members);
-//        }
-//    }
-//
-//    private ChatRoom createChatRoom(List<Long> members) {
-//        ChatRoom chatRoom = new ChatRoom();
-//        chatRoom.setRoomType(ChatRoom.RoomType.GROUP);
-//        chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
-//        // 여기에 채팅방 생성 로직 추가 (예: 랜덤 이름 생성)
-//        return chatRoomRepository.save(chatRoom);
-//    }
-//
-//    private void notifyMembers(ChatRoom chatRoom, List<Long> members) {
-//        for (Long memberId : members) {
-//            messagingTemplate.convertAndSend("/sub/chat/queue/" + memberId, chatRoom.getChatRoomId());
-//        }
-//    }
-//
-//    // 기존 메소드들...
-//}

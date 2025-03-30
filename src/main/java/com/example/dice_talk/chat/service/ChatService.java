@@ -55,17 +55,17 @@ public class ChatService {
     }
 
 
-    //memberId로 사용자 구독 취소
-    //특정 채팅방에서 memberId를 가진 사용자의 구독 취소
+    // memberId로 사용자 구독 취소
+    // 특정 채팅방에서 memberId를 가진 사용자의 구독 취소
     public void unsubscribeUserByMemberId(Long memberId, String chatRoomId) {
-        //해당 채팅방의 채팅방Id 를 가져옴
+        // 해당 채팅방의 채팅방Id 를 가져옴
         Map<Long, String> memberSessionMap = sessionRegistry.getSessionsInChatRoom(chatRoomId);
 
-        //채팅방이 존재하고 해당 member가 있는 경우에만 처리
+        // 채팅방이 존재하고 해당 member가 있는 경우에만 처리
         if (memberSessionMap != null && memberSessionMap.containsKey(memberId)) {
-            //닉네임에 해당하는 세션Id 가져옴
+            // memberId에 해당하는 세션Id 가져옴
             String sessionId = memberSessionMap.get(memberId);
-            //클라이어트에게 구독 취소 메세지 전송
+            // 클라이어트에게 구독 취소 메세지 전송
             messagingTemplate.convertAndSendToUser(
                     sessionId,
                     "/sub/chat/" + chatRoomId,
