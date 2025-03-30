@@ -112,9 +112,9 @@ public class ChatRoomController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // 대기열을 등록할 때 참여중인 채팅방이 있는지 확인하는 API 엔드포인트
+    // 대기열을 등록할 때 참여중인 채팅방이 있는지 확인하는 API 엔ㄷ포인트
     @GetMapping("/isPossible/{member-id}")
     public ResponseEntity verifyChatPart(@PathVariable("member-id") long memberId){
-        return new ResponseEntity<>(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
+        return new ResponseEntity(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
     }
 }
