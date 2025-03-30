@@ -64,9 +64,9 @@ public class QuestionService {
         if(page < 1){
             throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
         }
-        Pageable pageable = PageRequest.of(page -1, size, Sort.by("question_id").descending());
+        Pageable pageable = PageRequest.of(page -1, size, Sort.by("questionId").descending());
         memberService.findVerifiedMember(memberId);
-        return questionRepository.findAllByMemberId(memberId, pageable);
+        return questionRepository.findAllByMember_MemberId(memberId, pageable);
     }
 
     public Question findQuestion(Long questionId){

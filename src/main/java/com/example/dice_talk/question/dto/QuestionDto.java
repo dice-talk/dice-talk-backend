@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 public class QuestionDto {
     @Getter
@@ -57,5 +58,7 @@ public class QuestionDto {
         private String questionImage;
         private Long memberId;
         private AnswerDto.Response answer;
+        private LocalDateTime createdAt;
+        private LocalDateTime modifiedAt;
     }
 }
