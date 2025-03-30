@@ -70,3 +70,5 @@ public class Chat extends BaseEntity {
     }
 
 }
+
+

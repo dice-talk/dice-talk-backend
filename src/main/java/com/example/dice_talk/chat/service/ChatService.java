@@ -1,19 +1,25 @@
 package com.example.dice_talk.chat.service;
 
 import com.example.dice_talk.chat.UserInfo;
+import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.repository.ChatRepository;
+import com.example.dice_talk.chatroom.config.SessionRegistry;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import static com.example.dice_talk.chatroom.config.StompHandler.saveSessionInfo;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,15 +28,23 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final SimpUserRegistry simpUserRegistry;
     private final SimpMessagingTemplate messagingTemplate;
-    //닉네임과 세션 ID를 매핑하는 저장소
-    //chatRoomId -> (nickname : sessionId) 구조로 저장
-    private final ConcurrentHashMap<String, Map<Long, String >> roomMemberSessionMap = new ConcurrentHashMap<>();
-    //세션ID -> 사용자 정보 맵
-    private final ConcurrentHashMap<String, UserInfo> sessionUserMap = new ConcurrentHashMap<>();
+    private final SessionRegistry sessionRegistry;
 
-    /*메세지 생성 -> Repository 에 저장,
-    DB에 저장된 메세지를 반환하여 클라이언트에 응답
-     */
+    //사용자가 채팅방에 입장할 때 호출되는 메서드
+    public void enterChatRoom(long roomId, Long memberId, String sessionId) {
+
+        // 사용자 등록 (세션 ID와 사용자 정보 매핑)
+        sessionRegistry. registerUserInChatRoom(String.valueOf(roomId), memberId, sessionId);
+
+        // StompHandler에 사용자 정보 저장 (전역 관리)
+        saveSessionInfo(sessionId, memberId);
+
+        // 해당 채팅방을 구독 중인 모든 클라이언트에게 입장 메시지 전송
+        messagingTemplate.convertAndSend("/sub/chat/" + roomId, "Dice 분들이 모두 입장하였습니다.");
+    }
+
+
+    //메세지 생성 -> Repository 에 저장, DB에 저장된 메세지를 반환하여 클라이언트에 응답
     public Chat createChat(Chat chat) {
         return chatRepository.save(chat);
     }
@@ -41,22 +55,11 @@ public class ChatService {
     }
 
 
-    //사용자가 채팅방에 입장할 때 memberId와 세션 ID 매핑 저장
-    //사용자가 채팅방에 처음 입장할 때 호출
-    public void registerUserInChatRoom(String chatRoomId, Long memberId, String sessionId) {
-       //채팅방 사용자 맵에 추가
-        //computeIfAbsent() : key 존재 -> 기존 value 반환 / key 존재X -> 람다식으로 적용한 값을 해당 key에 저장, 새로운 value 반환
-        roomMemberSessionMap.computeIfAbsent(chatRoomId, k -> new ConcurrentHashMap<>()).put(memberId, sessionId);
-
-        //세션 정보 맵에 추가
-        sessionUserMap.put(sessionId, new UserInfo(memberId, chatRoomId));
-    }
-
     //memberId로 사용자 구독 취소
     //특정 채팅방에서 memberId를 가진 사용자의 구독 취소
     public void unsubscribeUserByMemberId(Long memberId, String chatRoomId) {
         //해당 채팅방의 채팅방Id 를 가져옴
-        Map<Long, String> memberSessionMap = roomMemberSessionMap.get(chatRoomId);
+        Map<Long, String> memberSessionMap = sessionRegistry.getSessionsInChatRoom(chatRoomId);
 
         //채팅방이 존재하고 해당 member가 있는 경우에만 처리
         if (memberSessionMap != null && memberSessionMap.containsKey(memberId)) {
@@ -68,15 +71,22 @@ public class ChatService {
                     "/sub/chat/" + chatRoomId,
                     "채팅방이 종료되었습니다."
             );
-            //서버 측 맵에서 사용자 정보 제거
-            memberSessionMap.remove(sessionId);
+
+            // SessionRegistry에서 세션 제거
+            UserInfo userInfo = sessionRegistry.getUserInfo(sessionId);
+            if (userInfo != null) {
+                sessionRegistry.removeSession(sessionId);
+
+
+            }
         }
     }
+
 
     //채팅방의 모든 사용자 구독 취소
     public void unsubscribeAllUsersFromChatRoom(Long chatRoomId) {
         //특정 채팅방의 모든 사용자 세션 정보를 가져옴
-        Map<Long, String> memberSessionMap = roomMemberSessionMap.get(chatRoomId.toString());
+        Map<Long, String> memberSessionMap = sessionRegistry.getSessionsInChatRoom(chatRoomId.toString());
         if (memberSessionMap != null) {
             // 맵을 복사하여 ConcurrentModificationException 방지 (원본 맵 수정되는 것 방지)
                 //컬렉션을 순회하면서 순회하는 대상 컬렉션이 수정되어 값이 서로 다를 경우 발생
@@ -86,7 +96,6 @@ public class ChatService {
             for (Map.Entry<Long, String> entry : copyMap.entrySet()) {
                 //Entry는 Map.Entry 객체로, 키-값 쌍을 나타냄
                 //getKey() -> memberId를 getValue()-> sessionId(값)을 얻는다.
-                Long memberId = entry.getKey();
                 String sessionId = entry.getValue();
 
                 // 클라이언트에게 구독 취소 메시지 전송
@@ -96,12 +105,9 @@ public class ChatService {
                         "채팅방이 종료되었습니다."
                 );
 
-                //전체 세션 정보 맵에서 제거
-                sessionUserMap.remove(sessionId);
+                //세션 제거
+               sessionRegistry.removeSession(sessionId);
             }
-
-            // 채팅방 사용자 맵에서 제거
-            roomMemberSessionMap.remove(chatRoomId.toString());
 
             // 채팅방의 모든 구독자에게 채팅방 종료 메시지 전송
             messagingTemplate.convertAndSend(
@@ -110,6 +116,4 @@ public class ChatService {
             );
         }
     }
-
-
 }

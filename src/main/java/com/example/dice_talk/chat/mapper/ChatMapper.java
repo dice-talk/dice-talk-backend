@@ -11,6 +11,10 @@ import org.springframework.data.jpa.repository.Query;
 public interface ChatMapper {
     @Mapping(target = "member.memberId", source = "memberId")
     @Mapping(target = "chatRoom.chatRoomId", source = "chatRoomId")
+    Chat chatEnterToChat(ChatDto.Enter enter);
+
+    @Mapping(target = "member.memberId", source = "memberId")
+    @Mapping(target = "chatRoom.chatRoomId", source = "chatRoomId")
     Chat chatPostToChat(ChatDto.Post post);
 
     @Mapping(target = "memberId", source = "member.memberId")
