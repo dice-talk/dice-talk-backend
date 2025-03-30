@@ -153,4 +153,22 @@ public class ChatRoomService {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));
     }
+
+    public ChatRoom createRoomForMatchedUsers(List<Member> members) {
+        ChatRoom chatRoom = new ChatRoom();
+        chatRoom.setRoomType(ChatRoom.RoomType.GROUP);
+        chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
+        ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
+
+        for (Member member : members) {
+            ChatPart chatPart = new ChatPart();
+            chatPart.setNickname(member.getName());
+            chatPart.setProfile("member.getProfile()"); // 프로필 적용 로직 필요
+            chatPart.setMember(member);
+            chatPart.setChatRoom(savedRoom);
+            chatPartRepository.save(chatPart);
+        }
+
+        return savedRoom;
+    }
 }

@@ -1,11 +1,14 @@
 package com.example.dice_talk.chatroom.config;
 
+import com.example.dice_talk.auth.jwt.JwtTokenProvider;
 import com.example.dice_talk.auth.jwt.JwtTokenizer;
-import com.example.dice_talk.chat.UserInfo;
+import com.example.dice_talk.chat.dto.UserInfo;
+import com.example.dice_talk.member.repository.MemberRepository;
 import com.example.dice_talk.member.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -33,10 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class StompHandler implements ChannelInterceptor {
 
     private final JwtTokenizer jwtTokenizer;
-    private final MemberService memberService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final MemberRepository memberRepository;
     private final SessionRegistry sessionRegistry;
     private static final Map<String, Long> sessionMemberMap = new ConcurrentHashMap<>();
     // WebSocket 메세지가 전송되기 전에 호출되는 메서드
@@ -45,6 +50,8 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         // 메세지에서 STOMP 관련 정보 추출
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompCommand command = accessor.getCommand();
+
 
         // 클라이언트가 WebSocket에 처음 연결할 때(CONNECT) 실행
         if(StompCommand.CONNECT.equals(accessor.getCommand())){
@@ -70,7 +77,7 @@ public class StompHandler implements ChannelInterceptor {
                 sessionRegistry.registerSession(sessionId, new UserInfo(memberId, null));
 
                 // 정적 메서드를 위한 정보 저장 (하위 호환성 유지)
-                saveSessionInfo(sessionId, memberId);
+                saveUserInfo(sessionId, memberId);
 
                 // WebSocket 세션에 사용자 정보 저장(메세지 핸들러에서 사용 가능)
                 accessor.getSessionAttributes().put("memberId", memberId);
@@ -78,7 +85,11 @@ public class StompHandler implements ChannelInterceptor {
                 throw new AccessDeniedException("Invalid token"); // 토큰 검증 실패 시 예외 발생
             }
         //DISCONNECT 이벤트 발생 시 SessionRegistry 에서 세션 정보 제거
-        } else if(StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+        } else if (StompCommand.SUBSCRIBE == command) {
+            // 구독 시작 - 사용자의 구독 정보 로그
+            String destination = accessor.getDestination();
+            log.info("STOMP subscription: session={}, destination={}", accessor.getSessionId(), destination);
+        }else if(StompCommand.DISCONNECT.equals(accessor.getCommand())) {
             //연결 종료 시 세션 정보 제거
             String sessionId = accessor.getSessionId();
             if(sessionId != null) {
@@ -97,7 +108,7 @@ public class StompHandler implements ChannelInterceptor {
     }
 
     //새로운 WebSocket 연결이 수립될 때 호출되어, 해당 세션의 사용자 정보를 저장
-    public static void saveSessionInfo(String sessionId, Long memberId) {
+    public static void saveUserInfo(String sessionId, Long memberId) {
         sessionMemberMap.put(sessionId, memberId);
     }
 

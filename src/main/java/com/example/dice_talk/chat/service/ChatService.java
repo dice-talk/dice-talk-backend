@@ -1,13 +1,11 @@
 package com.example.dice_talk.chat.service;
 
-import com.example.dice_talk.chat.UserInfo;
-import com.example.dice_talk.chat.dto.ChatDto;
+import com.example.dice_talk.chat.dto.UserInfo;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.repository.ChatRepository;
 import com.example.dice_talk.chatroom.config.SessionRegistry;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
-import com.example.dice_talk.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -116,4 +114,6 @@ public class ChatService {
             );
         }
     }
+
+
 }

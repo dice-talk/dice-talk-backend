@@ -36,8 +36,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp") // WebSocket 연결(connect) 엔드포인트 설정
-                .setAllowedOrigins("*")
-//                .setAllowedOrigins("http://localhost:3000") //특정 도메인에서만 WebSocket 허용 (보안 강화)  - CORS ??
+                .setAllowedOrigins("http://localhost:19006", "http://localhost:19000", "http://localhost:8081", "http://172.30.1.54:8081") //특정 도메인에서만 WebSocket 허용 (보안 강화)  - CORS ??
+                .setAllowedOriginPatterns("*")
                 .withSockJS(); // WebSocket 을 지원하지 않는 환경에서도 사용 가능(폴백처리 - 폴링, 스트리밍 등)
                                // 웹소켓이 안될 때 서버쪽에서 sockJS 사용하도록 설정
     }

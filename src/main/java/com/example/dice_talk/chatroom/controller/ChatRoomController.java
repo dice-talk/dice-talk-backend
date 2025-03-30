@@ -12,7 +12,6 @@ import com.example.dice_talk.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -115,6 +114,6 @@ public class ChatRoomController {
     // 대기열을 등록할 때 참여중인 채팅방이 있는지 확인하는 API 엔ㄷ포인트
     @GetMapping("/isPossible/{member-id}")
     public ResponseEntity verifyChatPart(@PathVariable("member-id") long memberId){
-        return new ResponseEntity(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
+        return new ResponseEntity<>(chatRoomService.isMemberPossibleToPart(memberId), HttpStatus.OK);
     }
 }

@@ -8,6 +8,7 @@ import com.example.dice_talk.chatroom.config.SessionRegistry;
 import com.example.dice_talk.chatroom.config.StompHandler;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * - STOMP 메시지를 처리하는 **WebSocket 기반 메시지 컨트롤러**
  * - 메시지를 받아서 저장한 후 **구독 중인 클라이언트들에게 브로드캐스트**
  */
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ChatController {
@@ -41,7 +43,7 @@ public class ChatController {
 
         //사용자 정보 설정
         Long memberId = enter.getMemberId();
-        String nickname = enter.getNickname();
+//        String nickname = enter.getNickname();
 
         chatService.enterChatRoom(roomId, memberId, sessionId);
 
@@ -74,21 +76,26 @@ public class ChatController {
         String sessionId = headerAccessor.getSessionId();
 
         // ✅ 세션 ID를 기반으로 유저 정보 가져오기 (StompHandler에서 관리)
-        Long memberId = StompHandler.getMemberIdBySessionId(sessionId); // ✅ memberId도 함께 가져오기
+        String nickname = chatDto.getNickname();
+        Long memberId = chatDto.getMemberId(); // ✅ memberId도 함께 가져오기
 
-        // ✅ 메시지 작성자 정보 설정 (유저 이름, 멤버 ID)
+        // ✅ 메시지 작성자 정보 설정 (유저 이름 & 멤버 ID)
+        chatDto.setNickname(nickname);
         chatDto.setMemberId(memberId);
-        chatDto.setChatRoomId(roomId);
 
         // ✅ 메시지를 생성하면서 chatRoom을 설정 (DB 저장 전)
+        Chat chat = mapper.chatPostToChat(chatDto);
+
         // ✅ 메시지를 DB에 저장
-        Chat savedChat = chatService.createChat(mapper.chatPostToChat(chatDto));
+        Chat savedChat = chatService.createChat(chat);
 
         // ✅ 저장된 메시지를 구독 중인 클라이언트들에게 전송
         ChatDto.Response responseChat = mapper.chatToChatResponse(savedChat);
+        responseChat.setNickName(nickname); // 메시지 작성자 정보 추가
 
         // ✅ 해당 채팅방을 구독 중인 모든 클라이언트에게 메시지 전송
         messagingTemplate.convertAndSend("/sub/chat/" + roomId, responseChat);
+        log.info("메시지 전송: {}", responseChat);
     }
 }
 

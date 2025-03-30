@@ -1,4 +1,4 @@
-package com.example.dice_talk.chat;
+package com.example.dice_talk.chat.dto;
 
 import lombok.Getter;
 

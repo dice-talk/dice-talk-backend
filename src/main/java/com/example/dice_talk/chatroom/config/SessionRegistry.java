@@ -1,6 +1,6 @@
 package com.example.dice_talk.chatroom.config;
 
-import com.example.dice_talk.chat.UserInfo;
+import com.example.dice_talk.chat.dto.UserInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
