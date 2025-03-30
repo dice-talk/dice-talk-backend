@@ -16,7 +16,10 @@ public class SessionRegistry {
     // 세션 ID → 사용자 정보 매핑
     private final ConcurrentHashMap<String, UserInfo> sessionMemberMap = new ConcurrentHashMap<>();
 
-    // 사용자를 채팅방에 등록
+
+
+    //사용자가 채팅방에 입장할 때 memberId와 세션 ID 매핑 저장
+    //사용자가 채팅방에 처음 입장할 때 호출
     public void registerUserInChatRoom(String chatRoomId, Long memberId, String sessionId) {
         // 채팅방 ID에 해당하는 맵이 없으면 새로 생성하고, 멤버 ID와 세션 ID를 추가
         roomMemberSessionMap.computeIfAbsent(chatRoomId, k -> new ConcurrentHashMap<>())

@@ -38,7 +38,7 @@ public class StompHandler implements ChannelInterceptor {
     private final JwtTokenizer jwtTokenizer;
     private final MemberService memberService;
     private final SessionRegistry sessionRegistry;
-
+    private static final Map<String, Long> sessionMemberMap = new ConcurrentHashMap<>();
     // WebSocket 메세지가 전송되기 전에 호출되는 메서드
     // 클라이언트가 처음 연결할 때(CONNECT) JWT 토큰을 검증하고 사용자 정보를 저장
     @Override
@@ -70,10 +70,9 @@ public class StompHandler implements ChannelInterceptor {
                 sessionRegistry.registerSession(sessionId, new UserInfo(memberId, null));
 
                 // 정적 메서드를 위한 정보 저장 (하위 호환성 유지)
-                saveSessionInfo(sessionId, memberId, nickname);
+                saveSessionInfo(sessionId, memberId);
 
                 // WebSocket 세션에 사용자 정보 저장(메세지 핸들러에서 사용 가능)
-                accessor.getSessionAttributes().put("nickname", nickname);
                 accessor.getSessionAttributes().put("memberId", memberId);
             } catch (Exception e){
                 throw new AccessDeniedException("Invalid token"); // 토큰 검증 실패 시 예외 발생
@@ -90,24 +89,16 @@ public class StompHandler implements ChannelInterceptor {
         return message;
     }
 
-    private static final Map<String, String> userSessionMap = new ConcurrentHashMap<>();
-    private static final Map<String, Long> sessionMemberMap = new ConcurrentHashMap<>();
-
-    // 세션 ID를 기반으로 username을 가져오는 메서드
-    // 특정 사용자가 보낸 메세지가 누구의 것인지 확인할 때 사용
-    public static String getNicknameBySessionId(String sessionId){
-        return userSessionMap.get(sessionId);
-    }
 
     // 세션 ID를 기반으로 memeberId를 가져오는 메서드
     // 메세지를 저장할 때 memberId를 사용하여 해당 사용자 식별 가능
     public static Long getMemberIdBySessionId(String sessionId){
+
         return sessionMemberMap.get(sessionId);
     }
 
     //새로운 WebSocket 연결이 수립될 때 호출되어, 해당 세션의 사용자 정보를 저장
-    public static void saveSessionInfo(String sessionId, Long memberId, String nickname) {
-        userSessionMap.put(sessionId, nickname);
+    public static void saveSessionInfo(String sessionId, Long memberId) {
         sessionMemberMap.put(sessionId, memberId);
     }
 
