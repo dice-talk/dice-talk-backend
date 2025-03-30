@@ -19,6 +19,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 //                                                 @Param("memberId") Long memberId,
 //                                                 @Param("isAdmin") boolean isAdmin);
 
-    @Query("SELECT q FROM Question q WHERE q.member.memberId = :memberId")
-    Page<Question> findAllByMemberId(@Param("memberId") Long memberId, Pageable pageable);
+    Page<Question> findAllByMember_MemberId(Long memberId, Pageable pageable);
 }

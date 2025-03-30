@@ -57,11 +57,15 @@ VALUES ('여름 맞이 여행 이벤트', 'EVENT_OPEN', 1, NOW()),
 
 -- 6. Question data
 INSERT INTO question (title, content, question_status, question_image, member_id, created_at)
-VALUES ('다이스 충전이 안돼요', '결제했는데 다이스가 충전되지 않았어요. 확인 부탁드립니다.', 'QUESTION_REGISTERED', null, 1, NOW()),
-       ('프로필 변경 문의', '프로필 사진이 변경되지 않아요. 어떻게 해야 하나요?', 'QUESTION_ANSWERED', null, 2, NOW()),
-       ('친구 추가 기능', '친구 추가는 어떻게 하나요?', 'QUESTION_REGISTERED', 'question_img3.jpg', 3, NOW()),
-       ('계정 삭제 문의', '계정을 삭제하고 싶습니다. 절차를 알려주세요.', 'QUESTION_ANSWERED', null, 4, NOW()),
-       ('채팅방 초대 오류', '채팅방에 친구를 초대할 수 없어요.', 'QUESTION_REGISTERED', 'question_img5.jpg', 5, NOW());
+VALUES ('다이스 충전이 안돼요', '결제했는데 다이스가 충전되지 않았어요. 확인 부탁드립니다.', 'QUESTION_REGISTERED', null, 6, NOW()),
+       ('프로필 변경 문의', '프로필 사진이 변경되지 않아요. 어떻게 해야 하나요?', 'QUESTION_ANSWERED', null, 6, NOW()),
+       ('친구 추가 기능', '친구 추가는 어떻게 하나요?', 'QUESTION_REGISTERED', 'question_img3.jpg', 6, NOW()),
+       ('계정 삭제 문의', '계정을 삭제하고 싶습니다. 절차를 알려주세요.', 'QUESTION_ANSWERED', null, 6, NOW()),
+       ('채팅방 초대 오', '채팅방에 친구를 초대할 수 없어요.', 'QUESTION_REGISTERED', 'question_img5.jpg', 6, NOW()),
+       ('채팅방 초대 ', '채팅방에 친구를 초대할 수 없어요.', 'QUESTION_REGISTERED', 'question_img5.jpg', 6, NOW()),
+       ('채팅방 초', '채팅방에 친구를 초대할 수 없어요.', 'QUESTION_REGISTERED', 'question_img5.jpg', 6, NOW()),
+       ('채팅방 ', '채팅방에 친구를 초대할 수 없어요.', 'QUESTION_REGISTERED', 'question_img5.jpg', 6, NOW()),
+       ('채팅', '채팅방에 친구를 초대할 수 없어요.', 'QUESTION_REGISTERED', 'question_img5.jpg', 6, NOW());
 
 -- 7. Answer data
 INSERT INTO answer (content, answer_image, question_id, member_id, created_at)
