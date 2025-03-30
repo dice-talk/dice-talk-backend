@@ -90,7 +90,7 @@ VALUES ('여행러버', 'profile1.jpg', 'MEMBER_ENTER', 1, 1, NOW()),
        ('요리사', 'profile7.jpg', 'MEMBER_ENTER', 3, 2, NOW()),
        ('평론가', 'profile8.jpg', 'MEMBER_ENTER', 1, 3, NOW()),
        ('작곡가', 'profile9.jpg', 'MEMBER_EXIT', 5, 4, NOW()),
-       ( '게이머', 'profile10.jpg', 'MEMBER_ENTER', 4, 5, NOW());
+       ('게이머', 'profile10.jpg', 'MEMBER_ENTER', 4, 5, NOW());
 
 -- 10. Chat data
 INSERT INTO chat (message, member_id, chat_room_id, created_at, nickname)
