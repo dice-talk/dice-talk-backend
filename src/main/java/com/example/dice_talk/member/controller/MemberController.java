@@ -28,7 +28,7 @@ import java.util.List;
 @RequestMapping("/")
 @Validated
 public class MemberController {
-    private final String MEMBER_DEFAULT_URL = "/";
+    private final static String MEMBER_DEFAULT_URL = "/";
     private final MemberService memberService;
     private final MemberMapper mapper;
     private final TossAuthService tossAuthService;

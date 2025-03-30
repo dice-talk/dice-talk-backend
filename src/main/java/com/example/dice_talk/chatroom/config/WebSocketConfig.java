@@ -35,9 +35,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp") // WebSocket 연결 엔드포인트 설정
-                .setAllowedOrigins("http://localhost:3000") //특정 도메인에서만 WebSocket 허용 (보안 강화)  - CORS ??
+        registry.addEndpoint("/ws-stomp") // WebSocket 연결(connect) 엔드포인트 설정
+                .setAllowedOrigins("*")
+//                .setAllowedOrigins("http://localhost:3000") //특정 도메인에서만 WebSocket 허용 (보안 강화)  - CORS ??
                 .withSockJS(); // WebSocket 을 지원하지 않는 환경에서도 사용 가능(폴백처리 - 폴링, 스트리밍 등)
+                               // 웹소켓이 안될 때 서버쪽에서 sockJS 사용하도록 설정
     }
 
     /* 메세지 브로커 설정
@@ -51,8 +53,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     * */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub"); // 클라이언트가 구독할 경로(메세지 받을 때 사용)
-        registry.setApplicationDestinationPrefixes("/pub"); // 클라이언트가 메세지를 보낼 때 사용할 경로
+        // 클라이언트가 메세지를 보낼 때 사용할 경로 ->
+        registry.enableSimpleBroker("/sub");
+        // 클라이언트가 구독할 경로(메세지 받을 때 사용) -> Controller, @MessageMapping
+        registry.setApplicationDestinationPrefixes("/pub"); //'app/~~'
     }
 
     /* 클라이언트에서 들어오는 메세지 처리 설정(JWT 인증 적용)
