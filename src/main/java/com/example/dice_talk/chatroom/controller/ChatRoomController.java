@@ -38,13 +38,13 @@ public class ChatRoomController {
     }
 
     // 채팅방 생성
-    @PostMapping
-    public ResponseEntity postChatRoom(@Valid @RequestBody ChatRoomDto.Post dto) {
-        ChatRoom chatRoom = mapper.chatRoomPostToChatRoom(dto);
-        ChatRoom created = chatRoomService.createChatRoom(chatRoom);
-        URI location = UriCreator.createUri(CHAT_ROOM_DEFAULT_URL, created.getChatRoomId());
-        return ResponseEntity.created(location).build();
-    }
+//    @PostMapping
+//    public ResponseEntity postChatRoom(@Valid @RequestBody ChatRoomDto.Post dto) {
+//        ChatRoom chatRoom = mapper.chatRoomPostToChatRoom(dto);
+//        ChatRoom created = chatRoomService.createChatRoom(chatRoom);
+//        URI location = UriCreator.createUri(CHAT_ROOM_DEFAULT_URL, created.getChatRoomId());
+//        return ResponseEntity.created(location).build();
+//    }
 
     // 공지 수정
     @PatchMapping("/{chat-room-id}")

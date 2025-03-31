@@ -27,7 +27,7 @@ public class MemberAuthenticationSuccessHandler implements AuthenticationSuccess
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String json = new ObjectMapper().writeValueAsString(Map.of("memberid", memberId));
+        String json = new ObjectMapper().writeValueAsString(Map.of("memberId", memberId));
         response.getWriter().write(json);
 
     }

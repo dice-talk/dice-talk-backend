@@ -16,7 +16,7 @@ import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.dice_talk.chatroom.config.StompHandler.saveSessionInfo;
+import static com.example.dice_talk.chatroom.config.StompHandler.saveUserInfo;
 
 
 @Service
@@ -35,7 +35,7 @@ public class ChatService {
         sessionRegistry. registerUserInChatRoom(String.valueOf(roomId), memberId, sessionId);
 
         // StompHandler에 사용자 정보 저장 (전역 관리)
-        saveSessionInfo(sessionId, memberId);
+        saveUserInfo(sessionId, memberId);
 
         // 해당 채팅방을 구독 중인 모든 클라이언트에게 입장 메시지 전송
         messagingTemplate.convertAndSend("/sub/chat/" + roomId, "Dice 분들이 모두 입장하였습니다.");
@@ -114,6 +114,4 @@ public class ChatService {
             );
         }
     }
-
-
 }

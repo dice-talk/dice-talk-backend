@@ -68,6 +68,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // refresh 토큰은 Access 토큰이 만료될 경우 새로 발급 받을 때 쓰이고,
         // access 토큰을 발급할 때 refresh 토큰도 같이 새로 발급 받으면 여러 문제 방지
         response.setHeader("Refresh", refreshToken);
+        response.setHeader("member-id", String.valueOf(member.getMemberId()));
+        response.setHeader("username", member.getName());
 
         // onAuthenticationSuccess() 메서드를 호출하면
         // 구현한 MemberAuthenticationSuccessHandler onAuthenticationSuccess() 메서드가 알아서 호출

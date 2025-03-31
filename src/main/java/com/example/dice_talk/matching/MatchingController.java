@@ -39,7 +39,8 @@ public class MatchingController {
 
     private final Set<String> usedNicknames = new HashSet<>();
     private final List<String> nicknamePool = List.of(
-            "따뜻한 햇살", "웃는 고양이", "설레는 장미", "달리는 하늘", "잠꾸러기 토끼", "반짝이는 별"
+            "한가로운 하나", "호이가 계속되면 두리", "새침한데 솔직한 세찌", "네모지만 부드러운 네몽",
+            "단호하지만 다정한 다오", "육감적인 직감파 육댕"
     );
 
     @PostMapping("/nickname/{memberId}")
