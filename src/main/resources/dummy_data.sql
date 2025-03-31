@@ -79,9 +79,9 @@ VALUES ('안녕하세요. 결제 내역을 확인해 보겠습니다. 잠시만 
 INSERT INTO chat_room (room_type, notice, room_status, theme_id, created_at)
 VALUES ('GROUP', '여행 정보를 공유하는 채팅방입니다.', 'ROOM_ACTIVE', 1, NOW()),
        ('GROUP', '맛집 추천 채팅방입니다.', 'ROOM_ACTIVE', 2, NOW()),
-       ('COUPLE', '영화 토론방입니다.', 'ROOM_ACTIVE', 3, NOW()),
+       ('COUPLE', '영화 토론방입니다.', 'ROOM_DEACTIVE', 3, NOW()),
        ('GROUP', '음악 공유 채팅방입니다.', 'ROOM_DEACTIVE', 4, NOW()),
-       ('COUPLE', '게임 팀원 모집 채팅방입니다.', 'ROOM_ACTIVE', 5, NOW());
+       ('COUPLE', '게임 팀원 모집 채팅방입니다.', 'ROOM_DEACTIVE', 5, NOW());
 
 -- 9. Chat Part data
 INSERT INTO chat_part (nickname, profile, exit_status, member_id, chat_room_id, created_at)

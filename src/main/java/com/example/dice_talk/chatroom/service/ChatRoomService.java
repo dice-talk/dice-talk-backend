@@ -51,6 +51,7 @@ public class ChatRoomService {
     }
 
     public boolean isMemberPossibleToPart(long memberId) {
+        memberService.findVerifiedMember(memberId);
         Optional<ChatPart> lastChatPart = chatPartRepository.findFirstByMember_MemberIdOrderByPartIdDesc(memberId);
         if (lastChatPart.isPresent()) {
             ChatPart chatPart = lastChatPart.get();
@@ -135,9 +136,8 @@ public class ChatRoomService {
 
     // 내가 참여했던 1대1 채팅방 목록 조회
     public Page<ChatRoom> findMyCoupleChatRooms(int page, int size, long memberId, long loginId) {
-        AuthorizationUtils.isOwner(memberId, loginId);
-        Page<ChatRoom> chatRooms = chatRoomRepository.findAllByMemberIdAndRoomType(
-                memberId, ChatRoom.RoomType.COUPLE, PageRequest.of(page - 1, size, Sort.by("chatRoomId").descending()));
+        Page<ChatRoom> chatRooms = chatRoomRepository.findAllByMemberIdAndRoomTypeAndRoomStatus(
+                memberId, ChatRoom.RoomType.COUPLE, ChatRoom.RoomStatus.ROOM_DEACTIVE, PageRequest.of(page - 1, size, Sort.by("chatRoomId").descending()));
         return chatRooms;
     }
 

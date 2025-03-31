@@ -8,19 +8,15 @@ import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.utils.AuthorizationUtils;
-import com.example.dice_talk.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/chat-rooms")
@@ -84,7 +80,7 @@ public class ChatRoomController {
 
     // 채팅방 상세 조회
     @GetMapping("/{chat-room-id}")
-    public ResponseEntity getChatRoom(@PathVariable @Positive long chatRoomId,
+    public ResponseEntity getChatRoom(@PathVariable("chat-room-id") @Positive long chatRoomId,
                                       @AuthenticationPrincipal CustomPrincipal customPrincipal){
         ChatRoom chatRoom = chatRoomService.findVerifiedChatRoom(chatRoomId);
         return new ResponseEntity(new SingleResponseDto<>(
@@ -92,8 +88,8 @@ public class ChatRoomController {
         ), HttpStatus.OK);
     }
 
-    // 채팅방 삭제(상태 비활성화로 변경)
-    @DeleteMapping("/{chat-room-id}")
+    // 채팅방 강제종료(상태 비활성화로 변경) - 관리자용
+    @DeleteMapping("/office/{chat-room-id}")
     public ResponseEntity deleteChatRoom(
             @PathVariable("chat-room-id") @Positive long chatRoomId
     ){
