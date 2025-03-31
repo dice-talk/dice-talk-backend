@@ -36,12 +36,6 @@ public class ChatPart extends BaseEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    public void setMember(Member member){
-        this.member = member;
-        if(!member.getChatParts().contains(this)){
-            member.setChatPart(this);
-        }
-    }
 
     public enum ExitStatus{
         MEMBER_ENTER("참여중"),
