@@ -10,7 +10,7 @@ spring:
 #      enabled: true       # H2 콘솔을 활성화합니다.
 #      path: /h2           # H2 콘솔에 접근할 수 있는 URL 경로를 설정합니다.
   datasource:
-    url: jdbc:mysql://ec2-54-180-119-246.ap-northeast-2.compute.amazonaws.com:3306/dicetalk?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://ec2-54-180-119-246.ap-northeast-2.compute.amazonaws.com:3306/dicetalk
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password:
