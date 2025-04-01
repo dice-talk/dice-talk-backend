@@ -12,8 +12,8 @@ spring:
   datasource:
     url: jdbc:mysql://ec2-54-180-119-246.ap-northeast-2.compute.amazonaws.com:3306/dicetalk
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password:
+    username: admin
+    password: ${EC2_MYSQL_PW}
   jpa:
     hibernate:
       ddl-auto: create   # 애플리케이션 시작 시 데이터베이스 스키마를 생성합니다.
