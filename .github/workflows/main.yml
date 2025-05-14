@@ -36,7 +36,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
       - name: Start Session Manager session
-        run: aws ssm start-session --target i-045855c459d5d32e8
+        run: aws ssm start-session --target i-00269caba1b48f569
       - name: Deploy to Server
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -44,7 +44,7 @@ jobs:
           AWS_REGION: ap-northeast-2
         run: |
           aws ssm send-command \
-            --instance-ids i-045855c459d5d32e8 \
+            --instance-ids i-00269caba1b48f569 \
             --document-name "AWS-RunShellScript" \
             --parameters "commands=[
               'if sudo docker ps -a --format \\'{{.Names}}\\' | grep -q \\'^server$\\'; then',
