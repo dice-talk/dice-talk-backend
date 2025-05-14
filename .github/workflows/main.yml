@@ -51,8 +51,8 @@ jobs:
               '  sudo docker stop server',
               '  sudo docker rm server',
               'fi',
-              'sudo docker pull seunnga/spring-cicd:${GITHUB_SHA::7}',
-              'sudo docker tag seunnga/spring-cicd:${GITHUB_SHA::7} spring-cicd',
+              'sudo docker pull minjikk/spring-cicd:${GITHUB_SHA::7}',
+              'sudo docker tag minjikk/spring-cicd:${GITHUB_SHA::7} spring-cicd',
               'sudo docker run -d --name server -p 8080:8080 -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} -e EC2_MYSQL_PW=${{ secrets.EC2_MYSQL_PW }} spring-cicd'
             ]" \
             --output text
