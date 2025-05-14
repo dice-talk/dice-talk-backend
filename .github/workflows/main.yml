@@ -2,7 +2,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ feat/ming ]
 
 jobs:
   build:
@@ -25,8 +25,8 @@ jobs:
         run: |
           docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
           docker build -t spring-cicd .
-          docker tag spring-cicd seunnga/spring-cicd:${GITHUB_SHA::7}
-          docker push seunnga/spring-cicd:${GITHUB_SHA::7}
+          docker tag spring-cicd minjikk/spring-cicd:${GITHUB_SHA::7}
+          docker push minjikk/spring-cicd:${GITHUB_SHA::7}
       #위 내용은 지속적 통합을 위한 스크립트입니다.
       #지속적 통합을 위한 스크립트 아래에 작성합니다.
       - name: Configure AWS credentials
