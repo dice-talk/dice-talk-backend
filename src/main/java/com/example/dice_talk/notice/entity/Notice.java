@@ -1,6 +1,7 @@
 package com.example.dice_talk.notice.entity;
 
 import com.example.dice_talk.audit.BaseEntity;
+import com.example.dice_talk.question.entity.Question;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -29,9 +32,6 @@ public class Notice extends BaseEntity {
     private String content;
 
     @Column
-    private String image;
-
-    @Column
     private LocalDateTime startDate;
 
     @Column
@@ -42,6 +42,9 @@ public class Notice extends BaseEntity {
 
     @Column(nullable = false)
     private int noticeImportance;
+
+    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeImage> images = new ArrayList<>();
 
     public enum NoticeStatus{
         ONGOING("진행중"),
@@ -65,6 +68,15 @@ public class Notice extends BaseEntity {
 
         NoticeType(String status) {
             this.status = status;
+        }
+    }
+
+    public void setImage(NoticeImage noticeImage){
+        if(noticeImage.getNotice() != this){
+            noticeImage.setNotice(this);
+        }
+        if(!this.images.contains(noticeImage)){
+            images.add(noticeImage);
         }
     }
 }

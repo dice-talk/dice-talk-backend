@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 public class NoticeDto {
@@ -24,7 +25,7 @@ public class NoticeDto {
         @NotBlank(message = "공지사항/이벤트의 설명글은 필수 입력란입니다.")
         private String content;
 
-        private String image;
+        private List<NoticeImageDto.Post> images;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Notice.NoticeType noticeType;
@@ -46,7 +47,7 @@ public class NoticeDto {
         @NotBlank(message = "공지사항/이벤트의 설명글은 필수 입력란입니다.")
         private String content;
 
-        private String image;
+        private List<NoticeImageDto.Patch> images;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Notice.NoticeType noticeType;
@@ -60,7 +61,7 @@ public class NoticeDto {
         private long noticeId;
         private String title;
         private String content;
-        private String image;
+        private List<NoticeImageDto.Response> images;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Notice.NoticeType noticeType;

@@ -4,7 +4,9 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.notice.dto.NoticeDto;
 import com.example.dice_talk.notice.entity.Notice;
+import com.example.dice_talk.notice.entity.NoticeImage;
 import com.example.dice_talk.notice.mapper.NoticeMapper;
+import com.example.dice_talk.notice.repository.NoticeImageRepository;
 import com.example.dice_talk.notice.repository.NoticeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,18 +20,26 @@ import javax.swing.text.html.Option;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
+    private final NoticeImageRepository noticeImageRepository;
 
-    public NoticeService(NoticeRepository noticeRepository) {
+    public NoticeService(NoticeRepository noticeRepository, NoticeImageRepository noticeImageRepository) {
         this.noticeRepository = noticeRepository;
+        this.noticeImageRepository = noticeImageRepository;
     }
 
     //notice 등록
     public Notice createNotice(Notice notice) {
+        if(notice.getImages() != null){
+            for (NoticeImage image : notice.getImages()){
+                notice.setImage(image);
+            }
+        }
         //notice 등록 후 반환
         return noticeRepository.save(notice);
     }
@@ -37,15 +47,13 @@ public class NoticeService {
     //notice 수정
     public Notice updateNotice(Notice notice) {
         Notice findNotice = findVerifiedNotice(notice.getNoticeId());
-        //변경가능한 필드 확인 후 변경
+        // 일반 필드 없데이트
         Optional.ofNullable(notice.getNoticeType())
                 .ifPresent(noticeType -> findNotice.setNoticeType(noticeType));
         Optional.ofNullable(notice.getTitle())
                 .ifPresent(title -> findNotice.setTitle(title));
         Optional.ofNullable(notice.getContent())
                 .ifPresent(content -> findNotice.setContent(content));
-        Optional.ofNullable(notice.getImage())
-                .ifPresent(image -> findNotice.setImage(image));
         Optional.ofNullable(notice.getStartDate())
                 .ifPresent(startDate -> findNotice.setStartDate(startDate));
         Optional.ofNullable(notice.getEndDate())
@@ -54,6 +62,33 @@ public class NoticeService {
                 .ifPresent(noticeStatus -> findNotice.setNoticeStatus(noticeStatus));
         Optional.ofNullable(notice.getNoticeImportance())
                 .ifPresent(noticeImportance -> findNotice.setNoticeImportance(noticeImportance));
+
+        // 이미지 처리
+        List<NoticeImage> uploadImages = notice.getImages();
+
+        if(uploadImages != null){
+            // 들어온 이미지 중 기존 이미지는 남김
+            List<Long> uploadImagesIds = uploadImages.stream()
+                    .map(noticeImage -> noticeImage.getNoticeImageId())
+                    .filter(noticeImageId -> noticeImageId != null)
+                    .collect(Collectors.toList());
+
+            // 기존 이미지 중 삭제된 이미지 제거
+            // 🚩 S3 버킷 생성 시 삭제는 따로 이관해서 보관하기 toRemove만 옮기면 됨.
+            List<NoticeImage> toRemove = findNotice.getImages().stream()
+                    .filter(noticeImage -> noticeImage.getNoticeImageId() != null &&
+                            !uploadImagesIds.contains(noticeImage.getNoticeImageId()))
+                    .collect(Collectors.toList());
+
+            toRemove.forEach(noticeImage -> findNotice.getImages().remove(noticeImage));
+
+            // 새로운 이미지는 추가
+            for (NoticeImage image : uploadImages){
+                if(image.getNoticeImageId() == null){
+                    findNotice.setImage(image);
+                }
+            }
+        }
         //수정사항 저장 후 반환
         return noticeRepository.save(findNotice);
     }
@@ -77,7 +112,7 @@ public class NoticeService {
     public void deleteNotice(long noticeId) {
         Notice findNotice = findVerifiedNotice(noticeId);
         findNotice.setNoticeStatus(Notice.NoticeStatus.CLOSED);
-        //변경사항 저장
+        // 변경사항 저장
         noticeRepository.save(findNotice);
     }
 
