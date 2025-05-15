@@ -62,7 +62,7 @@ public class RoomEventController {
     // 하트 히스토리 조회
     @GetMapping("/history/{member-id}")
     public ResponseEntity getMyHeartHistory(@PathVariable("member-id") long memberId,
-                                            @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Page<RoomEvent> eventPage = roomEventService.findRoomEventsByEventAndMemberId(memberId, customPrincipal.getMemberId());
         List<RoomEvent> roomEvents = eventPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.roomEventsToResponses(roomEvents), eventPage), HttpStatus.OK);

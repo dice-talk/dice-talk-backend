@@ -33,7 +33,7 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity postReport(@Valid @RequestBody ReportDto.Post postDto,
-                                     @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                     @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         postDto.setReporterId(customPrincipal.getMemberId());
         Report report = mapper.reportPostToReport(postDto);
         Report createdReport = reportService.createReport(report, customPrincipal.getMemberId());

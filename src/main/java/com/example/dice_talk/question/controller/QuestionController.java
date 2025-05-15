@@ -45,7 +45,7 @@ public class QuestionController {
 
     @PostMapping
     public ResponseEntity postQuestion(@RequestBody QuestionDto.Post dto,
-                                       @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         // dto에 memberId set
         dto.setMemberId(customPrincipal.getMemberId());
         // mapper로 dto -> entity
@@ -61,7 +61,7 @@ public class QuestionController {
     public ResponseEntity patchQuestion(
             @PathVariable("question-id") @Positive long questionId,
             @Valid @RequestBody QuestionDto.Patch patchDto,
-            @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         patchDto.setQuestionId(questionId);
         patchDto.setMemberId(customPrincipal.getMemberId());
         Question updatedQuestion = questionService.updateQuestion(questionMapper
@@ -73,7 +73,7 @@ public class QuestionController {
     @GetMapping("/{question-id}")
     public ResponseEntity getQuestion(
             @PathVariable("question-id") @Positive long questionId,
-            @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Question question = questionService.findQuestion(
                 questionId);
         return new ResponseEntity<>(new SingleResponseDto<>(questionMapper.questionToQuestionResponse(question)), HttpStatus.OK);
@@ -83,7 +83,7 @@ public class QuestionController {
     @GetMapping("/office")
     public ResponseEntity getQuestions(@Positive @RequestParam int page, @Positive @RequestParam int size,
                                        @RequestParam(defaultValue = "newest") String sortType,
-                                       @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Member currentMember = memberService.findVerifiedMember(customPrincipal.getMemberId());
         Page<Question> questionPage = questionService.findQuestions(page, size, sortType, currentMember);
         List<Question> questions = questionPage.getContent();
@@ -95,7 +95,7 @@ public class QuestionController {
     @GetMapping("/my-questions/{member-id}")
     public ResponseEntity getMyQuestions(@PathVariable("member-id") Long memberId,
                                          @Positive @RequestParam int page, @Positive @RequestParam int size,
-                                         @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                         @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         if(customPrincipal.getMemberId() != memberId){
             throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_OPERATION);
         }
@@ -107,7 +107,7 @@ public class QuestionController {
 
     @DeleteMapping("/{question-id}")
     public ResponseEntity deleteQuestion(@PathVariable("question-id") long questionId,
-                                         @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                         @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         questionService.deleteQuestion(questionId, customPrincipal.getMemberId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

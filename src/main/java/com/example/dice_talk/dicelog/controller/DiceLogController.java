@@ -8,6 +8,7 @@ import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.dicelog.mapper.DiceLogMapper;
 import com.example.dice_talk.dicelog.service.DiceLogService;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class DiceLogController {
 
     @PostMapping("/charge")
     public ResponseEntity postChargeLog(@RequestBody DiceLogDto.Post dto,
-                                        @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                        @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
         DiceLog createdLog = diceLogService.createDiceLogCharge(diceLog, customPrincipal.getMemberId());
@@ -38,7 +39,7 @@ public class DiceLogController {
 
     @PostMapping("/used")
     public ResponseEntity postUsedLog(@RequestBody DiceLogDto.Post dto,
-                                      @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                      @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
         DiceLog createdLog = diceLogService.createDiceLogUsed(diceLog, customPrincipal.getMemberId());
@@ -48,7 +49,7 @@ public class DiceLogController {
     @GetMapping("/{member-id}")
     public ResponseEntity getMemberDiceLog(@PathVariable("member-id") long memberId,
                                            @RequestParam int page, @RequestParam int size,
-                                           @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                           @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
 
         AuthorizationUtils.isOwner(memberId, customPrincipal.getMemberId());
 
@@ -61,7 +62,7 @@ public class DiceLogController {
     // 관리자용 전체조회
     @GetMapping("/logs")
     public ResponseEntity getAllDiceLogs(@RequestParam int page, @RequestParam int size,
-                                         @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                         @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Page<DiceLog> logPage = diceLogService.findAllDiceLogs(page, size);
         List<DiceLog> logs = logPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.diceLogsToDiceLogResponses(logs), logPage), HttpStatus.OK);

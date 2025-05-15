@@ -9,6 +9,7 @@ import com.example.dice_talk.utils.AuthorizationUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class AnswerController {
     @Operation(
             summary = "Answer Post API",
             description = "답변을 등록합니다.",
-            // security = @SecurityRequirement(name = "JWT")
+            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "201", description = "답변 등록 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -57,7 +58,7 @@ public class AnswerController {
     @Operation(
             summary = "Answer Patch API",
             description = "답변을 수정합니다.",
-            // security = @SecurityRequirement(name = "JWT")
+            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "답변 수정 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -77,7 +78,7 @@ public class AnswerController {
     @Operation(
             summary = "Answer Delete API",
             description = "답변을 삭제합니다.",
-            // security = @SecurityRequirement(name = "JWT")
+            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "204", description = "답변 삭제 성공"),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),

@@ -59,7 +59,7 @@ public class MemberController {
     @PatchMapping("/my-info/{member-id}")
     public ResponseEntity patchMember(@Valid @RequestBody  MemberDto.Patch patch,
                                       @PathVariable("member-id") @Positive long memberId,
-                                      @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                      @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         //수정할 Member
         patch.setMemberId(memberId);
         Member member = memberService.updateMember(mapper.memberPatchToMember(patch), customPrincipal.getMemberId());
@@ -69,7 +69,7 @@ public class MemberController {
     //나의 정보 조회
     @GetMapping("/my-info/{member-id}")
     public ResponseEntity getMember(@PathVariable("member-id") @Positive long memberId,
-                                    @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                    @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Member member = memberService.findMember(memberId, customPrincipal.getMemberId());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberInfoToMemberInfoResponse(member)),
                 HttpStatus.OK);
@@ -78,7 +78,7 @@ public class MemberController {
     //app 내에서 사용되는 익명 정보 조회
     @GetMapping("/my-page/{member-id}")
     public ResponseEntity getAppMyPage(@PathVariable("member-id") @Positive long memberId,
-                                       @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
 
         Member member = memberService.findAppMyPage(memberId, customPrincipal.getMemberId());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberMyPageResponseDto(member)),
@@ -88,7 +88,7 @@ public class MemberController {
     @GetMapping("/office/member-page")
     public ResponseEntity getMembers(@RequestParam("page") @Positive int page,
                                      @RequestParam("size") @Positive int size,
-                                     @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                     @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         AuthorizationUtils.verifyAdmin();
         Page<Member> memberPage = memberService.findMembers(page, size);
         List<Member> members = memberPage.getContent();
@@ -98,7 +98,7 @@ public class MemberController {
 
     @DeleteMapping("/my-info/{member-id}")
     public ResponseEntity deleteMember(@PathVariable("member-id") @Positive long memberId,
-                                       @AuthenticationPrincipal CustomPrincipal customPrincipal,
+                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal,
                                        @RequestParam("reason") String reason){
 
         memberService.deleteMember(memberId, customPrincipal.getMemberId(), reason);
@@ -107,7 +107,7 @@ public class MemberController {
 
     @DeleteMapping("/office/member-page/{member-id}")
     public ResponseEntity banMember(@PathVariable("member-id") @Positive long memberId,
-                                    @AuthenticationPrincipal CustomPrincipal customPrincipal){
+                                    @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         AuthorizationUtils.verifyAdmin();
         memberService.banMember(memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

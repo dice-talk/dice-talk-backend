@@ -2,6 +2,7 @@ package com.example.dice_talk.response;
 
 
 import com.example.dice_talk.exception.ExceptionCode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Schema(description = "에러 응답 포맷")
 @Getter
 public class ErrorResponse {
     private int status;
@@ -49,6 +51,7 @@ public class ErrorResponse {
         return new ErrorResponse(httpStatus.value(), message);
     }
 
+    @Schema(description = "유효성 검사 실패 필드")
     @Getter
     public static class FieldError {
         private String field;
@@ -74,6 +77,7 @@ public class ErrorResponse {
         }
     }
 
+    @Schema(description = "제약조건 위반 항목")
     @Getter
     public static class ConstraintViolationError {
         private String propertyPath;
