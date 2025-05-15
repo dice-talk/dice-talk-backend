@@ -85,3 +85,18 @@ jwt:
 #  key: qcwe98qn9ec87nc19872c9187c389172nc9871nec98712nc98e7nc1987ne9187n
   access-token-expiration-minutes: 40
   refresh-token-expiration-minutes: 420
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_ACCESS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: dicetalk-images
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs

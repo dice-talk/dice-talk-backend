@@ -81,6 +81,13 @@ public class SecurityConfiguration {
                         .antMatchers("/qna/questions/**/answers/**").hasRole("ADMIN")
                         // Like
                         .antMatchers("/qna/questions/**/like").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         .anyRequest().permitAll());
         return http.build();
     }
