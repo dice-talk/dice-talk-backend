@@ -24,9 +24,9 @@ jobs:
       - name: Docker build
         run: |
           docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
-          docker build -t spring-cicd .
-          docker tag spring-cicd minjikk/spring-cicd:${GITHUB_SHA::7}
-          docker push minjikk/spring-cicd:${GITHUB_SHA::7}
+          docker build -t dicetalk .
+          docker tag dicetalk minjikk/dicetalk:${GITHUB_SHA::7}
+          docker push minjikk/dicetalk:${GITHUB_SHA::7}
       #위 내용은 지속적 통합을 위한 스크립트입니다.
       #지속적 통합을 위한 스크립트 아래에 작성합니다.
       - name: Configure AWS credentials
@@ -42,6 +42,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-2
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
         run: |
           aws ssm send-command \
             --instance-ids i-00269caba1b48f569 \
@@ -51,9 +52,11 @@ jobs:
               '  sudo docker stop server',
               '  sudo docker rm server',
               'fi',
-              'sudo docker pull minjikk/spring-cicd:${GITHUB_SHA::7}',
-              'sudo docker tag minjikk/spring-cicd:${GITHUB_SHA::7} spring-cicd',
-              'sudo docker run -d --name server -p 8080:8080 -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} -e EC2_MYSQL_PW=${{ secrets.EC2_MYSQL_PW }} spring-cicd'
+              'sudo docker pull minjikk/dicetalk:${GITHUB_SHA::7}',
+              'sudo docker tag minjikk/dicetalk:${GITHUB_SHA::7} dicetalk',
+              'sudo docker run -d --name server -p 8080:8080 \\
+                  -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \\
+                  dicetalk'
             ]" \
             --output text
     
