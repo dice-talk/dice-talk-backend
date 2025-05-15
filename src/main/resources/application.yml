@@ -3,7 +3,7 @@ spring:
     name: dice-talk
   data:
     redis:
-      host: 127.0.0.1
+      host: 172.31.3.55
       port: 6379
   h2:
     console:
