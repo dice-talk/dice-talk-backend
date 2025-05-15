@@ -11,10 +11,12 @@ spring:
       enabled: true       # H2 콘솔을 활성화합니다.
       path: /h2           # H2 콘솔에 접근할 수 있는 URL 경로를 설정합니다.
   datasource:
-    url: jdbc:h2:mem:test
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
+    username: admin
+    password: rhksFlwk1!2@
+#    driver-class-name: org.h2.Driver
+#    username: sa
+#    password:
 #  datasource:
 #    url: jdbc:mysql://ec2-54-180-119-246.ap-northeast-2.compute.amazonaws.com:3306/dicetalk
 #    driver-class-name: com.mysql.cj.jdbc.Driver
@@ -22,7 +24,7 @@ spring:
 #    password: ${EC2_MYSQL_PW}
   jpa:
     hibernate:
-      ddl-auto: create   # 애플리케이션 시작 시 데이터베이스 스키마를 생성합니다.
+      ddl-auto: update   # 애플리케이션 시작 시 데이터베이스 스키마를 생성합니다.
     show-sql: true        # JPA에서 실행되는 SQL 쿼리를 콘솔에 출력합니다.
     properties:
       hibernate:
