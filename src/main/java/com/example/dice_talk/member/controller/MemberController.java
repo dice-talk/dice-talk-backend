@@ -10,6 +10,7 @@ import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.member.toss.TossAuthService;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import com.example.dice_talk.utils.UriCreator;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -57,13 +58,21 @@ public class MemberController {
     }
 
     @PatchMapping("/my-info/{member-id}")
-    public ResponseEntity patchMember(@Valid @RequestBody  MemberDto.Patch patch,
+    public ResponseEntity patchMember(@Valid @RequestBody  String region,
                                       @PathVariable("member-id") @Positive long memberId,
                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
-        //수정할 Member
-        patch.setMemberId(memberId);
-        Member member = memberService.updateMember(mapper.memberPatchToMember(patch), customPrincipal.getMemberId());
+        AuthorizationUtils.isOwner(memberId, customPrincipal.getMemberId());
+        Member member = memberService.updateMember(region, customPrincipal.getMemberId());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberInfoToMemberInfoResponse(member)), HttpStatus.OK);
+    }
+
+    // 패스워드 변경
+    @PostMapping("/password")
+    public ResponseEntity changePassword(@Valid @RequestBody String oldPassword,
+                                      @Valid @RequestBody String newPassword,
+                                      @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        memberService.changePassword(oldPassword, newPassword, customPrincipal.getMemberId());
+        return ResponseEntity.ok().build();
     }
 
     //나의 정보 조회

@@ -31,7 +31,7 @@ public class MemberService {
     private final AuthorityUtils authorityUtils;
 
 
-    public Member createMember(Member member){
+    public Member createMember(Member member) {
 //        CI 중복 확인
         if (isCiAlreadyRegistered(member.getCi())) {
             // 이미 등록된 CI일 경우 예외처리
@@ -52,22 +52,26 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public Member updateMember(Member member, long loginId) {
-        Member findMember = findVerifiedMember(member.getMemberId());
-        //권한 확인 : 로그인된 사용자와 동일한지 확인
-        AuthorizationUtils.isOwner(member.getMemberId(), loginId);
+    // 주소만 받아서 확인 후 변경
+    public Member updateMember(String region, long loginId) {
+        Member findMember = findVerifiedMember(loginId);
+        if (findMember.getRegion().equals(region)) {
+            return findMember;
+        } else {
+            Optional.ofNullable(region)
+                    .ifPresent(value -> findMember.setRegion(value));
+            return memberRepository.save(findMember);
+        }
+    }
 
-        //수정 가능한 필드 변경
-        Optional.ofNullable(member.getPhone())
-                .ifPresent(phone -> findMember.setPhone(phone));
-        Optional.ofNullable(member.getPassword())
-                .ifPresent(password -> findMember.setPassword(password));
-        Optional.ofNullable(member.getRegion())
-                .ifPresent(region -> findMember.setRegion(region));
-        Optional.ofNullable(member.isNotification())
-                .ifPresent(notification -> findMember.setNotification(notification));
-        //저장
-        return memberRepository.save(findMember);
+    public void changePassword(String oldPassword, String newPassword, long memberId) {
+        Member findMember = findVerifiedMember(memberId);
+        if (passwordEncoder.encode(oldPassword).equals(findMember.getPassword())) {
+            Optional.ofNullable(newPassword).ifPresent(value ->
+                    findMember.setPassword(passwordEncoder.encode(newPassword)));
+        } else {
+            throw new BusinessLogicException(ExceptionCode.AUTH_INVALID_PASSWORD);
+        }
     }
 
     //단일 조회(my-info/{member-id})
@@ -116,7 +120,7 @@ public class MemberService {
     }
 
     // 회원 영구정지
-    public void banMember(long memberId){
+    public void banMember(long memberId) {
         Member member = findVerifiedMember(memberId);
         member.setMemberStatus(Member.MemberStatus.MEMBER_BANNED);
         memberRepository.save(member);
@@ -136,7 +140,7 @@ public class MemberService {
     public Member findVerifiedMember(long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
-        if(member.getMemberStatus().equals(Member.MemberStatus.MEMBER_BANNED)){
+        if (member.getMemberStatus().equals(Member.MemberStatus.MEMBER_BANNED)) {
             throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_OPERATION);
         }
         return member;
@@ -182,6 +186,7 @@ public class MemberService {
             }
         }
     }
+
     // CI가 이미 등록되어 있는지 확인하는 메서드
     public boolean isCiAlreadyRegistered(String ci) {
         // MemberRepository의 findByCi 메서드를 호출하여 해당 CI가 존재하는지 확인
@@ -190,20 +195,20 @@ public class MemberService {
     }
 
     //Ci를 통해 등록된 회원인지 확인, 없다면 404
-    public Member isCifindMember(String ci){
+    public Member isCifindMember(String ci) {
         Member findMember = memberRepository.findByCi(ci).orElseThrow(
-                ()-> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
         return findMember;
     }
 
-    public void resetPassword (long memberId, ResetPasswordDto resetDto){
+    public void resetPassword(long memberId, ResetPasswordDto resetDto) {
         //이메일로 회원 조회
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
         //이중 검증!!
-        if(!member.getEmail().equals(resetDto.getEmail())) {
+        if (!member.getEmail().equals(resetDto.getEmail())) {
             throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED);
         }
         //재설정한 비밀번호 암호화 및 저장 -> 기존 비밀번호는 DB에 덮어씌어짐(따로 삭제X)
@@ -216,6 +221,6 @@ public class MemberService {
         Member member = findVerifiedMember(memberId);
         List<ChatPart> chatParts = member.getChatParts();
         //마지막 참여했던 채팅방에서 nickname 가져오기
-        return chatParts.get(chatParts.size()-1).getNickname();
+        return chatParts.get(chatParts.size() - 1).getNickname();
     }
 }

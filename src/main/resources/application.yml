@@ -83,8 +83,8 @@ mail:
 jwt:
   key: ${JWT_SECRET_KEY}
 #  key: qcwe98qn9ec87nc19872c9187c389172nc9871nec98712nc98e7nc1987ne9187n
-  access-token-expiration-minutes: 40
-  refresh-token-expiration-minutes: 420
+  access-token-expiration-minutes: 240
+  refresh-token-expiration-minutes: 1440
 cloud:
   aws:
     credentials:
