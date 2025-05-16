@@ -44,19 +44,32 @@ public class S3Uploader {
         return "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
     }
 
-    public void moveToDeletedFolder(String originalKey, String deletedFolderName) {
-        String fileName = originalKey.substring(originalKey.lastIndexOf("/") + 1);
-        String deletedKey = deletedFolderName + "/" + fileName;
+    public void moveToDeletedFolder(String imageUrl, String deletedPrefix) {
+        // 1. 버킷명 (보통 필드로 주입)
+        String bucket = this.bucketName;
 
+        // 2. imageUrl → S3 Key로 변환
+        String s3Key = imageUrl.replace("https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/", "");
+
+        // 3. 파일명만 추출
+        String fileName = s3Key.substring(s3Key.lastIndexOf("/") + 1);
+
+        // 4. 삭제용 Key 생성
+        String deletedKey = deletedPrefix + "/" + fileName;
+
+        // 5. 복사
         s3Client.copyObject(builder -> builder
-                .copySource(bucketName + "/" + originalKey)
-                .destinationBucket(bucketName)
+                .copySource(bucket + "/" + s3Key)
+                .destinationBucket(bucket)
                 .destinationKey(deletedKey)
         );
 
+        // 6. 원본 삭제
         s3Client.deleteObject(builder -> builder
-                .bucket(bucketName)
-                .key(originalKey)
+                .bucket(bucket)
+                .key(s3Key)
         );
     }
+
+
 }

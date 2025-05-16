@@ -93,7 +93,10 @@ public class NoticeService {
 
             // 삭제 이미지 백업 처리
             List<NoticeImage> toRemove = new ArrayList<>(findNotice.getImages());
-            moveDeletedImagesToBackup(toRemove);
+            for (NoticeImage image : toRemove) {
+                s3Uploader.moveToDeletedFolder(image.getImageUrl(), "deleted-notice-image");
+            }
+
 
             // 기존 이미지 교체
             findNotice.getImages().clear();
@@ -130,14 +133,7 @@ public class NoticeService {
                 Notice.NoticeType.EVENT, Notice.NoticeStatus.ONGOING);
     }
 
-    private void moveDeletedImagesToBackup(List<NoticeImage> toRemove) {
-        for (NoticeImage image : toRemove) {
-            String imageUrl = image.getImageUrl();
-            if (imageUrl != null && imageUrl.contains("notice-image/")) {
-                String key = imageUrl.substring(imageUrl.indexOf("notice-image/"));
-                s3Uploader.moveToDeletedFolder(key, "deleted-notice-image");
-            }
-        }
-    }
 
 }
+
+

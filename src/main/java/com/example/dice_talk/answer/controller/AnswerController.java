@@ -66,7 +66,7 @@ public class AnswerController {
         postDto.setMemberId(customPrincipal.getMemberId());
 
         Answer answer = mapper.answerPostToAnswer(postDto);
-        answerService.createAnswer(answer);
+        answerService.createAnswer(answer, imageFiles);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -91,7 +91,7 @@ public class AnswerController {
         AnswerDto.Patch patchDto = jsonParserUtil.parse(answerPatchDtoString, AnswerDto.Patch.class);
 
         patchDto.setAnswerId(answerId);
-        Answer updatedAnswer = answerService.updateAnswer(mapper.answerPatchToAnswer(patchDto));
+        Answer updatedAnswer = answerService.updateAnswer(mapper.answerPatchToAnswer(patchDto), imageFiles);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
