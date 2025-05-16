@@ -6,19 +6,26 @@ import com.example.dice_talk.answer.mapper.AnswerMapper;
 import com.example.dice_talk.answer.service.AnswerService;
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import com.example.dice_talk.utils.JsonParserUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonParser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "Answer API", description = "답변 관련 API 문서입니다.")
 @RestController
@@ -27,10 +34,12 @@ import javax.validation.constraints.Positive;
 public class AnswerController {
     private final AnswerService answerService;
     private final AnswerMapper mapper;
+    private final JsonParserUtil jsonParserUtil;
 
-    public AnswerController(AnswerService answerService, AnswerMapper mapper) {
+    public AnswerController(AnswerService answerService, AnswerMapper mapper, JsonParserUtil jsonParserUtil) {
         this.answerService = answerService;
         this.mapper = mapper;
+        this.jsonParserUtil = jsonParserUtil;
     }
 
     @Operation(
@@ -43,15 +52,21 @@ public class AnswerController {
                     @ApiResponse(responseCode = "401", description = "인증 실패")
             }
     )
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity postAnswer(@PathVariable("question-id") Long questionId,
-                                     @Valid @RequestBody AnswerDto.Post postDto,
-                                     @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                     @RequestParam String answerPostDtoSTring,
+                                     @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+                                     @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
         AuthorizationUtils.isAdmin();
+
+        // JSON 문자열 -> DTO 수동 파싱
+        AnswerDto.Post postDto = jsonParserUtil.parse(answerPostDtoSTring, AnswerDto.Post.class);
+
         postDto.setQuestionId(questionId);
         postDto.setMemberId(customPrincipal.getMemberId());
+
         Answer answer = mapper.answerPostToAnswer(postDto);
-        Answer createdAnswer = answerService.createAnswer(answer);
+        answerService.createAnswer(answer);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -66,13 +81,18 @@ public class AnswerController {
                     @ApiResponse(responseCode = "404", description = "해당 답변 없음")
             }
     )
-    @PatchMapping("/{answer-id}")
+    @PatchMapping(value = "/{answer-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity patchAnswer(@PathVariable("answer-id") @Positive long answerId,
-                                      @Valid @RequestBody AnswerDto.Patch patchDto) {
+                                      @RequestParam("answerPatchDto") String answerPatchDtoString,
+                                      @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
         AuthorizationUtils.isAdmin();
+
+        // JSON -> DTO 변환
+        AnswerDto.Patch patchDto = jsonParserUtil.parse(answerPatchDtoString, AnswerDto.Patch.class);
+
         patchDto.setAnswerId(answerId);
         Answer updatedAnswer = answerService.updateAnswer(mapper.answerPatchToAnswer(patchDto));
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -89,6 +109,6 @@ public class AnswerController {
     public ResponseEntity deleteAnswer(@PathVariable("answer-id") long answerId) {
         AuthorizationUtils.isAdmin();
         answerService.deleteAnswer(answerId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

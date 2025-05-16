@@ -7,6 +7,7 @@ import com.example.dice_talk.notice.entity.Notice;
 import com.example.dice_talk.notice.mapper.NoticeMapper;
 import com.example.dice_talk.notice.service.NoticeService;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import com.example.dice_talk.utils.JsonParserUtil;
 import com.example.dice_talk.utils.UriCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -33,10 +34,12 @@ public class NoticeController {
     private final static String NOTICE_DEFAULT_URL = "/notice";
     private final NoticeService noticeService;
     private final NoticeMapper mapper;
+    private final JsonParserUtil jsonParserUtil;
 
-    public NoticeController(NoticeService noticeService, NoticeMapper mapper) {
+    public NoticeController(NoticeService noticeService, NoticeMapper mapper, JsonParserUtil jsonParserUtil) {
         this.noticeService = noticeService;
         this.mapper = mapper;
+        this.jsonParserUtil = jsonParserUtil;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -48,10 +51,11 @@ public class NoticeController {
         AuthorizationUtils.isAdmin();
 
         // JSON -> DTO 수동 파싱
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        NoticeDto.Post parsedDto = objectMapper.readValue(noticePostDtoString, NoticeDto.Post.class);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.registerModule(new JavaTimeModule());
+//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//        NoticeDto.Post parsedDto = objectMapper.readValue(noticePostDtoString, NoticeDto.Post.class);
+        NoticeDto.Post parsedDto = jsonParserUtil.parse(noticePostDtoString, NoticeDto.Post.class);
         // 문자열로 들어온 썸네일 여부 파싱
         List<Boolean> thumbnailFlags = null;
         if (thumbnailFlagsStr != null) {
