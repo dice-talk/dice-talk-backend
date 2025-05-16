@@ -43,7 +43,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-2
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
@@ -59,8 +58,9 @@ jobs:
               'sudo docker pull minjikk/dicetalk:${GITHUB_SHA::7}',
               'sudo docker tag minjikk/dicetalk:${GITHUB_SHA::7} dicetalk',
               'sudo docker run -d --name server -p 8080:8080 \\
+                  -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY }} \\
+                  -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \\
                   -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \\
-                  -e REDIS_HOST=${{ secrets.REDIS_HOST }} \\
                   -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \\
                   -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \\
                   -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \\
