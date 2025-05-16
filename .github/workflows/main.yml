@@ -59,11 +59,11 @@ jobs:
               'sudo docker rm server || true',
               'sudo docker pull minjikk/dicetalk:${GITHUB_SHA::7}',
               'sudo docker tag minjikk/dicetalk:${GITHUB_SHA::7} dicetalk',
-              'sudo docker run -d --name server -p 8080:8080 \
-                -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \
-                -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \
-                -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
-                -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+              'sudo docker run -d --name server -p 8080:8080 \\
+                -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \\
+                -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \\
+                -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \\
+                -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \\
                 dicetalk'
             ]" \
             --output text
