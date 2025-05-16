@@ -21,7 +21,7 @@ public class RedisRepositoryConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    @Value("{spring.data.redis.password}")
+    @Value("${spring.data.redis.password}")
     private String password;
 
     /*RedisConnectionFactory 빈을 생성하는 메서드
