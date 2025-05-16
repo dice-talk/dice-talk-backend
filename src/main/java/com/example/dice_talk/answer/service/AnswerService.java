@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AnswerService {
@@ -50,7 +51,7 @@ public class AnswerService {
         return answerRepository.save(answer);
     }
 
-    public Answer updateAnswer(Answer answer, List<MultipartFile> imageFiles) throws IOException {
+    public Answer updateAnswer(Answer answer, List<MultipartFile> imageFiles, List<Long> keepImageIds) throws IOException {
         AuthorizationUtils.isAdmin();
 
         Answer findAnswer = findVerifiedAnswer(answer.getAnswerId());
@@ -58,12 +59,17 @@ public class AnswerService {
         Optional.ofNullable(answer.getContent())
                 .ifPresent(content -> findAnswer.setContent(answer.getContent()));
 
+        List<AnswerImage> existingImages = findAnswer.getImages();
+        List<AnswerImage> toRemove = existingImages.stream()
+                .filter(image -> !keepImageIds.contains(image.getAnswerImageId()))
+                .collect(Collectors.toList());
+
         // 기존 이미지 삭제 처리
         if (!findAnswer.getImages().isEmpty()) {
-            for (AnswerImage image : findAnswer.getImages()) {
+            for (AnswerImage image : toRemove) {
                 s3Uploader.moveToDeletedFolder(image.getImageUrl(), "deleted-answer-image");
             }
-            findAnswer.getImages().clear(); // DB에서도 삭제 (orphanRemoval=true)
+            existingImages.removeAll(toRemove);
         }
 
         // 새 이미지 업로드 및 등록
@@ -75,7 +81,7 @@ public class AnswerService {
                 image.setImageUrl(imageUrl);
                 image.setAnswer(findAnswer);
 
-                findAnswer.getImages().add(image);
+                existingImages.add(image);
             }
         }
 
@@ -107,8 +113,7 @@ public class AnswerService {
 
     // 답변이 존재하는지 검증
     private Answer findVerifiedAnswer(long answerId) {
-        Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
-        return optionalAnswer.orElseThrow(
+        return answerRepository.findById(answerId).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.ANSWER_NOT_FOUND)
         );
     }

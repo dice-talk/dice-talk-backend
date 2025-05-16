@@ -72,7 +72,7 @@ public class AnswerController {
 
     @Operation(
             summary = "Answer Patch API",
-            description = "답변을 수정합니다.",
+            description = "답변 내용을 수정하고 이미지 유지/추가를 처리합니다.",
             security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "답변 수정 성공"),
@@ -91,7 +91,7 @@ public class AnswerController {
         AnswerDto.Patch patchDto = jsonParserUtil.parse(answerPatchDtoString, AnswerDto.Patch.class);
 
         patchDto.setAnswerId(answerId);
-        Answer updatedAnswer = answerService.updateAnswer(mapper.answerPatchToAnswer(patchDto), imageFiles);
+        Answer updatedAnswer = answerService.updateAnswer(mapper.answerPatchToAnswer(patchDto), imageFiles, patchDto.getKeepImageIds());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

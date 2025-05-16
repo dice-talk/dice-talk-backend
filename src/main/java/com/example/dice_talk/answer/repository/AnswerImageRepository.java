@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AnswerImageRepository extends JpaRepository<AnswerImage, Long> {
     List<AnswerImage> findAllByAnswer_AnswerId(Long answerId);
+    void deleteByAnswerImageIdIn(List<Long> ids);
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 public class AnswerDto {
     @Getter
@@ -16,9 +17,6 @@ public class AnswerDto {
         @Schema(description = "답변 내용", example = "네, 맞습니다.")
         @NotBlank(message = "답변 내용은 필수입니다.")
         private String content;
-
-        @Schema(description = "답변 이미지 URL", example = "https://example.com/image.jpg")
-        private String answerImage;
 
         @Schema(description = "질문 ID", example = "1", hidden = true)
         private Long questionId;
@@ -38,8 +36,8 @@ public class AnswerDto {
         @NotSpace(message = "답변 내용은 필수입니다.")
         private String content;
 
-        @Schema(description = "답변 이미지 URL", example = "https://example.com/new-image.jpg")
-        private String answerImage;
+        @Schema(description = "유지할 이미지 ID 목록")
+        private List<Long> keepImageIds;
     }
 
     @Getter
@@ -52,8 +50,8 @@ public class AnswerDto {
         @Schema(description = "답변 내용", example = "최종 답변입니다.")
         private String content;
 
-        @Schema(description = "답변 이미지 URL", example = "https://example.com/final.jpg")
-        private String answerImage;
+        @Schema(description = "답변 이미지 DTO 목록")
+        private List<AnswerImageDto.Response> answerImages;
 
         @Schema(description = "질문 ID", example = "1")
         private Long questionId;
