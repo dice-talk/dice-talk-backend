@@ -12,18 +12,23 @@ import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.mapper.QuestionMapper;
 import com.example.dice_talk.question.service.QuestionService;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import com.example.dice_talk.utils.JsonParserUtil;
 import com.example.dice_talk.utils.UriCreator;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -36,36 +41,42 @@ public class QuestionController {
     private final QuestionService questionService;
     private final QuestionMapper questionMapper;
     private final MemberService memberService;
+    private final JsonParserUtil jsonParserUtil;
 
-    public QuestionController(QuestionService questionService, QuestionMapper questionMapper, MemberService memberService) {
+    public QuestionController(QuestionService questionService, QuestionMapper questionMapper, MemberService memberService, JsonParserUtil jsonParserUtil) {
         this.questionService = questionService;
         this.questionMapper = questionMapper;
         this.memberService = memberService;
+        this.jsonParserUtil = jsonParserUtil;
     }
 
-    @PostMapping
-    public ResponseEntity postQuestion(@RequestBody QuestionDto.Post dto,
-                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity postQuestion(@RequestParam("questionPostDto") String questionPostDtoString,
+                                       @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
+        QuestionDto.Post questionPostDto = jsonParserUtil.parse(questionPostDtoString, QuestionDto.Post.class);
         // dto에 memberId set
-        dto.setMemberId(customPrincipal.getMemberId());
+        questionPostDto.setMemberId(customPrincipal.getMemberId());
         // mapper로 dto -> entity
-        Question question = questionMapper.questionPostToQuestion(dto);
-        // question만들고
-        Question createdQuestion = questionService.createQuestion(question, customPrincipal.getMemberId());
+        Question question = questionMapper.questionPostToQuestion(questionPostDto);
+        // question 만들고
+        Question createdQuestion = questionService.createQuestion(question, imageFiles);
         // URI 만들기
         URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, createdQuestion.getQuestionId());
         return ResponseEntity.created(location).build();
     }
 
-    @PatchMapping("/{question-id}")
+    @PatchMapping(value = "/{question-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity patchQuestion(
             @PathVariable("question-id") @Positive long questionId,
-            @Valid @RequestBody QuestionDto.Patch patchDto,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+            @Valid @RequestParam("questionPatchDto") String questionPatchDtoString,
+            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
+        QuestionDto.Patch patchDto = jsonParserUtil.parse(questionPatchDtoString, QuestionDto.Patch.class);
         patchDto.setQuestionId(questionId);
         patchDto.setMemberId(customPrincipal.getMemberId());
         Question updatedQuestion = questionService.updateQuestion(questionMapper
-                .questionPatchToQuestion(patchDto), customPrincipal.getMemberId());
+                .questionPatchToQuestion(patchDto), imageFiles, patchDto.getKeepImageIds());
         return new ResponseEntity<>(
                 new SingleResponseDto<>(questionMapper.questionToQuestionResponse(updatedQuestion)), HttpStatus.OK);
     }

@@ -10,6 +10,7 @@ import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.mapper.RoomEventMapper;
 import com.example.dice_talk.roomevent.service.RoomEventService;
 import com.example.dice_talk.utils.UriCreator;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

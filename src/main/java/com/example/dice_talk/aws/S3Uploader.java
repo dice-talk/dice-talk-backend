@@ -8,8 +8,12 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Component
@@ -40,7 +44,7 @@ public class S3Uploader {
         return getFileUrl(fileName);
     }
 
-    public String getFileUrl(String fileName){
+    public String getFileUrl(String fileName) {
         return "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
     }
 
@@ -49,7 +53,8 @@ public class S3Uploader {
         String bucket = this.bucketName;
 
         // 2. imageUrl → S3 Key로 변환
-        String s3Key = imageUrl.replace("https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/", "");
+        String decodedUrl = URLDecoder.decode(imageUrl, StandardCharsets.UTF_8);
+        String s3Key = decodedUrl.replace("https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/", "");
 
         // 3. 파일명만 추출
         String fileName = s3Key.substring(s3Key.lastIndexOf("/") + 1);
@@ -57,12 +62,23 @@ public class S3Uploader {
         // 4. 삭제용 Key 생성
         String deletedKey = deletedPrefix + "/" + fileName;
 
+        System.out.println("🚩 bucket : " + bucket);
+        System.out.println("🚩 s3Key : " + s3Key);
+        System.out.println("🚩 fileName : " + fileName);
+        System.out.println("🚩 deletedKey : " + deletedKey);
+
         // 5. 복사
-        s3Client.copyObject(builder -> builder
-                .copySource(bucket + "/" + s3Key)
-                .destinationBucket(bucket)
-                .destinationKey(deletedKey)
-        );
+        try {
+            String encodedCopySource = URLEncoder.encode(bucket + "/" + s3Key, StandardCharsets.UTF_8);
+            s3Client.copyObject(builder -> builder
+                    .copySource(encodedCopySource)
+                    .destinationBucket(bucket)
+                    .destinationKey(deletedKey)
+            );
+        } catch (S3Exception e) {
+            System.err.println("S3 이동 실패 : " + e.awsErrorDetails().errorMessage());
+            throw e;
+        }
 
         // 6. 원본 삭제
         s3Client.deleteObject(builder -> builder

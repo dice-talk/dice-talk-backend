@@ -2,6 +2,7 @@ package com.example.dice_talk.answer.service;
 
 import com.example.dice_talk.answer.entity.Answer;
 import com.example.dice_talk.answer.entity.AnswerImage;
+import com.example.dice_talk.answer.repository.AnswerImageRepository;
 import com.example.dice_talk.answer.repository.AnswerRepository;
 import com.example.dice_talk.aws.S3Uploader;
 import com.example.dice_talk.exception.BusinessLogicException;
@@ -27,12 +28,14 @@ public class AnswerService {
     private final MemberService memberService;
     private final QuestionService questionService;
     private final S3Uploader s3Uploader;
+    private final AnswerImageRepository answerImageRepository;
 
-    public AnswerService(AnswerRepository answerRepository, MemberService memberService, QuestionService questionService, S3Uploader s3Uploader) {
+    public AnswerService(AnswerRepository answerRepository, MemberService memberService, QuestionService questionService, S3Uploader s3Uploader, AnswerImageRepository answerImageRepository) {
         this.answerRepository = answerRepository;
         this.memberService = memberService;
         this.questionService = questionService;
         this.s3Uploader = s3Uploader;
+        this.answerImageRepository = answerImageRepository;
     }
 
     public Answer createAnswer(Answer answer, List<MultipartFile> imageFiles) throws IOException {
@@ -69,6 +72,7 @@ public class AnswerService {
             for (AnswerImage image : toRemove) {
                 s3Uploader.moveToDeletedFolder(image.getImageUrl(), "deleted-answer-image");
             }
+            answerImageRepository.deleteByAnswerImageIdIn(keepImageIds);
             existingImages.removeAll(toRemove);
         }
 
@@ -83,6 +87,7 @@ public class AnswerService {
 
                 existingImages.add(image);
             }
+            findAnswer.setImages(existingImages);
         }
 
         return answerRepository.save(findAnswer);

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class AnswerDto {
@@ -58,6 +59,12 @@ public class AnswerDto {
 
         @Schema(description = "회원 ID", example = "3")
         private Long memberId;
+
+        @Schema(description = "등록 시간", example = "2025-05-18T11:35:00")
+        private LocalDateTime createdAt;
+
+        @Schema(description = "최종 수정 시간", example = "2025-05-18T11:35:00")
+        private LocalDateTime modifiedAt;
     }
 }
 
