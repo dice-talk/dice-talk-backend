@@ -3,7 +3,7 @@ spring:
     name: dice-talk
   data:
     redis:
-      host: 127.0.0.1 #172.31.3.55  # EC2의 내부 IP
+      host: 172.31.3.55  # EC2의 내부 IP
       port: 6379
       password: ${REDIS_PASSWORD}
   h2:
