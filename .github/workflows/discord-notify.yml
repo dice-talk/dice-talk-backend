@@ -1,17 +1,19 @@
 name: Discord Notification
 
 on:
-  push:
+  push: 
+    branches:
+      - '**'
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord Notification
-        uses: Ilshidur/action-discord@master
+      - name: Send Discord Webhook
+        uses: tsickert/discord-webhook@v5
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: |
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: |
             🚀 `${{ github.repository }}`
             ✅ `${{ github.actor }}` pushed to **${{ github.ref_name }}**
             💬 `${{ github.event.head_commit.message }}`
