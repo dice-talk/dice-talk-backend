@@ -1,7 +1,7 @@
 name: Discord Notification
 
 on:
-  push: 
+  push:
     branches:
       - '**'
 
@@ -9,12 +9,12 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord Webhook
-        uses: tsickert/discord-webhook@v5
-        with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          content: |
-            🚀 `${{ github.repository }}`
-            ✅ `${{ github.actor }}` pushed to **${{ github.ref_name }}**
-            💬 `${{ github.event.head_commit.message }}`
-            🔗 https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+      - name: Send Discord Message
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          SLACK_MESSAGE: |
+            🚀 Repo: ${{ github.repository }}
+            🧑 Author: ${{ github.actor }}
+            🔀 Branch: ${{ github.ref_name }}
+            💬 Commit: ${{ github.event.head_commit.message }}
