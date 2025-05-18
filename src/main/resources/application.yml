@@ -3,7 +3,7 @@ spring:
     name: dice-talk
   data:
     redis:
-      host: 172.31.3.55  # EC2의 내부 IP
+      host: 172.31.3.55  #127.0.0.1   # EC2의 내부 IP
       port: 6379
       password: ${REDIS_PASSWORD}
   h2:
@@ -60,6 +60,7 @@ logging:
             sql:
               BasicBinder: trace # SQL 바인딩 로그를 추적 레벨로 설정합니다.
 server:
+  port: 8080
   servlet:
     encoding:
       force-response: true
