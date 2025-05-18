@@ -1,4 +1,4 @@
-name: Discord Notification
+name: Discord Notification (with curl)
 
 on:
   push:
@@ -9,12 +9,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord Message
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          SLACK_MESSAGE: |
-            🚀 Repo: ${{ github.repository }}
-            🧑 Author: ${{ github.actor }}
-            🔀 Branch: ${{ github.ref_name }}
-            💬 Commit: ${{ github.event.head_commit.message }}
+      - name: Send Discord Notification via curl
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"content\": \"🚀 Repo: ${{ github.repository }}\n✅ ${{ github.actor }} pushed to **${{ github.ref_name }}**\n💬 Commit: ${{ github.event.head_commit.message }}\n🔗 https://github.com/${{ github.repository }}/commit/${{ github.sha }}\"}" \
+          ${{ secrets.DISCORD_WEBHOOK }}
