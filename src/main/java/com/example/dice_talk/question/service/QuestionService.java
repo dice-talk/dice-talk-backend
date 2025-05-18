@@ -139,6 +139,7 @@ public class QuestionService {
         }
         // 상태 변경
         findQuestion.setQuestionStatus(Question.QuestionStatus.QUESTION_DELETED);
+
         // 저장
         questionRepository.save(findQuestion);
 
