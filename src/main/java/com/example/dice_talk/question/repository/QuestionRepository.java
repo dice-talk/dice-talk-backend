@@ -7,11 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    @Query("SELECT q FROM Question q WHERE q.questionStatus != 'QUESTION_DEACTIVATED'")
-    Page<Question> findAllQuestionsWithoutDeactivated(Pageable pageable);
+    @Query("SELECT q FROM Question q WHERE q.questionStatus IN :statuses")
+    Page<Question> findByQuestionStatusIn(@Param("statuses") List<Question.QuestionStatus> statuses, Pageable pageable);
 
 //    @Query("SELECT q FROM Question q WHERE q.questionId = :questionId AND "
 //            + "(q.member.memberId = :memberId OR :isAdmin = true)))")
@@ -19,5 +19,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 //                                                 @Param("memberId") Long memberId,
 //                                                 @Param("isAdmin") boolean isAdmin);
 
-    Page<Question> findAllByMember_MemberId(Long memberId, Pageable pageable);
+    @Query("SELECT q FROM Question q WHERE q.member.memberId = :memberId" +
+            "AND q.questionStatus NOT IN ('QUESTION_DELETED', 'QUESTION_DEACTIVATED'")
+    Page<Question> findAllActiveByMember_MemberId(@Param("memberId") Long memberId, Pageable pageable);
+//    Page<Question> findAllByMember_MemberId(Long memberId, Pageable pageable);
 }

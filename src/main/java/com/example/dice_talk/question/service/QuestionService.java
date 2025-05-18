@@ -105,8 +105,8 @@ public class QuestionService {
         Sort sort = getSortType(sortType);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
         // 비활성화 글 제외하고 조회
-        Page<Question> questionPage = questionRepository.findAllQuestionsWithoutDeactivated(pageable);
-        return questionPage;
+        List<Question.QuestionStatus> statuses = List.of(Question.QuestionStatus.QUESTION_REGISTERED, Question.QuestionStatus.QUESTION_ANSWERED);
+        return questionRepository.findByQuestionStatusIn(statuses, pageable);
     }
 
     public Page<Question> findMyQuestions(int page, int size, Long memberId) {
@@ -115,7 +115,7 @@ public class QuestionService {
         }
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("questionId").descending());
         memberService.findVerifiedMember(memberId);
-        return questionRepository.findAllByMember_MemberId(memberId, pageable);
+        return questionRepository.findAllActiveByMember_MemberId(memberId, pageable);
     }
 
     public Question findQuestion(Long questionId) {

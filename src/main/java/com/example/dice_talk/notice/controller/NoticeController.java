@@ -71,12 +71,13 @@ public class NoticeController {
 
     @PatchMapping(value = "/{notice-id}", consumes = "multipart/form-data")
     public ResponseEntity patchNotice(
-            @RequestPart @Valid NoticeDto.Patch patchDto,
+            @RequestParam("noticePatchDto") @Valid String noticePatchDtoString,
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @RequestPart(value = "thumbnailFlags", required = false) List<Boolean> thumbnailFlags,
             @PathVariable("notice-id") @Positive long noticeId
     ) throws IOException {
         AuthorizationUtils.isAdmin();
+        NoticeDto.Patch patchDto = jsonParserUtil.parse(noticePatchDtoString, NoticeDto.Patch.class);
 
         patchDto.setNoticeId(noticeId);
         Notice updated = noticeService.updateNotice(patchDto, imageFiles, thumbnailFlags);
