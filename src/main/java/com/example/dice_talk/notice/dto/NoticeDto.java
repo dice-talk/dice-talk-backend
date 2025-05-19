@@ -18,14 +18,13 @@ public class NoticeDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Post{
+    public static class Post {
         @NotBlank(message = "공지사항/이벤트의 제목은 필수 입력란입니다.")
         private String title;
 
         @NotBlank(message = "공지사항/이벤트의 설명글은 필수 입력란입니다.")
         private String content;
 
-        private List<NoticeImageDto.Post> images;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Notice.NoticeType noticeType;
@@ -38,7 +37,7 @@ public class NoticeDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Patch{
+    public static class Patch {
         private long noticeId;
 
         @NotBlank(message = "공지사항/이벤트의 제목은 필수 입력란입니다.")
@@ -47,7 +46,7 @@ public class NoticeDto {
         @NotBlank(message = "공지사항/이벤트의 설명글은 필수 입력란입니다.")
         private String content;
 
-        private List<NoticeImageDto.Patch> images;
+        private List<Long> keepImageIds;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Notice.NoticeType noticeType;
@@ -57,15 +56,17 @@ public class NoticeDto {
 
     @Getter
     @AllArgsConstructor
-    public static class Response{
+    public static class Response {
         private long noticeId;
         private String title;
         private String content;
-        private List<NoticeImageDto.Response> images;
+        private List<NoticeImageDto.Response> noticeImages;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Notice.NoticeType noticeType;
         private Notice.NoticeStatus noticeStatus;
         private int noticeImportance;
+        private LocalDateTime createdAt;
+        private LocalDateTime modifiedAt;
     }
 }

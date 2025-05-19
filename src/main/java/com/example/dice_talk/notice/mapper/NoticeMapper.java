@@ -23,15 +23,6 @@ public interface NoticeMapper {
       notice.setNoticeStatus(postDto.getNoticeStatus());
       notice.setNoticeImportance(postDto.getNoticeImportance());
 
-      if (postDto.getImages() != null) {
-         for (NoticeImageDto.Post imageDto : postDto.getImages()) {
-            NoticeImage image = new NoticeImage();
-            image.setImageUrl(imageDto.getImageUrl());
-            image.setThumbnail(imageDto.isThumbnail());
-            notice.setImage(image); // 양방향 연관 설정
-         }
-      }
-
       return notice;
    }
    default Notice noticePatchToNotice(NoticeDto.Patch patchDto) {
@@ -46,16 +37,6 @@ public interface NoticeMapper {
       notice.setNoticeType(patchDto.getNoticeType());
       notice.setNoticeStatus(patchDto.getNoticeStatus());
       notice.setNoticeImportance(patchDto.getNoticeImportance());
-
-      if (patchDto.getImages() != null) {
-         for (NoticeImageDto.Patch imageDto : patchDto.getImages()) {
-            NoticeImage image = new NoticeImage();
-            image.setNoticeImageId(imageDto.getNoticeImageId());
-            image.setImageUrl(imageDto.getImageUrl());
-            image.setThumbnail(imageDto.isThumbnail());
-            notice.setImage(image);
-         }
-      }
 
       return notice;
    }
@@ -83,7 +64,9 @@ public interface NoticeMapper {
               notice.getEndDate(),
               notice.getNoticeType(),
               notice.getNoticeStatus(),
-              notice.getNoticeImportance()
+              notice.getNoticeImportance(),
+              notice.getCreatedAt(),
+              notice.getModifiedAt()
       );
    }
    default List<NoticeDto.Response> noticesToNoticeResponses(List<Notice> notices) {

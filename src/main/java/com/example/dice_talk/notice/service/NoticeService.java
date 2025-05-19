@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,7 @@ public class NoticeService {
         return noticeRepository.save(notice);
     }
 
+    @Transactional
     public Notice updateNotice(NoticeDto.Patch patchDto, List<MultipartFile> imageFiles, List<Boolean> thumbnailFlags) throws IOException {
         Notice findNotice = findVerifiedNotice(patchDto.getNoticeId());
 
@@ -72,35 +74,38 @@ public class NoticeService {
         Optional.ofNullable(patchDto.getNoticeStatus()).ifPresent(value -> findNotice.setNoticeStatus(value));
         Optional.ofNullable(patchDto.getNoticeImportance()).ifPresent(value -> findNotice.setNoticeImportance(value));
 
+        // 유지할 이미지 ID 목록
+        List<Long> keepImageIds = Optional.ofNullable(patchDto.getKeepImageIds())
+                .orElse(List.of());
+
+        // 삭제 대상 고르기
+        List<NoticeImage> currentImages = new ArrayList<>(findNotice.getImages());
+        for (NoticeImage image : currentImages) {
+            if (!keepImageIds.contains(image.getNoticeImageId())) {
+                s3Uploader.moveToDeletedFolder(image.getImageUrl(), "deleted-notice-image");
+                noticeImageRepository.delete(image);
+                findNotice.getImages().remove(image);
+            }
+        }
+
         if (imageFiles != null && !imageFiles.isEmpty()) {
             if (thumbnailFlags == null || thumbnailFlags.size() != imageFiles.size()) {
                 throw new BusinessLogicException(ExceptionCode.INVALID_IMAGE_METADATA);
             }
 
-            List<NoticeImage> newImages = new ArrayList<>();
-
             for (int i = 0; i < imageFiles.size(); i++) {
                 MultipartFile file = imageFiles.get(i);
                 boolean isThumbnail = thumbnailFlags.get(i);
+
                 String imageUrl = s3Uploader.upload(file, "notice-image");
 
                 NoticeImage image = new NoticeImage();
                 image.setImageUrl(imageUrl);
                 image.setThumbnail(isThumbnail);
                 image.setNotice(findNotice);
-                newImages.add(image);
+                findNotice.getImages().add(image);
             }
 
-            // 삭제 이미지 백업 처리
-            List<NoticeImage> toRemove = new ArrayList<>(findNotice.getImages());
-            for (NoticeImage image : toRemove) {
-                s3Uploader.moveToDeletedFolder(image.getImageUrl(), "deleted-notice-image");
-            }
-
-
-            // 기존 이미지 교체
-            findNotice.getImages().clear();
-            findNotice.getImages().addAll(newImages);
         }
 
         return noticeRepository.save(findNotice);

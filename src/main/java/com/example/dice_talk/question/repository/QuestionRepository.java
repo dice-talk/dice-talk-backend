@@ -19,8 +19,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 //                                                 @Param("memberId") Long memberId,
 //                                                 @Param("isAdmin") boolean isAdmin);
 
-    @Query("SELECT q FROM Question q WHERE q.member.memberId = :memberId" +
-            "AND q.questionStatus NOT IN ('QUESTION_DELETED', 'QUESTION_DEACTIVATED'")
+    @Query("SELECT q FROM Question q WHERE q.member.memberId = :memberId " +
+            "AND q.questionStatus NOT IN ('QUESTION_DELETED', 'QUESTION_DEACTIVATED')")
     Page<Question> findAllActiveByMember_MemberId(@Param("memberId") Long memberId, Pageable pageable);
 //    Page<Question> findAllByMember_MemberId(Long memberId, Pageable pageable);
 }
