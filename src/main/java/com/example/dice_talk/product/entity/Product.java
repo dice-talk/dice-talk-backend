@@ -22,6 +22,9 @@ public class Product extends BaseEntity {
     private String productName;
 
     @Column(nullable = false)
+    private String productImage;
+
+    @Column(nullable = false)
     private int price;
 
     @Column(nullable = false)
