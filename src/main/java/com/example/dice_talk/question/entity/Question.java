@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -29,15 +31,15 @@ public class Question extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private QuestionStatus questionStatus = QuestionStatus.QUESTION_REGISTERED;
 
-    @Column
-    private String questionImage;
-
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
 
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Answer answer;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionImage> images = new ArrayList<>();
 
     public void deactivate(){
         this.questionStatus = QuestionStatus.QUESTION_DEACTIVED;
@@ -69,6 +71,15 @@ public class Question extends BaseEntity {
 
         QuestionStatus(String status) {
             this.status = status;
+        }
+    }
+
+    public void setImage(QuestionImage questionImage){
+        if(questionImage.getQuestion() != this){
+            questionImage.setQuestion(this);
+        }
+        if(!this.images.contains(questionImage)){
+            images.add(questionImage);
         }
     }
 

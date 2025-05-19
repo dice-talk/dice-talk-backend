@@ -34,6 +34,7 @@ public class Theme extends BaseEntity {
     private ThemeStatus themeStatus = ThemeStatus.THEME_ON;
 
     public enum ThemeStatus{
+        THEME_PLANNED("진행 예정"),
         THEME_ON("진행중"),
         THEME_CLOSE("종료");
 

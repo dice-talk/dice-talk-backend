@@ -2,6 +2,7 @@ package com.example.dice_talk.email;
 
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.member.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,18 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class EmailController {
 
     //이메일 인증 API
     private final EmailService emailService;
     private final MemberService memberService;
-
-    public EmailController(EmailService emailService, MemberService memberService) {
-        this.emailService = emailService;
-        this.memberService = memberService;
-    }
 
     //이메일로 인증번호 전송
     @PostMapping("/email")

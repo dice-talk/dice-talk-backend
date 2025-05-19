@@ -27,7 +27,7 @@ public class AuthController {
         String username = principal.getEmail();
 
         return authService.logout(username) ?
-         new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.FORBIDDEN);
+         new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 }
 
