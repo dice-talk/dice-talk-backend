@@ -25,21 +25,21 @@ public class ReportDto {
         private List<ChatReportDto.Post> chatReports;
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Patch{
-        private long reportId;
-
-        private String reason;
-
-        private long reporterId;
-
-        private List<ChatReportDto> chatReports;
-
-        private Report.ReportStatus reportStatus = Report.ReportStatus.REPORT_RECEIVED;
-    }
+//    @Getter
+//    @Setter
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    public static class Patch{
+//        private long reportId;
+//
+//        private String reason;
+//
+//        private long reporterId;
+//
+//        private List<ChatReportDto> chatReports;
+//
+//        private Report.ReportStatus reportStatus = Report.ReportStatus.REPORT_RECEIVED;
+//    }
 
     @Getter
     @Setter
