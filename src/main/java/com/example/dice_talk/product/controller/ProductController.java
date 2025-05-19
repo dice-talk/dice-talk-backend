@@ -56,8 +56,8 @@ public class ProductController {
     public ResponseEntity patchProduct(
             @PathVariable("product-id") @Positive long productId,
             @RequestParam("productPatchDto") String productPatchDtoString,
-            @RequestPart(value = "image", required = false) MultipartFile imageFile,
-            @Valid @RequestBody ProductDto.Patch patchDto) throws IOException {
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) throws IOException {
+        ProductDto.Patch patchDto = jsonParserUtil.parse(productPatchDtoString, ProductDto.Patch.class);
         patchDto.setProductId(productId);
         Product product = productService.updateProduct(mapper.productPatchToProduct(patchDto), imageFile);
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.productToProductResponse(product)), HttpStatus.OK);

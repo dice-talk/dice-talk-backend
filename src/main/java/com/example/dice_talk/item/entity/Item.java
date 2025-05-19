@@ -21,6 +21,9 @@ public class Item extends BaseEntity {
     @Column(nullable = false)
     private String itemName;
 
+    @Column(nullable = false)
+    private String itemImage;
+
     @Column
     private String description;
 
