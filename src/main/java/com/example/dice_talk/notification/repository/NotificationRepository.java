@@ -18,4 +18,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "SET n.isRead = true " +
             "WHERE n.member.memberId = :memberId AND n.isRead = false")
     void markAllAsRead(@Param("memberId") Long memberId);
+
+    void deleteAllByMember_MemberId(Long memberId);
 }

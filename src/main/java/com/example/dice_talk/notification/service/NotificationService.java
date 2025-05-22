@@ -1,8 +1,11 @@
 package com.example.dice_talk.notification.service;
 
+import com.example.dice_talk.exception.BusinessLogicException;
+import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notification.entity.Notification;
 import com.example.dice_talk.notification.repository.NotificationRepository;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,5 +41,30 @@ public class NotificationService {
     @Transactional
     public long countUnread(Long memberId){
         return notificationRepository.countByMember_MemberIdAndIsReadFalse(memberId);
+    }
+
+    // 알림 선택 삭제
+    @Transactional
+    public void deleteNotification(Long memberId, Long notificationId){
+        verifyExistNotification(notificationId);
+        notificationRepository.deleteById(notificationId);
+    }
+
+    // 특정 멤버의 알림 전체 삭제
+    @Transactional
+    public void deleteAllNotification(Long memberId){
+        notificationRepository.deleteAllByMember_MemberId(memberId);
+    }
+
+    // 존재하는 알림인지 확인
+    public void verifyExistNotification(Long notificationId){
+        notificationRepository.findById(notificationId).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.NOTIFICATION_NOT_FOUND));
+    }
+
+    // pk 로 해당 Notification 찾기
+    public Notification findVerifiedNotification(Long notificationId){
+        return notificationRepository.findById(notificationId).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.NOTIFICATION_NOT_FOUND));
     }
 }

@@ -7,6 +7,7 @@ import com.example.dice_talk.notification.dto.NotificationDto;
 import com.example.dice_talk.notification.entity.Notification;
 import com.example.dice_talk.notification.mapper.NotificationMapper;
 import com.example.dice_talk.notification.service.NotificationService;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -59,9 +60,27 @@ public class NotificationController {
         return new ResponseEntity<>(new SingleResponseDto<>(count), HttpStatus.OK);
     }
 
-    @PostMapping("/read-all")
+    @PatchMapping("/read-all")
     public ResponseEntity markAllAsRead(@AuthenticationPrincipal CustomPrincipal customPrincipal){
         notificationService.markAllAsRead(customPrincipal.getMemberId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    // 알림 선택삭제
+    @DeleteMapping("/{notification-id}")
+    public ResponseEntity deleteNotification(@AuthenticationPrincipal CustomPrincipal customPrincipal,
+                                             @PathVariable("notification-id") long notificationId){
+        Notification notification = notificationService.findVerifiedNotification(notificationId);
+        AuthorizationUtils.isAdminOrOwner(notification.getMember().getMemberId(), customPrincipal.getMemberId());
+        return ResponseEntity.noContent().build();
+    }
+
+    // 특정 회원의 알림 전체삭제
+    @DeleteMapping
+    public ResponseEntity deleteAllNotification(@AuthenticationPrincipal CustomPrincipal customPrincipal){
+        notificationService.deleteAllNotification(customPrincipal.getMemberId());
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
