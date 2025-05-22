@@ -10,9 +10,11 @@ import java.util.List;
 public class HomeResponseDto {
     private List<ThemeDto.Response> themes;
     private List<NoticeDto.Response> notices;
+    private boolean hasNewNotifications;
 
-    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices) {
+    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications) {
         this.themes = themes;
         this.notices = notices;
+        this.hasNewNotifications = hasNewNotifications;
     }
 }
