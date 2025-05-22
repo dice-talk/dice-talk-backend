@@ -1,21 +1,17 @@
 package com.example.dice_talk.chatroom.service;
 
-import com.example.dice_talk.auth.CustomPrincipal;
-import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.service.ChatService;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.repository.ChatPartRepository;
 import com.example.dice_talk.chatroom.repository.ChatRoomRepository;
-import com.example.dice_talk.event.service.EventService;
+import com.example.dice_talk.dashboard.dto.DashboardChatRoom;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
-import com.example.dice_talk.theme.sevice.ThemeService;
-import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
@@ -249,5 +247,20 @@ public class ChatRoomService {
             }
         }
 
+    }
+
+    //AdminWeb - 진행중인 채팅방
+    public List<DashboardChatRoom> activeChatRoomCount() {
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
+        //단체 채팅방
+       List<ChatRoom> groupChatRoom = chatRooms.stream().filter(chatRoom -> chatRoom.getRoomType() == ChatRoom.RoomType.GROUP)
+               .collect(Collectors.toList());
+       //1대1 채팅방
+        List<ChatRoom> coupleChatRoom = chatRooms.stream().filter(chatRoom -> chatRoom.getRoomType() == ChatRoom.RoomType.COUPLE)
+                .collect(Collectors.toList());
+
+        List<DashboardChatRoom> dashboardChatRooms = new ArrayList<>();
+        dashboardChatRooms.add(new DashboardChatRoom(chatRooms.size(), groupChatRoom.size(), coupleChatRoom.size()));
+        return dashboardChatRooms;
     }
 }

@@ -35,4 +35,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Query("SELECT cr FROM ChatRoom cr JOIN cr.chatParts cp WHERE cp.member.memberId = :memberId AND cr.roomType = :roomType AND cr.roomStatus = :roomStatus")
     Page<ChatRoom> findAllByMemberIdAndRoomTypeAndRoomStatus(@Param("memberId") Long memberId, @Param("roomType") ChatRoom.RoomType roomType, @Param("roomStatus") ChatRoom.RoomStatus roomStatus, Pageable pageable);
 
+    // 활성(진행 중) 채팅방 리스트 조회
+    List<ChatRoom> findAllByRoomStatus(ChatRoom.RoomStatus roomStatus);
 }

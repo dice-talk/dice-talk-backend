@@ -17,9 +17,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -222,5 +224,19 @@ public class MemberService {
         List<ChatPart> chatParts = member.getChatParts();
         //마지막 참여했던 채팅방에서 nickname 가져오기
         return chatParts.get(chatParts.size() - 1).getNickname();
+    }
+
+    //관리자 Web -> 오늘 회원가입한 회원 정보
+    public List<String> findTodayRegisteredMembers(){
+
+        LocalDate today = LocalDate.now();
+        //오늘부터 +1일 까지 가입한 회원 조회
+        List<Member> members = memberRepository.findByCreatedAtBetween(
+                today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+
+        //조회된 회원의 이름만 출력
+        return members.stream()
+                .map(member -> member.getName())
+                .collect(Collectors.toList());
     }
 }
