@@ -223,4 +223,9 @@ public class MemberService {
         //마지막 참여했던 채팅방에서 nickname 가져오기
         return chatParts.get(chatParts.size() - 1).getNickname();
     }
+
+    // 이벤트 발행을 위한 활동중인 전체 멤버 조회
+    public List<Member> findAllActiveMember(){
+        return memberRepository.findAllByMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
+    }
 }

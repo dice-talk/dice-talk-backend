@@ -3,6 +3,7 @@ package com.example.dice_talk.dicelog.service;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.item.entity.Item;
+import com.example.dice_talk.item.event.ItemUsedEvent;
 import com.example.dice_talk.item.service.ItemService;
 import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.member.entity.Member;
@@ -11,6 +12,7 @@ import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.service.ProductService;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,12 +25,14 @@ public class DiceLogService {
     private final ProductService productService;
     private final ItemService itemService;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
-    public DiceLogService(DiceLogRepository diceLogRepository, ProductService productService, ItemService itemService, MemberService memberService) {
+    public DiceLogService(DiceLogRepository diceLogRepository, ProductService productService, ItemService itemService, MemberService memberService, ApplicationEventPublisher publisher) {
         this.diceLogRepository = diceLogRepository;
         this.productService = productService;
         this.itemService = itemService;
         this.memberService = memberService;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -57,6 +61,7 @@ public class DiceLogService {
         }
         member.setDiceLog(diceLog);
         member.setTotalDice(member.getTotalDice() - diceLog.getQuantity());
+        publisher.publishEvent(new ItemUsedEvent(memberId, item.getItemName(), item.getDicePrice()));
         return diceLogRepository.save(diceLog);
     }
 

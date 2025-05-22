@@ -2,6 +2,7 @@ package com.example.dice_talk.answer.service;
 
 import com.example.dice_talk.answer.entity.Answer;
 import com.example.dice_talk.answer.entity.AnswerImage;
+import com.example.dice_talk.answer.event.AnsweredEvent;
 import com.example.dice_talk.answer.repository.AnswerImageRepository;
 import com.example.dice_talk.answer.repository.AnswerRepository;
 import com.example.dice_talk.aws.S3Uploader;
@@ -12,6 +13,7 @@ import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.service.QuestionService;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,15 +31,18 @@ public class AnswerService {
     private final QuestionService questionService;
     private final S3Uploader s3Uploader;
     private final AnswerImageRepository answerImageRepository;
+    private final ApplicationEventPublisher publisher;
 
-    public AnswerService(AnswerRepository answerRepository, MemberService memberService, QuestionService questionService, S3Uploader s3Uploader, AnswerImageRepository answerImageRepository) {
+    public AnswerService(AnswerRepository answerRepository, MemberService memberService, QuestionService questionService, S3Uploader s3Uploader, AnswerImageRepository answerImageRepository, ApplicationEventPublisher publisher) {
         this.answerRepository = answerRepository;
         this.memberService = memberService;
         this.questionService = questionService;
         this.s3Uploader = s3Uploader;
         this.answerImageRepository = answerImageRepository;
+        this.publisher = publisher;
     }
 
+    @Transactional
     public Answer createAnswer(Answer answer, List<MultipartFile> imageFiles) throws IOException {
         memberService.findVerifiedMember(answer.getMember().getMemberId());
         Question question = verifyExistsAnswerInQuestion(answer);
@@ -51,6 +56,8 @@ public class AnswerService {
                 answer.getImages().add(image);
             }
         }
+        // 이벤트 발행
+        publisher.publishEvent(new AnsweredEvent(question.getMember().getMemberId(), question.getQuestionId()));
         return answerRepository.save(answer);
     }
 
