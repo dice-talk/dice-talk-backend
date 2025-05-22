@@ -72,9 +72,10 @@ public class MemberDetailsService implements UserDetailsService {
             return true;
         }
 
+        // 영구정지 회원의 접근 차단
         @Override
         public boolean isEnabled() {
-            return true;
+            return this.getMemberStatus() != MemberStatus.MEMBER_BANNED;
         }
     }
 }

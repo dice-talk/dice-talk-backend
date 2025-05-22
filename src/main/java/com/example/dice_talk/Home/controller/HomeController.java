@@ -2,6 +2,7 @@ package com.example.dice_talk.Home.controller;
 
 import com.example.dice_talk.Home.dto.HomeResponseDto;
 import com.example.dice_talk.auth.CustomPrincipal;
+import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notice.dto.NoticeDto;
 import com.example.dice_talk.notice.mapper.NoticeMapper;
@@ -38,7 +39,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public ResponseEntity getHome(@AuthenticationPrincipal CustomPrincipal customPrincipal){
-        memberService.findVerifiedMember(customPrincipal.getMemberId());
+        Member member = memberService.findVerifiedMember(customPrincipal.getMemberId());
         List<ThemeDto.Response> themes = themeMapper.themesToThemeResponses(themeService.findAllThemesOn());
         List<NoticeDto.Response> notices = noticeMapper.noticesToNoticeResponses(noticeService.findBannerEvents());
         return new ResponseEntity(new HomeResponseDto(themes, notices), HttpStatus.OK);
