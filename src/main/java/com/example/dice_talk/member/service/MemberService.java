@@ -231,6 +231,7 @@ public class MemberService {
     // 이벤트 발행을 위한 활동중인 전체 멤버 조회
     public List<Member> findAllActiveMember(){
         return memberRepository.findAllByMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
+    }
     //관리자 Web -> 오늘 회원가입한 회원 정보
     public List<String> findTodayRegisteredMembers(){
 
