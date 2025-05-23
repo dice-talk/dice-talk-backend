@@ -1,6 +1,7 @@
 package com.example.dice_talk.notice.service;
 
 import com.example.dice_talk.aws.S3Uploader;
+import com.example.dice_talk.dashboard.dto.DashboardNotice;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
@@ -146,6 +147,17 @@ public class NoticeService {
                 Notice.NoticeType.EVENT, Notice.NoticeStatus.ONGOING);
     }
 
+    //adminWeb : 최신 등록된 공지글 정보 반환
+    public List<DashboardNotice> findRecentNotices() {
+        //최근 등록되 공지글 1개 내림차순으로 조회
+        List<Notice> recentNotice = noticeRepository.findTop1ByOrderByCreatedAtDesc();
+        List<Notice> noticeList = noticeRepository.findAllByNoticeTypeAndNoticeStatus(Notice.NoticeType.EVENT, Notice.NoticeStatus.ONGOING );
+
+        return recentNotice.stream()
+                .map(notice -> new DashboardNotice(notice.getTitle(), noticeList.size()))
+                .collect(Collectors.toList());
+
+    }
 
 }
 

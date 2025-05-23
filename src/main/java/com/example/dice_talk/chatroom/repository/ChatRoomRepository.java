@@ -1,6 +1,7 @@
 package com.example.dice_talk.chatroom.repository;
 
 import com.example.dice_talk.chatroom.entity.ChatRoom;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +37,20 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Query("SELECT cr FROM ChatRoom cr JOIN cr.chatParts cp WHERE cp.member.memberId = :memberId AND cr.roomType = :roomType AND cr.roomStatus = :roomStatus")
     Page<ChatRoom> findAllByMemberIdAndRoomTypeAndRoomStatus(@Param("memberId") Long memberId, @Param("roomType") ChatRoom.RoomType roomType, @Param("roomStatus") ChatRoom.RoomStatus roomStatus, Pageable pageable);
 
+    // 활성(진행 중) 채팅방 리스트 조회
+    List<ChatRoom> findAllByRoomStatus(ChatRoom.RoomStatus roomStatus);
+    //주간별 활성화된 채팅방 수 조회
+    @Query(value =
+            "SELECT DATE(cr.created_at) AS date, COUNT(*) AS count " +
+                    "FROM chat_room cr " +
+                    "WHERE cr.created_at >= :start " +
+                    "  AND cr.created_at <  :end " +
+                    "  AND cr.room_status = 'ROOM_ACTIVE' " +
+                    "GROUP BY DATE(cr.created_at)",
+            nativeQuery = true
+    )
+    List<DailyCountDto> countActiveRoomsByDate(
+            @Param("start") LocalDateTime start,
+            @Param("end")   LocalDateTime end
+    );
 }

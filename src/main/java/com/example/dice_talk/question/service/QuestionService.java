@@ -1,6 +1,7 @@
 package com.example.dice_talk.question.service;
 
 import com.example.dice_talk.aws.S3Uploader;
+import com.example.dice_talk.dashboard.dto.DashboardQuestion;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -181,4 +183,22 @@ public class QuestionService {
     public void setAnswerNull(long questionId) {
         findVerifiedQuestion(questionId).setAnswer(null);
     }
+
+    public List<DashboardQuestion> findUnansweredQuestions() {
+        //미답변 질문글만 조회
+        List<Question> questions = questionRepository.findAllByQuestionStatusOrderByCreatedAtDesc(Question.QuestionStatus.QUESTION_REGISTERED);
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        List<Question.QuestionStatus> statuses = List.of(
+                Question.QuestionStatus.QUESTION_REGISTERED,
+                Question.QuestionStatus.QUESTION_ANSWERED
+        );
+        //7일간 작성된 질문 글 조회
+        List<Question> weeklyQuestions = questionRepository.findAllByCreatedAtAfterAndQuestionStatusIn(sevenDaysAgo, statuses);
+
+        return  questions.stream().map(question -> new DashboardQuestion(question.getTitle(), questions.size(), weeklyQuestions.size()))
+                .collect(Collectors.toList());
+    }
+
+
+
 }
