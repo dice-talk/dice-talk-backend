@@ -48,7 +48,7 @@ public class ItemController {
         return ResponseEntity.created(location).build();
     }
 
-    @PatchMapping("/{item-id}")
+    @PatchMapping(value = "/{item-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity patchItem(
             @PathVariable("item-id") @Positive long itemId,
             @Valid @RequestParam String itemPatchDtoString,
