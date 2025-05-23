@@ -8,6 +8,8 @@ import com.example.dice_talk.notification.dto.NotificationDto;
 import com.example.dice_talk.notification.entity.Notification;
 import com.example.dice_talk.notification.mapper.NotificationMapper;
 import com.example.dice_talk.notification.service.NotificationService;
+import com.example.dice_talk.report.event.ReportCompletedEvent;
+import com.example.dice_talk.report.event.ReportCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -52,5 +54,33 @@ public class NotificationEventHandler {
                     notificationService.createNotification(mapper.postToNotification(dto));
                 }
         );
+    }
+
+    // 신고 등록
+    @Async("notificationExecutor")
+    @EventListener
+    public void onReportCreated(ReportCreatedEvent e){
+        String msg = String.format("신고가 접수되었습니다. 사유 : %s", e.getReason());
+        NotificationDto.Post dto = new NotificationDto.Post(msg, e.getReporterId(), Notification.NotificationType.REPORT);
+        notificationService.createNotification(mapper.postToNotification(dto));
+    }
+
+    // 신고 처리 완료
+    @Async("notificationExecutor")
+    @EventListener
+    public void onReportCompleted(ReportCompletedEvent e){
+        String msg = String.format(
+                "[경고 알림]\n" +
+                        "• 일시: %s\n" +               // {날짜} → %s
+                        "• 사유: %s\n" +               // {사유} → %s
+                        "• 누적 경고 횟수: %d회\n\n" + // {횟수} → %d + "회"
+                        "안녕하세요, 회원님.\n" +
+                        "위 사유로 경고가 누적되었습니다.\n" +
+                        "경고 3회 누적 시 계정이 정지되오니\n" +
+                        "규정 준수 부탁드립니다.",
+                e.getDate(), e.getReason(), e.getWarnCount()    // 순서대로 포맷 인자 전달
+        );
+        NotificationDto.Post dto = new NotificationDto.Post(msg, e.getReportedMemberId(), Notification.NotificationType.REPORT);
+        notificationService.createNotification(mapper.postToNotification(dto));
     }
 }
