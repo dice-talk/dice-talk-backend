@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ChatMapper {
     @Mapping(target = "member.memberId", source = "memberId")
@@ -21,5 +23,5 @@ public interface ChatMapper {
     @Mapping(target = "chatRoomId", source = "chatRoom.chatRoomId")
     ChatDto.Response chatToChatResponse(Chat chat);
 
-
+    List<ChatDto.Response> chatsToChatResponses(List<Chat> chats);
 }

@@ -26,6 +26,9 @@ public class Report extends BaseEntity {
     @Column(nullable = false)
     private Long reporterId;
 
+    @Column(nullable = false)
+    private Long reportedMemberId;
+
     @Enumerated(EnumType.STRING)
     private ReportStatus reportStatus =ReportStatus.REPORT_RECEIVED;
 
@@ -34,7 +37,7 @@ public class Report extends BaseEntity {
 
     public enum ReportStatus{
         REPORT_RECEIVED("신고 접수"),
-        REPORT_UNDER_REVIEW("검토중"),
+        REPORT_REJECTED("신고 반려"),
         REPORT_COMPLETED("처리 완료"),
         REPORT_DELETED("신고 삭제");
 
