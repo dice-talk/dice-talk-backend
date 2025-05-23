@@ -5,6 +5,7 @@ import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.repository.ChatPartRepository;
 import com.example.dice_talk.chatroom.repository.ChatRoomRepository;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.dashboard.dto.DashboardChatRoom;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
@@ -262,5 +263,10 @@ public class ChatRoomService {
         List<DashboardChatRoom> dashboardChatRooms = new ArrayList<>();
         dashboardChatRooms.add(new DashboardChatRoom(chatRooms.size(), groupChatRoom.size(), coupleChatRoom.size()));
         return dashboardChatRooms;
+    }
+
+    //AdminWeb - 주간 진행중인 채팅방
+    public List<DailyCountDto> weeklyActiveChatRoom(LocalDateTime start, LocalDateTime end) {
+        return chatRoomRepository.countActiveRoomsByDate(start, end);
     }
 }

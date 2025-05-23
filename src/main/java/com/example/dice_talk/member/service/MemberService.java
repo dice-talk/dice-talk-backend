@@ -2,6 +2,8 @@ package com.example.dice_talk.member.service;
 
 import com.example.dice_talk.auth.utils.AuthorityUtils;
 import com.example.dice_talk.chatroom.entity.ChatPart;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.DashboardWeekly;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.ResetPasswordDto;
@@ -230,13 +232,17 @@ public class MemberService {
     public List<String> findTodayRegisteredMembers(){
 
         LocalDate today = LocalDate.now();
-        //오늘부터 +1일 까지 가입한 회원 조회
+        //오늘 가입한 회원 조회
         List<Member> members = memberRepository.findByCreatedAtBetween(
-                today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+                today.atStartOfDay(), today.plusDays(1).atStartOfDay());    //다음날 00:00시까지
 
         //조회된 회원의 이름만 출력
         return members.stream()
                 .map(member -> member.getName())
                 .collect(Collectors.toList());
+    }
+
+    public List<DailyCountDto> weeklyNewMember(LocalDateTime start, LocalDateTime end) {
+        return memberRepository.countSignupsByDate(start, end);
     }
 }

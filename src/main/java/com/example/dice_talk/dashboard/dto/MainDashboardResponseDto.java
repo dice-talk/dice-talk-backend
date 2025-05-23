@@ -34,4 +34,7 @@ public class MainDashboardResponseDto {
 
     //채팅방 관리
     private List<DashboardChatRoom> dashboardChatRooms;
+
+    //주간 데이터
+    private List<DashboardWeekly> dashboardWeeklies;
 }
