@@ -18,11 +18,11 @@ spring:
 #     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
 #     username: sa
 #     password:
- datasource:
-   url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
-   username: ${RDS_USERNAME}
-   password: ${RDS_PASSWORD}
-   driver-class-name: com.mysql.cj.jdbc.Driver
+  datasource:
+    url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update   # 애플리케이션 시작 시 데이터베이스 스키마를 생성합니다.
@@ -43,10 +43,10 @@ spring:
   output:
     ansi:
       enabled: ALWAYS    # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
- web:
-   cors:
-     allowed-origins: "http://localhost:3000"
-     allowed-methods:
+  web:
+    cors:
+      allowed-origins: "http://localhost:3000"
+      allowed-methods:
        - GET
        - POST
        - PATCH
