@@ -6,7 +6,7 @@ spring:
       host: 172.31.3.55  #127.0.0.1   # EC2의 내부 IP
       port: 6379
 #       password:     # 로컬 테스트용
-     password: ${REDIS_PASSWORD}      # 서버용
+      password: ${REDIS_PASSWORD}      # 서버용
   h2:
     console:
       enabled: true       # H2 콘솔을 활성화합니다.
