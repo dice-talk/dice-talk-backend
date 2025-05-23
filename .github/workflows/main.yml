@@ -46,6 +46,8 @@ jobs:
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
++         S3_ACCESS_SECRET_KEY: ${{ secrets.S3_ACCESS_SECRET_KEY }}
         run: |
           aws ssm send-command \
             --instance-ids i-00269caba1b48f569 \
