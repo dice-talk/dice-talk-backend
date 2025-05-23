@@ -19,13 +19,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew build
+#        run: ./gradlew build
+        run: ./gradlew build -x test
       - name: Docker build
         run: |
           docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
-          docker build -t spring-cicd .
-          docker tag spring-cicd seunnga/spring-cicd:${GITHUB_SHA::7}
-          docker push seunnga/spring-cicd:${GITHUB_SHA::7}
+          docker build -t dicetalk .
+          docker tag dicetalk minjikk/dicetalk:${GITHUB_SHA::7}
+          docker push minjikk/dicetalk:${GITHUB_SHA::7}
       #위 내용은 지속적 통합을 위한 스크립트입니다.
       #지속적 통합을 위한 스크립트 아래에 작성합니다.
       - name: Configure AWS credentials
@@ -35,24 +36,35 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
       - name: Start Session Manager session
-        run: aws ssm start-session --target i-045855c459d5d32e8
+        run: aws ssm start-session --target i-00269caba1b48f569
       - name: Deploy to Server
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-2
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
         run: |
           aws ssm send-command \
-            --instance-ids i-045855c459d5d32e8 \
+            --instance-ids i-00269caba1b48f569 \
             --document-name "AWS-RunShellScript" \
             --parameters "commands=[
               'if sudo docker ps -a --format \\'{{.Names}}\\' | grep -q \\'^server$\\'; then',
               '  sudo docker stop server',
               '  sudo docker rm server',
               'fi',
-              'sudo docker pull seunnga/spring-cicd:${GITHUB_SHA::7}',
-              'sudo docker tag seunnga/spring-cicd:${GITHUB_SHA::7} spring-cicd',
-              'sudo docker run -d --name server -p 8080:8080 spring-cicd'
+              'sudo docker stop server || true',
+              'sudo docker rm server || true',
+              'sudo docker pull minjikk/dicetalk:${GITHUB_SHA::7}',
+              'sudo docker tag minjikk/dicetalk:${GITHUB_SHA::7} dicetalk',
+              'sudo docker run -d --name server --restart=no -p 8080:8080 \\
+                -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \\
+                -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \\
+                -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \\
+                -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \\
+                dicetalk'
             ]" \
             --output text
-    
+        

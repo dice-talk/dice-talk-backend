@@ -1,0 +1,106 @@
+spring:
+  application:
+    name: dice-talk
+  data:
+    redis:
+      host: 172.31.3.55  #127.0.0.1   # EC2의 내부 IP
+      port: 6379
+#       password:     # 로컬 테스트용
+     password: ${REDIS_PASSWORD}      # 서버용
+  h2:
+    console:
+      enabled: true       # H2 콘솔을 활성화합니다.
+      path: /h2           # H2 콘솔에 접근할 수 있는 URL 경로를 설정합니다.
+  jackson:
+    time-zone: Asia/Seoul
+#   datasource:
+#     driver-class-name: org.h2.Driver
+#     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#     username: sa
+#     password:
+ datasource:
+   url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
+   username: ${RDS_USERNAME}
+   password: ${RDS_PASSWORD}
+   driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update   # 애플리케이션 시작 시 데이터베이스 스키마를 생성합니다.
+    show-sql: true        # JPA에서 실행되는 SQL 쿼리를 콘솔에 출력합니다.
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true  # SQL 쿼리를 포맷하여 가독성을 높입니다.
+        highlight_sql: true # SQL 쿼리에서 중요한 부분을 강조합니다.
+        color-codes: true  # SQL 쿼리의 컬러 코드를 사용합니다.
+        use_sql_comments: true # SQL 쿼리에 주석을 추가합니다.
+    defer-datasource-initialization: true # 데이터 소스 초기화를 지연시킵니다.
+  #    open-in-view: false # (주석 처리됨) Open EntityManager in View 패턴을 비활성화합니다.
+  sql:
+    init:
+      mode: always                  # SQL 초기화 스크립트를 항상 실행합니다
+#      data-locations: classpath:dummy_data.sql
+  output:
+    ansi:
+      enabled: ALWAYS    # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
+ web:
+   cors:
+     allowed-origins: "http://localhost:3000"
+     allowed-methods:
+       - GET
+       - POST
+       - PATCH
+       - DELETE
+  servlet:
+    multipart:
+      enabled: true #Multipart 요청 활성화
+      max-file-size: 10MB
+      max-request-size: 100MB
+      file-size-threshold: 2KB
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: error       # Hibernate SQL 로그 레벨을 에러로 설정합니다.
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace # SQL 바인딩 로그를 추적 레벨로 설정합니다.
+server:
+  port: 8080
+  servlet:
+    encoding:
+      force-response: true
+mail:
+  smtp:
+    host: smtp.gmail.com   # Gmail SMTP 서버 주소
+    port: 587              # 포트 번호 (TLS: 587, SSL: 465)
+    username: {your-email@gmail.com}
+    password: {your-app-password}  # 앱 비밀번호 사용
+    auth: true
+    starttls:
+      enable: true
+  address:
+    admin: admin@gmail.com
+jwt:
+  key: ${JWT_SECRET_KEY}
+  access-token-expiration-minutes: 240
+  refresh-token-expiration-minutes: 1440
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_ACCESS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: dicetalk-images
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method # method 순 정렬
+    tagsSorter: alpha       # 태그 순 정렬
+  api-docs:
+    path: /v3/api-docs
