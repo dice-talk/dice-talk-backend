@@ -2,6 +2,8 @@ package com.example.dice_talk.member.service;
 
 import com.example.dice_talk.auth.utils.AuthorityUtils;
 import com.example.dice_talk.chatroom.entity.ChatPart;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.DashboardWeekly;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.ResetPasswordDto;
@@ -17,9 +19,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -222,5 +226,23 @@ public class MemberService {
         List<ChatPart> chatParts = member.getChatParts();
         //마지막 참여했던 채팅방에서 nickname 가져오기
         return chatParts.get(chatParts.size() - 1).getNickname();
+    }
+
+    //관리자 Web -> 오늘 회원가입한 회원 정보
+    public List<String> findTodayRegisteredMembers(){
+
+        LocalDate today = LocalDate.now();
+        //오늘 가입한 회원 조회
+        List<Member> members = memberRepository.findByCreatedAtBetween(
+                today.atStartOfDay(), today.plusDays(1).atStartOfDay());    //다음날 00:00시까지
+
+        //조회된 회원의 이름만 출력
+        return members.stream()
+                .map(member -> member.getName())
+                .collect(Collectors.toList());
+    }
+
+    public List<DailyCountDto> weeklyNewMember(LocalDateTime start, LocalDateTime end) {
+        return memberRepository.countSignupsByDate(start, end);
     }
 }
