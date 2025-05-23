@@ -28,6 +28,7 @@ public enum ExceptionCode {
     CHAT_NOT_FOUND(404, "Chat not found"),
     UNAUTHORIZED(401, "Unauthorized"),
     AUTH_INVALID_PASSWORD(401, "Auth Invalid Password"),
+    NOTIFICATION_NOT_FOUND(404, "Notification not found"),
     INVALID_IMAGE_METADATA(400, "썸네일 여부 리스트가 이미지 개수와 일치하지 않습니다.");
 
     @Getter

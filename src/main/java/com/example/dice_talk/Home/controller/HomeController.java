@@ -2,10 +2,12 @@ package com.example.dice_talk.Home.controller;
 
 import com.example.dice_talk.Home.dto.HomeResponseDto;
 import com.example.dice_talk.auth.CustomPrincipal;
+import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notice.dto.NoticeDto;
 import com.example.dice_talk.notice.mapper.NoticeMapper;
 import com.example.dice_talk.notice.service.NoticeService;
+import com.example.dice_talk.notification.service.NotificationService;
 import com.example.dice_talk.theme.dto.ThemeDto;
 import com.example.dice_talk.theme.entity.Theme;
 import com.example.dice_talk.theme.mapper.ThemeMapper;
@@ -27,20 +29,23 @@ public class HomeController {
     private final MemberService memberService;
     private final ThemeMapper themeMapper;
     private final NoticeMapper noticeMapper;
+    private final NotificationService notificationService;
 
-    public HomeController(ThemeService themeService, NoticeService noticeService, MemberService memberService, ThemeMapper themeMapper, NoticeMapper noticeMapper) {
+    public HomeController(ThemeService themeService, NoticeService noticeService, MemberService memberService, ThemeMapper themeMapper, NoticeMapper noticeMapper, NotificationService notificationService) {
         this.themeService = themeService;
         this.noticeService = noticeService;
         this.memberService = memberService;
         this.themeMapper = themeMapper;
         this.noticeMapper = noticeMapper;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/home")
     public ResponseEntity getHome(@AuthenticationPrincipal CustomPrincipal customPrincipal){
-        memberService.findVerifiedMember(customPrincipal.getMemberId());
+        Member member = memberService.findVerifiedMember(customPrincipal.getMemberId());
         List<ThemeDto.Response> themes = themeMapper.themesToThemeResponses(themeService.findAllThemesOn());
         List<NoticeDto.Response> notices = noticeMapper.noticesToNoticeResponses(noticeService.findBannerEvents());
-        return new ResponseEntity(new HomeResponseDto(themes, notices), HttpStatus.OK);
+        boolean hasNewNotifications = notificationService.countUnread(customPrincipal.getMemberId()) > 0;
+        return new ResponseEntity(new HomeResponseDto(themes, notices, hasNewNotifications), HttpStatus.OK);
     }
 }

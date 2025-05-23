@@ -4,12 +4,15 @@ import com.example.dice_talk.aws.S3Uploader;
 import com.example.dice_talk.dashboard.dto.DashboardNotice;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notice.dto.NoticeDto;
 import com.example.dice_talk.notice.entity.Notice;
 import com.example.dice_talk.notice.entity.NoticeImage;
+import com.example.dice_talk.notice.event.NoticeCreatedEvent;
 import com.example.dice_talk.notice.repository.NoticeImageRepository;
 import com.example.dice_talk.notice.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,6 +33,8 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final NoticeImageRepository noticeImageRepository;
     private final S3Uploader s3Uploader;
+    private final ApplicationEventPublisher publisher;
+    private final MemberService memberService;
 
     public Notice createNotice(NoticeDto.Post postDto, List<MultipartFile> imageFiles, List<Boolean> thumbnailFlags) throws IOException {
         Notice notice = new Notice();
@@ -59,8 +64,11 @@ public class NoticeService {
                 notice.getImages().add(image);
             }
         }
+        Notice created = noticeRepository.save(notice);
+        // 이벤트 발행 (전체 멤버)
+        publisher.publishEvent(new NoticeCreatedEvent(created.getNoticeId(), notice.getTitle()));
 
-        return noticeRepository.save(notice);
+        return created;
     }
 
     @Transactional

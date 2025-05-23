@@ -1,5 +1,6 @@
 package com.example.dice_talk.report.dto;
 
+import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.report.entity.ChatReport;
 import com.example.dice_talk.report.entity.Report;
 import lombok.AllArgsConstructor;
@@ -23,22 +24,8 @@ public class ReportDto {
         private long reporterId;
 
         private List<ChatReportDto.Post> chatReports;
-    }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Patch{
-        private long reportId;
-
-        private String reason;
-
-        private long reporterId;
-
-        private List<ChatReportDto> chatReports;
-
-        private Report.ReportStatus reportStatus = Report.ReportStatus.REPORT_RECEIVED;
+        private List<Long> reportedMemberIds;
     }
 
     @Getter
@@ -49,7 +36,7 @@ public class ReportDto {
         private long reportId;
         private String reason;
         private long reporterId;
-        private List<ChatReportDto.Response> chatReports;
+        private List<ChatDto.Response> reportedChats;
         private Report.ReportStatus reportStatus;
     }
 }

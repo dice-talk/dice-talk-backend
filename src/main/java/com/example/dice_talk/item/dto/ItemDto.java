@@ -47,6 +47,7 @@ public class ItemDto {
         private long itemId;
         private String itemName;
         private String description;
+        private String itemImage;
         private int dicePrice;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
