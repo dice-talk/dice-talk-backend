@@ -67,7 +67,7 @@ public class ChatDto {
         @Schema(description = "작성자의 회원 ID", example = "1")
         private long memberId;      //메세지 작성자 (writer)
         @Schema(description = "작성자 닉네임", example = "익명123")
-        private String nickName;    //메세지 작성자 ??
+        private String nickname;    //메세지 작성자 ??
         @Schema(description = "채팅방 ID", example = "10")
         private long chatRoomId;
         @Schema(description = "메세지 생성 시각", example = "2025-05-23T12:30:45")

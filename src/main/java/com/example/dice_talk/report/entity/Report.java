@@ -52,7 +52,7 @@ public class Report extends BaseEntity {
         if(chatReport.getReport() != this){
             chatReport.setReport(this);
         }
-        if(this.getChatReports().contains(chatReport)){
+        if(!this.getChatReports().contains(chatReport)){
             this.getChatReports().add(chatReport);
         }
     }
