@@ -2,7 +2,11 @@ package com.example.dice_talk.email;
 
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.response.SwaggerErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Tag(name = "Email API", description = "이메일 인증 API 문서입니다.")
+@SecurityRequirement(name = "JWT")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -25,26 +30,38 @@ public class EmailController {
     private final EmailService emailService;
     private final MemberService memberService;
 
-    @Operation(
-            summary = "Email Post API",
-            description = "답변을 등록합니다.",
-            security = @SecurityRequirement(name = "JWT"),
+    @Operation(summary = "이메일 인증번호 전송", description = "작성한 이메일로 인증번호를 전송합니다.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "답변 등록 성공"),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "401", description = "인증 실패")
-            }
+                    @ApiResponse(responseCode = "200", description = "인증번호 전송 성공",
+                            content = @Content(schema = @Schema(implementation = SingleResponseDto.class),
+                                    examples = @ExampleObject(value = "{\"data\": \"인증번호가 이메일로 전송되었습니다.\"}"))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 이메일 형태",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"BAD REQUEST\", \"message\": \"Invalid request format\"}")))}
     )
     //이메일로 인증번호 전송
     @PostMapping("/email")
-    public ResponseEntity sendVerificationCode(@RequestBody VerificationRequest request) {
+    public ResponseEntity sendVerificationCode(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "인증번호를 받을 이메일 주소",
+                                                  required = true, content = @Content(schema = @Schema(implementation = VerificationRequest.class)))
+                                                   @RequestBody VerificationRequest request) {
         emailService.sendVerificationCode(request.getEmail());
         return ResponseEntity.ok(new SingleResponseDto<>("인증번호가 이메일로 전송되었습니다."));
     }
 
+    @Operation(summary = "이메일 검증", description = "전송된 인증번호를 입력하여 인증 받습니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "이메일 인증 성공",
+                            content = @Content(schema = @Schema(implementation = SingleResponseDto.class),
+                                    examples = @ExampleObject(value = "{\"data\": \"이메일 인증이 완료되었습니다.\"}"))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 인증번호",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"BAD REQUEST\", \"message\": \"Invalid request format\"}")))}
+    )
     //입력한 인증번호 검증
     @PostMapping("/verify-code")
-    public ResponseEntity verifyCode(@RequestBody VerificationRequest request) {
+    public ResponseEntity verifyCode(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "이메일과 인증번호",
+                                    required = true, content = @Content(schema = @Schema(implementation = VerificationRequest.class)))
+                                         @RequestBody VerificationRequest request) {
 
         // 테스트용 인증번호 바이패스 코드(임시)
         if(request.getCode().equals("111111")) return ResponseEntity.ok(new SingleResponseDto<>("이메일 인증이 완료되었습니다."));
@@ -58,7 +75,5 @@ public class EmailController {
 
         return ResponseEntity.ok(new SingleResponseDto<>("이메일 인증이 완료되었습니다."));
     }
-
-
 
 }

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ChatRoomService {
+public class  ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatPartRepository chatPartRepository;

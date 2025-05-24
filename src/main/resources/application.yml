@@ -97,6 +97,7 @@ cloud:
     s3:
       bucket: dicetalk-images
 springdoc:
+  override-with-generic-response: false
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
