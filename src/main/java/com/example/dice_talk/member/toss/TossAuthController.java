@@ -5,7 +5,16 @@ import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.ResetPasswordDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.response.SwaggerErrorResponse;
 import com.example.dice_talk.utils.UriCreator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +25,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "Auth", description = "Toss 본인인증 및 계정 복구 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -24,8 +34,19 @@ public class TossAuthController {
     private final MemberService memberService;
     private final TossAuthService tossAuthService;
 
+    @Operation(summary = "본인인증 결과 조회", description = "Toss 인증 결과를 조회하여 사용자 정보를 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = Map.class),
+                            examples = @ExampleObject(value = "{\"name\":\"홍길동\",\"birth\":\"1990-01-01\",\"gender\":\"MALE\",\"ci\":\"CI_CODE\"}"))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
     @PostMapping("/cert")
-    public ResponseEntity getCertResult(@RequestParam String txId) {
+    public ResponseEntity<Map<String, Object>> getCertResult(
+            @Parameter(description = "인증 거래 ID(txId)", example = "abc123") @RequestParam String txId) {
         // Toss Access Token 발급
         String accessToken = tossAuthService.getAccessToken();
 
@@ -42,16 +63,34 @@ public class TossAuthController {
         return new ResponseEntity<>(response, HttpStatus.OK); // 본인 인증 결과 반환
     }
 
+    @Operation(summary = "인증 요청 URL 생성", description = "Toss 본인인증 요청을 위한 URL을 생성하여 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 URL 반환",
+                    content = @Content(schema = @Schema(implementation = Map.class),
+                            examples = @ExampleObject(value = "{\"url\":\"https://toss.im/auth?x=...\"}"))
+            )
+    })
     @PostMapping("/request")
-    public ResponseEntity requestAuthUrl(){
+    public ResponseEntity<Map<String, String>> requestAuthUrl(){
         Map<String, String> response = tossAuthService.createTossAuthRequest();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //이메일 찾기 로직
+    @Operation(summary = "이메일 찾기", description = "인증된 CI로 등록된 회원 이메일을 조회하여 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이메일 반환",
+                    content = @Content(schema = @Schema(implementation = Map.class),
+                            examples = @ExampleObject(value = "{\"email\":\"user@example.com\"}"))
+            ),
+            @ApiResponse(responseCode = "404", description = "등록된 회원 없음",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
     @PostMapping("/recover/email")
-    public ResponseEntity findEmail(@RequestParam String txId) {
+    public ResponseEntity<Map<String, Object>> findEmail(
+            @Parameter(description = "인증 거래 ID(txId)", example = "abc123") @RequestParam String txId) {
         // Toss Access Token 발급
         String accessToken = tossAuthService.getAccessToken();
 
@@ -70,9 +109,21 @@ public class TossAuthController {
     }
 
     //비밀번호 찾기 -> 성공시 비밀번호 재설정
+    @Operation(summary = "비밀번호 찾기", description = "인증된 CI와 이메일 일치 시 비밀번호 재설정 URI를 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "재설정 URI 반환",
+                    content = @Content(schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "/auth/recover/password/1"))
+            ),
+            @ApiResponse(responseCode = "400", description = "이메일 불일치 또는 잘못된 파라미터",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
     @PostMapping("/recover/password")
-    public ResponseEntity findPassword(@RequestParam String txId,
-                                       @RequestParam String email) {
+    public ResponseEntity<String> findPassword(
+            @Parameter(description = "인증 거래 ID(txId)", example = "abc123") @RequestParam String txId,
+            @Parameter(description = "회원 이메일", example = "user@example.com") @RequestParam String email
+    ) {
         // Toss Access Token 발급
         String accessToken = tossAuthService.getAccessToken();
 
@@ -94,8 +145,16 @@ public class TossAuthController {
         return ResponseEntity.created(location).body(member.getEmail());
     }
 
+    @Operation(summary = "비밀번호 재설정", description = "URI로 전달 받은 회원 ID로 비밀번호를 재설정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "재설정 성공"),
+            @ApiResponse(responseCode = "400", description = "유효성 검사 실패",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
     @PostMapping("/resetting/password/{member-id}")
-    public ResponseEntity resetPassword(@PathVariable("member-id") @Positive long memberId,
+    public ResponseEntity<Void> resetPassword(@Parameter(description = "회원 ID", example = "1") @PathVariable("member-id") @Positive long memberId,
+                                        @Parameter(description = "새 비밀번호 DTO", required = true)
                                         @RequestBody ResetPasswordDto resetDto){
         //비밀번호 재설정 로직
         memberService.resetPassword(memberId, resetDto);

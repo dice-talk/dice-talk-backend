@@ -38,7 +38,7 @@ public class Notification extends BaseEntity {
     public enum NotificationType{
         NOTIFICATION("알림"),
         PAYMENT("다이스 충전"),
-//        REPORT("신고"),
+        REPORT("신고/제재"),
         QNA("QnA"),
         DICE_USAGE("다이스 사용"),
         NOTICE_EVENT("공지사항/이벤트"),

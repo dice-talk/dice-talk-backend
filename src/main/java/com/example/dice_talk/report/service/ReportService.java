@@ -6,7 +6,10 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.report.entity.Report;
+import com.example.dice_talk.report.event.ReportCompletedEvent;
+import com.example.dice_talk.report.event.ReportCreatedEvent;
 import com.example.dice_talk.report.repository.ReportRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,11 +25,13 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final MemberService memberService;
     private final ChatService chatService;
+    private final ApplicationEventPublisher publisher;
 
-    public ReportService(ReportRepository reportRepository, MemberService memberService, ChatService chatService) {
+    public ReportService(ReportRepository reportRepository, MemberService memberService, ChatService chatService, ApplicationEventPublisher publisher) {
         this.reportRepository = reportRepository;
         this.memberService = memberService;
         this.chatService = chatService;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -34,17 +39,21 @@ public class ReportService {
         reports.stream().forEach(
                 report -> reportRepository.save(report)
         );
+        publisher.publishEvent(new ReportCreatedEvent(reports.get(0).getReason(), reports.get(0).getReporterId()));
     }
 
     // 신고 처리완료
+    @Transactional
     public Report completeReport(long reportId){
         Report report = findVerifiedReport(reportId);
         report.setReportStatus(Report.ReportStatus.REPORT_COMPLETED);
         Report saved = reportRepository.save(report);
-        long count = reportRepository.countByReportedMemberIdAndReportStatus(saved.getReportedMemberId(), Report.ReportStatus.REPORT_COMPLETED);
+        int count = reportRepository.countByReportedMemberIdAndReportStatus(saved.getReportedMemberId(), Report.ReportStatus.REPORT_COMPLETED);
         if (count >= 3){
             memberService.banMember(saved.getReportedMemberId());
         }
+        String date = report.getCreatedAt().toLocalDate().toString();
+        publisher.publishEvent(new ReportCompletedEvent(reportId, count, report.getReason(), date, report.getReportedMemberId()));
         return saved;
     }
 
@@ -71,6 +80,7 @@ public class ReportService {
     }
 
     // 신고 조회 시 함께 신고한 채팅이 있다면 같이 반환
+    @Transactional
     public List<Chat> findReportDetails(long reportId){
         Report report = findVerifiedReport(reportId);
         List<Chat> reportedChats = new ArrayList<>();

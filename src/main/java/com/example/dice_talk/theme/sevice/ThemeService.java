@@ -1,5 +1,6 @@
 package com.example.dice_talk.theme.sevice;
 
+import com.example.dice_talk.aws.S3Uploader;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.theme.entity.Theme;
@@ -9,25 +10,33 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ThemeService {
     private final ThemeRepository themeRepository;
+    private final S3Uploader s3Uploader;
 
-    public ThemeService(ThemeRepository themeRepository) {
+    public ThemeService(ThemeRepository themeRepository, S3Uploader s3Uploader) {
         this.themeRepository = themeRepository;
+        this.s3Uploader = s3Uploader;
     }
 
-    public Theme createTheme(Theme theme){
+    public Theme createTheme(Theme theme, MultipartFile file) throws IOException {
         AuthorizationUtils.verifyAdmin();
-        // 테마 등록 후 반환
+        // S3 업로드 후 Entity 에 Set
+        if(file != null && !file.isEmpty()){
+            String imageUrl = s3Uploader.upload(file, "theme-image");
+            theme.setImage(imageUrl);
+        }
         return themeRepository.save(theme);
     }
 
-    public Theme updateTheme(Theme theme){
+    public Theme updateTheme(Theme theme, MultipartFile file) throws IOException {
         AuthorizationUtils.verifyAdmin();
 
         Theme findTheme =findVerifiedTheme(theme.getThemeId());
@@ -36,8 +45,11 @@ public class ThemeService {
                 .ifPresent(themeName -> findTheme.setName(themeName));
         Optional.ofNullable(theme.getDescription())
                 .ifPresent(description -> findTheme.setDescription(description));
-        Optional.ofNullable(theme.getImage())
-                .ifPresent(image -> findTheme.setImage(image));
+        if(file != null && !file.isEmpty()){
+            String imageUrl = s3Uploader.upload(file, "theme-image");
+            s3Uploader.moveToDeletedFolder(findTheme.getImage(), "deleted-theme-image");
+            findTheme.setImage(imageUrl);
+        }
         return themeRepository.save(findTheme);
     }
 

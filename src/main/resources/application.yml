@@ -3,9 +3,9 @@ spring:
     name: dice-talk
   data:
     redis:
-      host: 172.31.3.55  #127.0.0.1   # EC2의 내부 IP
+      host: 172.31.3.55  #127.0.0.1  # EC2의 내부 IP
       port: 6379
-#       password:     # 로컬 테스트용
+#      password:     # 로컬 테스트용
       password: ${REDIS_PASSWORD}      # 서버용
   h2:
     console:
@@ -13,11 +13,11 @@ spring:
       path: /h2           # H2 콘솔에 접근할 수 있는 URL 경로를 설정합니다.
   jackson:
     time-zone: Asia/Seoul
-#   datasource:
-#     driver-class-name: org.h2.Driver
-#     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-#     username: sa
-#     password:
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#    username: sa
+#    password:
   datasource:
     url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
     username: ${RDS_USERNAME}
@@ -40,7 +40,7 @@ spring:
   sql:
     init:
       mode: always                  # SQL 초기화 스크립트를 항상 실행합니다
-#      data-locations: classpath:dummy_data.sql
+  #      data-locations: classpath:dummy_data.sql
   output:
     ansi:
       enabled: ALWAYS    # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
@@ -77,8 +77,8 @@ mail:
   smtp:
     host: smtp.gmail.com   # Gmail SMTP 서버 주소
     port: 587              # 포트 번호 (TLS: 587, SSL: 465)
-    username: {your-email@gmail.com}
-    password: {your-app-password}  # 앱 비밀번호 사용
+    username: { your-email@gmail.com }
+    password: { your-app-password }  # 앱 비밀번호 사용
     auth: true
     starttls:
       enable: true
@@ -98,6 +98,7 @@ cloud:
     s3:
       bucket: dicetalk-images
 springdoc:
+  override-with-generic-response: false
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
