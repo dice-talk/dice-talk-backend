@@ -74,6 +74,7 @@ public class ItemController {
         return ResponseEntity.created(location).build();
     }
 
+
     @Operation(summary = "아이템 수정", description = "관리자가 기존에 등록된 아이템을 수정합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 수정 성공",
@@ -85,7 +86,7 @@ public class ItemController {
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"NOT_FOUND\", \"message\": \"The requested resource could not be found.\"}")))}
     )
-    @PatchMapping("/{item-id}")
+    @PatchMapping(value = "/{item-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SingleResponseDto<ItemDto.Response>> patchItem(@Parameter(name = "item-id", description = "수정할 아이템의 ID", example = "10")
                                         @PathVariable("item-id") @Positive long itemId,
                                     @Parameter(name = "itemPatchDtoString", description = "수정할 아이템 정보가 포함된 JSON 문자열",

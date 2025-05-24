@@ -11,10 +11,19 @@ import com.example.dice_talk.question.dto.QuestionDto;
 import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.mapper.QuestionMapper;
 import com.example.dice_talk.question.service.QuestionService;
+import com.example.dice_talk.response.SwaggerErrorResponse;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import com.example.dice_talk.utils.JsonParserUtil;
 import com.example.dice_talk.utils.UriCreator;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +41,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+@Tag(name = "Question", description = "질문 API")
+@SecurityRequirement(name = "JWT")
 @RestController
 @RequestMapping("/questions")
 @Validated
@@ -50,10 +61,34 @@ public class QuestionController {
         this.jsonParserUtil = jsonParserUtil;
     }
 
+    @Operation(summary = "질문 등록", description = "새로운 질문을 등록합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "등록 성공"),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            )
+    })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity postQuestion(@RequestParam("questionPostDto") String questionPostDtoString,
-                                       @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
-                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
+    public ResponseEntity<Void> postQuestion(@Parameter(description = "질문 생성 DTO 문자열(JSON)")
+                                             @RequestParam("questionPostDto") String questionPostDtoString,
+                                             @Parameter(description = "질문 이미지 파일 목록", required = false)
+                                             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+                                             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
         QuestionDto.Post questionPostDto = jsonParserUtil.parse(questionPostDtoString, QuestionDto.Post.class);
         // dto에 memberId set
         questionPostDto.setMemberId(customPrincipal.getMemberId());
@@ -66,10 +101,43 @@ public class QuestionController {
         return ResponseEntity.created(location).build();
     }
 
+    @Operation(summary = "질문 수정", description = "기존 등록된 질문을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공",
+                    content = @Content(schema = @Schema(implementation = QuestionDto.Response.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":404,\"message\":\"Not Found\"}")
+                    )
+            )
+    })
     @PatchMapping(value = "/{question-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity patchQuestion(
+    public ResponseEntity<SingleResponseDto<QuestionDto.Response>> patchQuestion(
+            @Parameter(description = "질문 ID", example = "1")
             @PathVariable("question-id") @Positive long questionId,
-            @Valid @RequestParam("questionPatchDto") String questionPatchDtoString,
+            @Parameter(description = "질문 수정 DTO 문자열(JSON)")
+            @RequestParam("questionPatchDto") String questionPatchDtoString,
+            @Parameter(description = "질문 이미지 파일 목록", required = false)
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
         QuestionDto.Patch patchDto = jsonParserUtil.parse(questionPatchDtoString, QuestionDto.Patch.class);
@@ -81,8 +149,33 @@ public class QuestionController {
                 new SingleResponseDto<>(questionMapper.questionToQuestionResponse(updatedQuestion)), HttpStatus.OK);
     }
 
+    @Operation(summary = "질문 상세 조회", description = "특정 질문을 상세조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = QuestionDto.Response.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":404,\"message\":\"Not Found\"}")
+                    )
+            )
+    })
     @GetMapping("/{question-id}")
-    public ResponseEntity getQuestion(
+    public ResponseEntity<SingleResponseDto<QuestionDto.Response>> getQuestion(
+            @Parameter(description = "질문 ID", example = "1")
             @PathVariable("question-id") @Positive long questionId,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Question question = questionService.findQuestion(
@@ -91,10 +184,38 @@ public class QuestionController {
     }
 
     // 관리자용 전체조회
-    @GetMapping("/office")
-    public ResponseEntity getQuestions(@Positive @RequestParam int page, @Positive @RequestParam int size,
-                                       @RequestParam(defaultValue = "newest") String sortType,
-                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+    @Operation(summary = "관리자 전체 질문 조회", description = "전체 질문 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = QuestionDto.Response.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 페이지 파라미터",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            )
+    })
+    @GetMapping("/admin")
+    public ResponseEntity<MultiResponseDto<QuestionDto.Response>> getQuestions(@Parameter(description = "페이지 번호(1 이상)", example = "1")
+                                                                               @Positive @RequestParam int page,
+                                                                               @Parameter(description = "페이지 크기(1 이상)", example = "10")
+                                                                               @Positive @RequestParam int size,
+                                                                               @Parameter(description = "정렬 타입", example = "newest")
+                                                                               @RequestParam(defaultValue = "newest") String sortType,
+                                                                               @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Member currentMember = memberService.findVerifiedMember(customPrincipal.getMemberId());
         Page<Question> questionPage = questionService.findQuestions(page, size, sortType, currentMember);
         List<Question> questions = questionPage.getContent();
@@ -103,22 +224,56 @@ public class QuestionController {
     }
 
     // 회원용 질문 목록 조회
-    @GetMapping("/my-questions/{member-id}")
-    public ResponseEntity getMyQuestions(@PathVariable("member-id") Long memberId,
-                                         @Positive @RequestParam int page, @Positive @RequestParam int size,
-                                         @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        if(customPrincipal.getMemberId() != memberId){
-            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_OPERATION);
-        }
-        Page<Question> questionPage = questionService.findMyQuestions(page, size, memberId);
+    @Operation(summary = "회원 질문 조회", description = "회원이 작성한 질문 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = QuestionDto.Response.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음 또는 본인만 조회 가능",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            )
+    })
+    @GetMapping("/my-questions")
+    public ResponseEntity<MultiResponseDto<QuestionDto.Response>> getMyQuestions(@Parameter(description = "페이지 번호(1 이상)", example = "1")
+                                                                                 @Positive @RequestParam int page,
+                                                                                 @Parameter(description = "페이지 크기(1 이상)", example = "10")
+                                                                                 @Positive @RequestParam int size,
+                                                                                 @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+        Page<Question> questionPage = questionService.findMyQuestions(page, size, customPrincipal.getMemberId());
         List<Question> questions = questionPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>
                 (questionMapper.questionsToQuestionResponses(questions), questionPage), HttpStatus.OK);
     }
 
+    @Operation(summary = "질문 삭제", description = "특정 질문을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            )
+    })
     @DeleteMapping("/{question-id}")
-    public ResponseEntity deleteQuestion(@PathVariable("question-id") long questionId,
-                                         @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+    public ResponseEntity<Void> deleteQuestion(@Parameter(description = "질문 ID", example = "1")
+                                               @PathVariable("question-id") long questionId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         questionService.deleteQuestion(questionId, customPrincipal.getMemberId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
