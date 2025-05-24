@@ -1,5 +1,6 @@
 package com.example.dice_talk.chat.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,9 @@ public class ChatDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Enter {
+        @Schema(description = "입장할 사용자의 ID", example = "1")
         private Long memberId;
+        @Schema(description = "입장할 채팅방의 ID", example = "10")
         private Long chatRoomId;
     }
 
@@ -37,9 +40,13 @@ public class ChatDto {
     @AllArgsConstructor
     public static class Post{
         @NotBlank
+        @Schema(description = "전송할 메세지 내용", example = "안녕하세요!")
         private String message;  //message 내용
+        @Schema(description = "메세지 작성자 닉네임", example = "익명123")
         private String nickname;    //message 작성자 (webSocket 연결된 유저명)
+        @Schema(description = "메세지 작성자의 고유 ID", example = "1")
         private long memberId;    //message 작성자의 고유 ID (DB 저장 위해 필요함)
+        @Schema(description = "메세지가 속한 채팅방 ID", example = "10")
         private long chatRoomId;    //message가 속한 채팅방 ID
     }
 
@@ -53,11 +60,17 @@ public class ChatDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response{
+        @Schema(description = "메세지 고유 ID", example = "101")
         private long chatId;    //메세지의 고유 ID(DB에서 생성됨)
+        @Schema(description = "메세지 내용", example = "안녕하세요~")
         private String message;     //메세지 내용
+        @Schema(description = "작성자의 회원 ID", example = "1")
         private long memberId;      //메세지 작성자 (writer)
+        @Schema(description = "작성자 닉네임", example = "익명123")
         private String nickName;    //메세지 작성자 ??
+        @Schema(description = "채팅방 ID", example = "10")
         private long chatRoomId;
+        @Schema(description = "메세지 생성 시각", example = "2025-05-23T12:30:45")
         private LocalDateTime createdAt; //메시지 생성 시간 (서버에서 설정)
     }
 }

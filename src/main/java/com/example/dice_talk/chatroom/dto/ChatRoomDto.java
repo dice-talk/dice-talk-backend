@@ -80,10 +80,10 @@ public class ChatRoomDto {
         @Schema(description = "채팅방 ID", example = "1")
         private long chatRoomId;
 
-        @Schema(description = "채팅방 유형", example = "GROUP")
+        @Schema(description = "채팅방 유형", example = "COUPLE")
         private ChatRoom.RoomType roomType;
 
-        @Schema(description = "채팅방 상태", example = "ROOM_ACTIVE")
+        @Schema(description = "채팅방 상태", example = "ROOM_DEACTIVE")
         private ChatRoom.RoomStatus roomStatus;
 
         @Schema(description = "최근 채팅 내용", example = "안녕하세요!")
