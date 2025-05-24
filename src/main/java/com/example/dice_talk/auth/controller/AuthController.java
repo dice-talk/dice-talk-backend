@@ -34,17 +34,23 @@ public class AuthController {
     @Operation(summary = "로그아웃", description = "인증된 사용자를 로그아웃 처리합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적으로 로그아웃됨"),
-            @ApiResponse(responseCode = "403", description = "로그아웃 실패 (권한 없음)",
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                            examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
+                            examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}")))}
     )
     @PostMapping("/logout")
     public ResponseEntity<Void> postLogout(@Parameter(hidden = true) Authentication authentication){
+        // 인증 객체 유효성 검사
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomPrincipal)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 401: 로그인 안됨
+        }
+        // 이메일 추출
         CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
         String username = principal.getEmail();
 
-        return authService.logout(username) ?
-         new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        //로그아웃
+        authService.logout(username);
+        return ResponseEntity.ok().build();
     }
 }
 
