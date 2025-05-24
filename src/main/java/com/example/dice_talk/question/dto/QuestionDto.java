@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class QuestionDto {
+    @Schema(description = "질문 생성 DTO")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -23,14 +24,15 @@ public class QuestionDto {
         @NotBlank(message = "제목은 필수 입력란입니다.")
         private String title;
 
-        @Schema(description = "질문 ID", example = "언제 오픈하나요?", hidden = true)
+        @Schema(description = "질문 내용", example = "언제 오픈하나요?")
         @NotBlank(message = "내용은 필수 입력란입니다.")
         private String content;
 
-        @Schema(description = "회원 ID", example = "2", hidden = true)
+        @Schema(description = "회원 ID", example = "2")
         private Long memberId;
     }
 
+    @Schema(description = "질문 수정 DTO")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -53,10 +55,11 @@ public class QuestionDto {
         @Schema(description = "질문 상태", example = "QUESTION_REGISTERED")
         private Question.QuestionStatus questionStatus;
 
-        @Schema(description = "유지할 이미지 ID 목록")
+        @Schema(description = "유지할 이미지 ID 목록, example = \"[101,102]\"")
         private List<Long> keepImageIds;
     }
 
+    @Schema(description = "질문 응답 DTO")
     @Getter
     @AllArgsConstructor
     public static class Response{
@@ -75,10 +78,10 @@ public class QuestionDto {
         @Schema(description = "회원 ID", example = "2")
         private Long memberId;
 
-        @Schema(description = "답변 ResponseDto")
+        @Schema(description = "답변 Response DTO", implementation = AnswerDto.Response.class)
         private AnswerDto.Response answer;
 
-        @Schema(description = "질문 이미지 DTO 목록")
+        @Schema(description = "질문 이미지 DTO 목록", implementation = QuestionImageDto.Response.class)
         private List<QuestionImageDto.Response> questionImages;
 
         @Schema(description = "등록 시간", example = "2025-05-18T11:35:00")
