@@ -15,7 +15,7 @@ import java.util.List;
 
 public class NoticeDto {
 
-    @Schema(description = "공지/이벤트 등록 DTO")
+    @Schema(name = "NoticePostDto", description = "공지/이벤트 등록 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
@@ -45,7 +45,7 @@ public class NoticeDto {
         private int noticeImportance;
     }
 
-    @Schema(description = "공지/이벤트 수정 DTO")
+    @Schema(name = "NoticePatchDto", description = "공지/이벤트 수정 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
@@ -81,7 +81,7 @@ public class NoticeDto {
         private int noticeImportance;
     }
 
-    @Schema(description = "공지/이벤트 응답 DTO")
+    @Schema(name = "NoticeResponseDto", description = "공지/이벤트 응답 DTO")
     @Getter
     @AllArgsConstructor
     public static class Response {

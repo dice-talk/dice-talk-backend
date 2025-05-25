@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class NotificationDto {
-    @Schema(description = "알림 생성 DTO")
+    @Schema(name = "NotificationPostDto", description = "알림 생성 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -31,7 +31,7 @@ public class NotificationDto {
         private Notification.NotificationType type;
     }
 
-    @Schema(description = "알림 응답 DTO")
+    @Schema(name = "NotificationResponseDto", description = "알림 응답 DTO")
     @Getter
     @Setter
     @NoArgsConstructor

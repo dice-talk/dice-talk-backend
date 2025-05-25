@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@Schema(name = "DashboardNoticeDto", description = "대시보드(공지) DTO")
 @Getter
 @AllArgsConstructor
 public class DashboardNotice {
