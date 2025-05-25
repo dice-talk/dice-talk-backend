@@ -180,7 +180,9 @@ public class QuestionService {
 
     // 답변 삭제 시 질문의 answer null로 만드는 메서드
     public void setAnswerNull(long questionId) {
-        findVerifiedQuestion(questionId).setAnswer(null);
+        Question question = findVerifiedQuestion(questionId);
+        question.setAnswer(null);
+        question.setQuestionStatus(Question.QuestionStatus.QUESTION_REGISTERED);
     }
 
     public List<DashboardQuestion> findUnansweredQuestions() {

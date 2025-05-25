@@ -61,14 +61,14 @@ public class AnswerController {
     public ResponseEntity<Void> postAnswer(@Parameter(description = "답변을 등록할 질문글의 ID", example = "22")
                                            @PathVariable("question-id") Long questionId,
                                            @Parameter(description = "답변 JSON 문자열", example = "{\"content\": \"답변입니다.\"}")
-                                           @RequestParam String answerPostDtoSTring,
+                                           @RequestParam(value = "answerPostDto") String answerPostDtoString,
                                            @Parameter(description = "첨부 이미지 목록", example = "image1.jpg", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
                                            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
                                            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
         AuthorizationUtils.isAdmin();
 
         // JSON 문자열 -> DTO 수동 파싱
-        AnswerDto.Post postDto = jsonParserUtil.parse(answerPostDtoSTring, AnswerDto.Post.class);
+        AnswerDto.Post postDto = jsonParserUtil.parse(answerPostDtoString, AnswerDto.Post.class);
 
         postDto.setQuestionId(questionId);
         postDto.setMemberId(customPrincipal.getMemberId());
