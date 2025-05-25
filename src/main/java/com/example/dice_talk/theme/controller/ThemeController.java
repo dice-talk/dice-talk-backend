@@ -112,7 +112,7 @@ public class ThemeController {
     // 활성화 상태의 테마 목록 조회 (회원용)
     @Operation(summary = "운영중인 테마 목록 조회", description = "현재 운영중인 테마의 목록을 조회 합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = ReportDto.Response.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = ThemeDto.Response.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                             examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}"))),

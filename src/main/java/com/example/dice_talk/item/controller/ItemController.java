@@ -1,6 +1,5 @@
 package com.example.dice_talk.item.controller;
 
-import com.example.dice_talk.chatroom.dto.ChatRoomDto;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.item.service.ItemService;
@@ -78,7 +77,7 @@ public class ItemController {
     @Operation(summary = "아이템 수정", description = "관리자가 기존에 등록된 아이템을 수정합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 수정 성공",
-                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
+                            content = @Content(schema = @Schema(implementation = SingleResponseDto.class))),
                     @ApiResponse(responseCode = "403", description = "수정 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}"))),
@@ -103,7 +102,7 @@ public class ItemController {
     @Operation(summary = "아이템 목록 조회", description = "관리자가 등록된 아이템 목록을 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 목록 조회 성공",
-                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
+                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
                     @ApiResponse(responseCode = "403", description = "조회 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
@@ -120,7 +119,7 @@ public class ItemController {
     @Operation(summary = "아이템 상세 조회", description = "관리자가 특정 아이템을 상세 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 상세 조회 성공",
-                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
+                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
                     @ApiResponse(responseCode = "403", description = "조회 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}

@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.util.List;
 
+@Schema(name = "MainDashboardResponseDto", description = "메인화면 대시보드 응답 DTO")
 @Getter
 @Setter
 @AllArgsConstructor

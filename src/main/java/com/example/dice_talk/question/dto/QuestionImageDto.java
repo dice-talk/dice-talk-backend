@@ -8,7 +8,7 @@ import lombok.Setter;
 
 public class QuestionImageDto {
 
-    @Schema(description = "질문 이미지 등록 DTO")
+    @Schema(name = "QuestionImagePostDto", description = "질문 이미지 등록 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
@@ -21,7 +21,7 @@ public class QuestionImageDto {
         private String imageUrl;
     }
 
-    @Schema(description = "질문 이미지 응답 DTO")
+    @Schema(name = "QuestionImageResponseDto", description = "질문 이미지 응답 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
