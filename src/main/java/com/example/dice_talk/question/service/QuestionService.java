@@ -88,7 +88,7 @@ public class QuestionService {
                 image.setImageUrl(imageUrl);
                 image.setQuestion(findQuestion);
 
-                existingImages.add(image);
+//                existingImages.add(image);
             }
         }
         return questionRepository.save(findQuestion);
