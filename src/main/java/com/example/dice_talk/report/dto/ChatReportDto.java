@@ -8,7 +8,7 @@ import lombok.Setter;
 
 public class ChatReportDto {
 
-    @Schema(description = "채팅-신고 관계 생성 요청 DTO")
+    @Schema(name = "ChatReportPostDto", description = "채팅-신고 관계 생성 요청 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -18,7 +18,7 @@ public class ChatReportDto {
         private long chatId;
     }
 
-    @Schema(description = "채팅-신고 관계 응답 DTO")
+    @Schema(name = "ChatReportResponseDto", description = "채팅-신고 관계 응답 DTO")
     @Getter
     @Setter
     @NoArgsConstructor

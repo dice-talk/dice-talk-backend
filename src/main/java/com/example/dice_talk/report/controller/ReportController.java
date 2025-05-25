@@ -184,7 +184,12 @@ public class ReportController {
                                                             @Positive @PathVariable("report-id") long reportId) {
         AuthorizationUtils.isAdmin();
         Report report = reportService.completeReport(reportId);
-        return new ResponseEntity<>(mapper.reportToReportResponse(report), HttpStatus.OK);
+        List<Chat> reportedChats = reportService.findReportDetails(reportId);
+        ReportDto.Response response = mapper.reportToReportResponse(report);
+        if (!reportedChats.isEmpty()) {
+            response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 신고 반려
@@ -217,7 +222,12 @@ public class ReportController {
                                                            @Positive @PathVariable("report-id") long reportId) {
         AuthorizationUtils.isAdmin();
         Report report = reportService.rejectReport(reportId);
-        return new ResponseEntity<>(mapper.reportToReportResponse(report), HttpStatus.OK);
+        List<Chat> reportedChats = reportService.findReportDetails(reportId);
+        ReportDto.Response response = mapper.reportToReportResponse(report);
+        if (!reportedChats.isEmpty()) {
+            response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "신고 삭제", description = "관리자가 신고 건을 삭제 상태로 변경합니다.")

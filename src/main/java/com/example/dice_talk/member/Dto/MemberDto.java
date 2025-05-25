@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MemberDto {
 
-    @Schema(description = "회원 가입 DTO")
+    @Schema(name = "MemberPostDto", description = "회원 가입 DTO")
     @AllArgsConstructor
     @NoArgsConstructor
     @Setter
@@ -57,7 +57,7 @@ public class MemberDto {
 
     }
 
-    @Schema(description = "회원 정보 수정 DTO")
+    @Schema(name = "MemberPatchDto", description = "회원 정보 수정 DTO")
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -84,7 +84,7 @@ public class MemberDto {
 
     }
 
-    @Schema(description = "내 정보 조회 응답 DTO")
+    @Schema(name = "MyInfoResponseDto", description = "내 정보 조회 응답 DTO")
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
@@ -124,7 +124,7 @@ public class MemberDto {
         private String notification;
     }
 
-    @Schema(description = "마이 페이지 조회 응답 DTO (익명 닉네임)")
+    @Schema(name = "MyPageResponseDto", description = "마이 페이지 조회 응답 DTO (익명 닉네임)")
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter

@@ -76,7 +76,7 @@ public class ItemController {
     @Operation(summary = "아이템 수정", description = "관리자가 기존에 등록된 아이템을 수정합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 수정 성공",
-                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
+                            content = @Content(schema = @Schema(implementation = SingleResponseDto.class))),
                     @ApiResponse(responseCode = "403", description = "수정 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}"))),

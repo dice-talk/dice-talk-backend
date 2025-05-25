@@ -90,7 +90,6 @@ public class QuestionService {
 
                 existingImages.add(image);
             }
-            findQuestion.setImages(existingImages);
         }
         return questionRepository.save(findQuestion);
     }

@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ReportDto {
 
-    @Schema(description = "신고 생성 요청 DTO")
+    @Schema(name = "ReportPostDto", description = "신고 생성 요청 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
@@ -34,7 +34,7 @@ public class ReportDto {
         private List<Long> reportedMemberIds;
     }
 
-    @Schema(description = "신고 응답 DTO")
+    @Schema(name = "ReportResponseDto", description = "신고 응답 DTO")
     @Getter
     @Setter
     @AllArgsConstructor

@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 public class ProductDto {
-    @Schema(description = "상품 생성 DTO")
+    @Schema(name = "ProductPostDto", description = "상품 생성 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -31,7 +31,7 @@ public class ProductDto {
         private int quantity;
     }
 
-    @Schema(description = "상품 수정 DTO")
+    @Schema(name = "ProductPatchDto", description = "상품 수정 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
@@ -55,7 +55,7 @@ public class ProductDto {
         private int quantity;
     }
 
-    @Schema(description = "상품 응답 DTO")
+    @Schema(name = "ProductResponseDto", description = "상품 응답 DTO")
     @Getter
     @AllArgsConstructor
     public static class Response{
