@@ -87,7 +87,7 @@ public class ItemController {
     @PatchMapping(value = "/{item-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SingleResponseDto<ItemDto.Response>> patchItem(@Parameter(name = "item-id", description = "수정할 아이템의 ID", example = "3")
                                         @PathVariable("item-id") @Positive long itemId,
-                                    @Parameter(name = "itemPatchDtoString", description = "수정할 아이템 정보가 포함된 JSON 문자열",
+                                    @Parameter(name = "itemPatchDto", description = "수정할 아이템 정보가 포함된 JSON 문자열",
                                             example = "{\"itemName\": \"(단체)채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"dicePrice\": 900}")
                                     @Valid @RequestParam String itemPatchDtoString,
                                      @Parameter(name = "image", description = "아이템 이미지 수정 파일 (선택)", example = "thumbnail.jpg",

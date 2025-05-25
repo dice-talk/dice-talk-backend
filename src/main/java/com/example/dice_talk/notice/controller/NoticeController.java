@@ -85,7 +85,6 @@ public class NoticeController {
             @Parameter(description = "썸네일 플래그 문자열 목록(JSON)", required = false)
             @RequestParam(value = "thumbnailFlags", required = false) List<String> thumbnailFlagsStr
     ) throws IOException {
-        AuthorizationUtils.isAdmin();
 
         // JSON -> DTO 수동 파싱
         NoticeDto.Post parsedDto = jsonParserUtil.parse(noticePostDtoString, NoticeDto.Post.class);
@@ -141,9 +140,9 @@ public class NoticeController {
             @Parameter(description = "공지 이미지 파일 목록", required = false)
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @Parameter(description = "썸네일 여부 목록", required = false)
-            @RequestPart(value = "thumbnailFlags", required = false) List<Boolean> thumbnailFlags
+            @RequestParam(value = "thumbnailFlags", required = false) List<Boolean> thumbnailFlags
     ) throws IOException {
-        AuthorizationUtils.isAdmin();
+
         NoticeDto.Patch patchDto = jsonParserUtil.parse(noticePatchDtoString, NoticeDto.Patch.class);
 
         patchDto.setNoticeId(noticeId);
