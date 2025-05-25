@@ -2,6 +2,7 @@ package com.example.dice_talk.notification.service;
 
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notification.entity.Notification;
 import com.example.dice_talk.notification.repository.NotificationRepository;
@@ -9,8 +10,8 @@ import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NotificationService {
@@ -23,6 +24,9 @@ public class NotificationService {
     }
 
     public Notification createNotification(Notification notification){
+        // member를 비정규화 했기 때문에 영속성 컨텍스트에 없는 경우가 존재함.
+//        Member reportedMember = memberService.findVerifiedMember(notification.getMember().getMemberId());
+//        notification.setMember(reportedMember);
         return notificationRepository.save(notification);
     }
 
