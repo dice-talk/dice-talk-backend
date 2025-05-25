@@ -94,7 +94,7 @@ public class RoomEventController {
         return new ResponseEntity<>(new ListResponseDto<>(mapper.roomEventsToResponses(roomEvents)), HttpStatus.OK);
     }
 
-    @Operation(summary = "채팅방 이벤트 상세 조회", description = "특정 채팅방 이벤트 결과를 상세조회합니다.")
+    @Operation(summary = "채팅방 이벤트 상세 조회", description = "특정 채팅방 특정 이벤트 결과를 상세조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = RoomEventDto.Response.class))),
