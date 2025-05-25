@@ -196,9 +196,11 @@ public class NoticeController {
             @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음",
                     content = @Content(
                             schema = @Schema(implementation = SwaggerErrorResponse.class),
-                            examples = @ExampleObject(value = "{\"status\":404,\"message\":\"Not Found\"}")
-                    )
-            )
+                            examples = @ExampleObject(value = "{\"status\":404,\"message\":\"Not Found\"}"))),
+            @ApiResponse(responseCode = "409", description = "이미 종료된 공지입니다.",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":409,\"message\":\"Notice is already closed\"}")))
     })
     @DeleteMapping("/{notice-id}")
     public ResponseEntity<Void> deleteNotice(@Parameter(description = "공지 ID", example = "1")

@@ -13,8 +13,6 @@ public interface MemberMapper {
 
     Member memberPostToMember(MemberDto.Post post);
 
-    Member memberPatchToMember(MemberDto.Patch patch);
-
     MemberDto.MyInfoResponse memberInfoToMemberInfoResponse(Member member);
 
 //    MemberDto.MyPageResponse memberToMemberResponseDto(Member member);
