@@ -8,7 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class SingleResponseDto<T> {
-
-    @Schema(description = "응답 데이터", implementation = Object.class)
+    @Schema(description = "응답 데이터")
     private T data;
 }

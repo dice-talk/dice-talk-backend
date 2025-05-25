@@ -68,7 +68,7 @@ public class ItemService {
             throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
         }
         // page 객체에 담아서 반환
-        return itemRepository.findAll(PageRequest.of(page-1, size, Sort.by("price").ascending()));
+        return itemRepository.findAll(PageRequest.of(page-1, size, Sort.by("dicePrice").ascending()));
     }
 
     public void deleteItem(long itemId){
