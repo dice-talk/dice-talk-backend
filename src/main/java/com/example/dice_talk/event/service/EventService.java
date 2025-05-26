@@ -5,8 +5,10 @@ import com.example.dice_talk.event.repository.EventRepository;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.theme.sevice.ThemeService;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +26,13 @@ public class EventService {
     }
 
     public Event createEvent(Event event){
+        AuthorizationUtils.verifyAdmin();
         themeService.findVerifiedTheme(event.getTheme().getThemeId());
         return eventRepository.save(event);
     }
 
     public Event updateEvent(Event event){
+        AuthorizationUtils.verifyAdmin();
         Event findEvent = findVerifiedEvent(event.getEventId());
 
         Optional.ofNullable(event.getEventName())
@@ -42,14 +46,27 @@ public class EventService {
         return findVerifiedEvent(eventId);
     }
 
-    public Page<Event> findEvents(int page, int size){
+    public Page<Event> findEvents(int page, int size, Event.EventStatus eventStatus, Long themeId){
         if(page < 1){
             throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
         }
-        return eventRepository.findAll(PageRequest.of(page-1, size, Sort.by("eventId").descending()));
+        Pageable pageable =
+                PageRequest.of(page -1, size, Sort.by("theme.themeId").ascending().and(Sort.by("eventId").descending()));
+
+        if(eventStatus != null && themeId != null) {
+            return eventRepository.findByEventStatusAndTheme_ThemeId(eventStatus,themeId,pageable);
+        } else if (eventStatus != null) {
+            return eventRepository.findByEventStatus(eventStatus, pageable);
+        } else if (themeId != null) {
+            return eventRepository.findByTheme_ThemeId(themeId, pageable);
+        } else {
+            return eventRepository.findAll(pageable);
+        }
+
     }
 
     public void deleteEvent(long eventId){
+       AuthorizationUtils.verifyAdmin();
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EVENT_NOT_FOUND));
         event.setEventStatus(Event.EventStatus.EVENT_CLOSE);

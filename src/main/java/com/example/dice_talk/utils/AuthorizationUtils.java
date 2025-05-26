@@ -25,7 +25,7 @@ public class AuthorizationUtils {
 
     // 관리자인지 또는 동일한 사용자인지 확인하고 아니면 예외 던지는 메서드
     public static void isAdminOrOwner(long ownerId, long authenticatedId) {
-        if (!isOwner(ownerId, authenticatedId) && !isAdmin()) {
+        if (!isAdmin() && ownerId != authenticatedId) {
             throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_OPERATION);
         }
     }

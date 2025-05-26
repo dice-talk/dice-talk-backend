@@ -11,6 +11,7 @@ import com.example.dice_talk.notice.entity.NoticeImage;
 import com.example.dice_talk.notice.event.NoticeCreatedEvent;
 import com.example.dice_talk.notice.repository.NoticeImageRepository;
 import com.example.dice_talk.notice.repository.NoticeRepository;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,8 @@ public class NoticeService {
     private final MemberService memberService;
 
     public Notice createNotice(NoticeDto.Post postDto, List<MultipartFile> imageFiles, List<Boolean> thumbnailFlags) throws IOException {
+        AuthorizationUtils.verifyAdmin();
+
         Notice notice = new Notice();
         notice.setTitle(postDto.getTitle());
         notice.setContent(postDto.getContent());
@@ -73,6 +76,8 @@ public class NoticeService {
 
     @Transactional
     public Notice updateNotice(NoticeDto.Patch patchDto, List<MultipartFile> imageFiles, List<Boolean> thumbnailFlags) throws IOException {
+        AuthorizationUtils.verifyAdmin();
+
         Notice findNotice = findVerifiedNotice(patchDto.getNoticeId());
 
         Optional.ofNullable(patchDto.getNoticeType()).ifPresent(value -> findNotice.setNoticeType(value));
@@ -132,7 +137,11 @@ public class NoticeService {
     }
 
     public void deleteNotice(long noticeId) {
+       AuthorizationUtils.verifyAdmin();
         Notice notice = findVerifiedNotice(noticeId);
+        if(notice.getNoticeStatus() == Notice.NoticeStatus.CLOSED) {
+            throw new BusinessLogicException(ExceptionCode.NOTICE_ALREADY_CLOSED);
+        }
         notice.setNoticeStatus(Notice.NoticeStatus.CLOSED);
         noticeRepository.save(notice);
     }

@@ -10,10 +10,8 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
-@Schema(name = "DiceLogDto", description = "다이스 사용/충전내역 DTO")
 public class DiceLogDto {
 
-    @Schema(name = "DiceLogPostDto", description = "다이스 사용/충전내역 등록 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -45,7 +43,6 @@ public class DiceLogDto {
 
     }
 
-    @Schema(name = "DiceLogResponseDto", description = "다이스 사용/충전내역 응답 DTO")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor

@@ -48,8 +48,8 @@ public class DiceLogController {
     )
     @PostMapping("/charge")
     public ResponseEntity<SingleResponseDto<DiceLogDto.Response>> postChargeLog(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "충전 로그 생성 요청 본문",
-                                                                                            required = true, content = @Content(schema = @Schema(implementation = DiceLogDto.Post.class)))
-                                                                                    @RequestBody DiceLogDto.Post dto,
+                                                                                        required = true, content = @Content(schema = @Schema(implementation = DiceLogDto.Post.class)))
+                                                                                @RequestBody DiceLogDto.Post dto,
                                                                                 @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
@@ -69,8 +69,8 @@ public class DiceLogController {
     )
     @PostMapping("/used")
     public ResponseEntity<SingleResponseDto<DiceLogDto.Response>> postUsedLog(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "사용 로그 생성 요청 본문",
-                                                                                          required = true, content = @Content(schema = @Schema(implementation = DiceLogDto.Post.class)))
-                                                                                  @RequestBody DiceLogDto.Post dto,
+                                                                                      required = true, content = @Content(schema = @Schema(implementation = DiceLogDto.Post.class)))
+                                                                              @RequestBody DiceLogDto.Post dto,
                                                                               @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         dto.setMemberId(customPrincipal.getMemberId());
         DiceLog diceLog = mapper.diceLogPostToDiceLog(dto);
@@ -92,11 +92,11 @@ public class DiceLogController {
     )
     @GetMapping("/{member-id}")
     public ResponseEntity<MultiResponseDto<DiceLogDto.Response>> getMemberDiceLog(@Parameter(name = "member-id", description = "조회할 회원의 ID", example = "42")
-                                                                                      @PathVariable("member-id") long memberId,
+                                                                                  @PathVariable("member-id") long memberId,
                                                                                   @Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                                                                      @RequestParam int page,
+                                                                                  @RequestParam int page,
                                                                                   @Parameter(name = "size", description = "한 페이지당 로그 수", example = "10")
-                                                                                      @RequestParam int size,
+                                                                                  @RequestParam int size,
                                                                                   @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
 
         AuthorizationUtils.isAdminOrOwner(memberId, customPrincipal.getMemberId());
@@ -122,9 +122,9 @@ public class DiceLogController {
     )
     @GetMapping("/logs")
     public ResponseEntity<MultiResponseDto<DiceLogDto.Response>> getAllDiceLogs(@Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                                                                    @RequestParam int page,
+                                                                                @RequestParam int page,
                                                                                 @Parameter(name = "size", description = "한 페이지당 로그 수", example = "10")
-                                                                                    @RequestParam int size,
+                                                                                @RequestParam int size,
                                                                                 @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         AuthorizationUtils.isAdmin();
         Page<DiceLog> logPage = diceLogService.findAllDiceLogs(page, size);

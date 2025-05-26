@@ -6,6 +6,7 @@ import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.dashboard.dto.DashboardWeekly;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.Dto.PasswordChangeDto;
 import com.example.dice_talk.member.Dto.ResetPasswordDto;
 import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
@@ -68,11 +69,14 @@ public class MemberService {
         }
     }
 
-    public void changePassword(String oldPassword, String newPassword, long memberId) {
+    public void changePassword(PasswordChangeDto passwordChangeDto, long memberId) {
         Member findMember = findVerifiedMember(memberId);
-        if (passwordEncoder.encode(oldPassword).equals(findMember.getPassword())) {
-            Optional.ofNullable(newPassword).ifPresent(value ->
-                    findMember.setPassword(passwordEncoder.encode(newPassword)));
+
+        //Sprin Security 의 passwordEncoder 암호 비교용 메서드  (encode는 메번 다른 해시 값 생성)
+        boolean isMatch = passwordEncoder.matches(passwordChangeDto.getOldPassword(), findMember.getPassword());
+        if (isMatch) {
+            Optional.ofNullable(passwordChangeDto.getNewPassword()).ifPresent(newPw->
+                    findMember.setPassword(passwordEncoder.encode(newPw)));
         } else {
             throw new BusinessLogicException(ExceptionCode.AUTH_INVALID_PASSWORD);
         }
@@ -117,7 +121,7 @@ public class MemberService {
 
         //탈퇴 정보 저장
         DeletedMember deletedMember = new DeletedMember();
-        deletedMember.setDMemberId(findMember.getMemberId());
+        deletedMember.setMemberId(findMember.getMemberId());
         deletedMember.setReason(reason);
         //저장
         deletedMemberRepository.save(deletedMember);
@@ -126,6 +130,10 @@ public class MemberService {
     // 회원 영구정지
     public void banMember(long memberId) {
         Member member = findVerifiedMember(memberId);
+
+        if(member.getMemberStatus() == Member.MemberStatus.MEMBER_BANNED) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
+        }
         member.setMemberStatus(Member.MemberStatus.MEMBER_BANNED);
         memberRepository.save(member);
     }
@@ -151,7 +159,8 @@ public class MemberService {
     }
 
     //검증 로직 : 회원가입 직후에 사용자에게 앱 푸쉬알림 허용 여부 받기
-    public void updateNotificationConsent(long memberId, boolean consent) {
+    public void updateNotificationConsent(long memberId, long currentId,  boolean consent) {
+        AuthorizationUtils.isOwner(memberId, currentId);
         Member findMember = findVerifiedMember(memberId);
 
         findMember.setNotification(consent);

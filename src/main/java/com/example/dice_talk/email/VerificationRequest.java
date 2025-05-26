@@ -1,9 +1,11 @@
 package com.example.dice_talk.email;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Schema(name = "verificationEmailDto", description = "이메일 검증 Dto")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
