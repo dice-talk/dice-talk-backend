@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Schema(name = "DashboardQuestionDto", description = "대시보드(QnA) DTO")
 @Getter
 @AllArgsConstructor
 public class DashboardQuestion {

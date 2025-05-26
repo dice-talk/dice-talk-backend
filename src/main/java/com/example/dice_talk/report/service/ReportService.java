@@ -46,6 +46,9 @@ public class ReportService {
     @Transactional
     public Report completeReport(long reportId){
         Report report = findVerifiedReport(reportId);
+        if(report.getReportStatus() == Report.ReportStatus.REPORT_COMPLETED){
+            throw new BusinessLogicException(ExceptionCode.REPORT_ALREADY_COMPLETED);
+        }
         report.setReportStatus(Report.ReportStatus.REPORT_COMPLETED);
         Report saved = reportRepository.save(report);
         int count = reportRepository.countByReportedMemberIdAndReportStatus(saved.getReportedMemberId(), Report.ReportStatus.REPORT_COMPLETED);

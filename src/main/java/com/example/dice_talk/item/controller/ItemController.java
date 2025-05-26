@@ -1,6 +1,5 @@
 package com.example.dice_talk.item.controller;
 
-import com.example.dice_talk.chatroom.dto.ChatRoomDto;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.item.service.ItemService;
@@ -62,10 +61,10 @@ public class ItemController {
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> postItem(@Parameter(name = "itemPostDtoString", description = "등록할 아이템 정보가 포함된 JSON 문자열",
-                                                     example = "{\"itemName\": \"채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"price\": 주사위 7개}")
+    public ResponseEntity<Void> postItem(@Parameter(name = "itemPostDto", description = "등록할 아이템 정보가 포함된 JSON 문자열",
+                                                     example = "{\"itemName\": \"채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"dicePrice\": 700}")
                                              @Valid @RequestParam String itemPostDtoString,
-                                         @Parameter(name = "image", description = "아이템 이미지 파일 (선택)", example = "thumbnail.jpg",
+                                         @Parameter(name = "image", description = "아이템 이미지 파일", example = "thumbnail.jpg",
                                                  content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
                                             @RequestPart(value = "image", required = false) MultipartFile imageFile) throws IOException {
         ItemDto.Post postDto = jsonParserUtil.parse(itemPostDtoString, ItemDto.Post.class);
@@ -74,25 +73,26 @@ public class ItemController {
         return ResponseEntity.created(location).build();
     }
 
-
     @Operation(summary = "아이템 수정", description = "관리자가 기존에 등록된 아이템을 수정합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 수정 성공",
-                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
+                            content = @Content(schema = @Schema(implementation = SingleResponseDto.class))),
                     @ApiResponse(responseCode = "403", description = "수정 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}"))),
-                    @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방 수정 요청",
+                    @ApiResponse(responseCode = "404", description = "존재하지 않는 아이템 수정 요청",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"NOT_FOUND\", \"message\": \"The requested resource could not be found.\"}")))}
     )
     @PatchMapping(value = "/{item-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<SingleResponseDto<ItemDto.Response>> patchItem(@Parameter(name = "item-id", description = "수정할 아이템의 ID", example = "10")
+    public ResponseEntity<SingleResponseDto<ItemDto.Response>> patchItem(@Parameter(name = "item-id", description = "수정할 아이템의 ID", example = "3")
                                         @PathVariable("item-id") @Positive long itemId,
-                                    @Parameter(name = "itemPatchDtoString", description = "수정할 아이템 정보가 포함된 JSON 문자열",
-                                            example = "{\"itemName\": \"(단체)채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"price\": 주사위 7개}")
+                                    @Parameter(name = "itemPatchDto", description = "수정할 아이템 정보가 포함된 JSON 문자열",
+                                            example = "{\"itemName\": \"(단체)채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"dicePrice\": 900}")
                                     @Valid @RequestParam String itemPatchDtoString,
-            @RequestPart(value = "image", required = false) MultipartFile imageFile
+                                     @Parameter(name = "image", description = "아이템 이미지 수정 파일 (선택)", example = "thumbnail.jpg",
+                                             content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+                                    @RequestPart(value = "image", required = false) MultipartFile imageFile
     ) throws IOException {
         ItemDto.Patch patchDto = jsonParserUtil.parse(itemPatchDtoString, ItemDto.Patch.class);
         patchDto.setItemId(itemId);
@@ -103,7 +103,7 @@ public class ItemController {
     @Operation(summary = "아이템 목록 조회", description = "관리자가 등록된 아이템 목록을 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 목록 조회 성공",
-                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
+                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
                     @ApiResponse(responseCode = "403", description = "조회 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
@@ -117,10 +117,11 @@ public class ItemController {
         List<Item> items = itemPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.itemsToItemResponses(items), itemPage), HttpStatus.OK);
     }
+
     @Operation(summary = "아이템 상세 조회", description = "관리자가 특정 아이템을 상세 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "아이템 상세 조회 성공",
-                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
+                            content = @Content(schema = @Schema(implementation = ItemDto.Response.class))),
                     @ApiResponse(responseCode = "403", description = "조회 권한 없음",
                             content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}

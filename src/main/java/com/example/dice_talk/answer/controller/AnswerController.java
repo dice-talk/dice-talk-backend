@@ -59,16 +59,16 @@ public class AnswerController {
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postAnswer(@Parameter(description = "답변을 등록할 질문글의 ID", example = "22")
-                                               @PathVariable("question-id") Long questionId,
+                                           @PathVariable("question-id") Long questionId,
                                            @Parameter(description = "답변 JSON 문자열", example = "{\"content\": \"답변입니다.\"}")
-                                     @RequestParam String answerPostDtoSTring,
+                                           @RequestParam(value = "answerPostDto") String answerPostDtoString,
                                            @Parameter(description = "첨부 이미지 목록", example = "image1.jpg", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
-                                     @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
-                                     @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
+                                           @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+                                           @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
         AuthorizationUtils.isAdmin();
 
         // JSON 문자열 -> DTO 수동 파싱
-        AnswerDto.Post postDto = jsonParserUtil.parse(answerPostDtoSTring, AnswerDto.Post.class);
+        AnswerDto.Post postDto = jsonParserUtil.parse(answerPostDtoString, AnswerDto.Post.class);
 
         postDto.setQuestionId(questionId);
         postDto.setMemberId(customPrincipal.getMemberId());
@@ -93,11 +93,11 @@ public class AnswerController {
     )
     @PatchMapping(value = "/{answer-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> patchAnswer(@Parameter(description = "수정할 답변의 ID", example = "101")
-                                                @PathVariable("answer-id") @Positive long answerId,
+                                            @PathVariable("answer-id") @Positive long answerId,
                                             @Parameter(description = "수정할 답변 본문 및 정보가 담긴 JSON 문자열", example = "{\"content\": \"수정된 답변입니다.\", \"isPublic\": true}")
-                                      @RequestParam("answerPatchDto") String answerPatchDtoString,
+                                            @RequestParam("answerPatchDto") String answerPatchDtoString,
                                             @Parameter(description = "답변에 첨부할 이미지 파일 목록 (선택)", example = "image1.jpg, image2.png", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
-                                      @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
+                                            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
         AuthorizationUtils.isAdmin();
         // JSON -> DTO 변환
         AnswerDto.Patch patchDto = jsonParserUtil.parse(answerPatchDtoString, AnswerDto.Patch.class);
@@ -119,7 +119,7 @@ public class AnswerController {
     )
     @DeleteMapping("/{answer-id}")
     public ResponseEntity<Void> deleteAnswer(@Parameter(name = "answer-id", description = "삭제할 답변의 ID", example = "101")
-                                                 @PathVariable("answer-id") long answerId) {
+                                             @PathVariable("answer-id") long answerId) {
         AuthorizationUtils.isAdmin();
         answerService.deleteAnswer(answerId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

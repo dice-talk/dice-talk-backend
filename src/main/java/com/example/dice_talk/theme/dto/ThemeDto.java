@@ -9,9 +9,10 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+@Schema(description = "테마 DTO")
 public class ThemeDto {
 
-    @Schema(description = "테마 생성 DTO")
+    @Schema(name = "ThemePostDto", description = "테마 생성 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -26,7 +27,7 @@ public class ThemeDto {
         private String description;
     }
 
-    @Schema(description = "테마 수정 DTO")
+    @Schema(name = "ThemePatchDto", description = "테마 수정 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -48,7 +49,7 @@ public class ThemeDto {
         private Theme.ThemeStatus themeStatus;
     }
 
-    @Schema(description = "테마 응답 DTO")
+    @Schema(name = "ThemeResponseDto", description = "테마 응답 DTO")
     @Getter
     @Setter
     @NoArgsConstructor

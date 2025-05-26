@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Schema(description = "채팅방 이벤트 DTO")
 public class RoomEventDto {
 
-    @Schema(description = "이벤트 생성 요청 DTO")
+    @Schema(name = "RoomEventPostDto", description = "이벤트 생성 요청 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -38,7 +38,7 @@ public class RoomEventDto {
         private RoomEvent.RoomEventType roomEventType;
     }
 
-    @Schema(description = "이벤트 응답 DTO")
+    @Schema(name = "RoomEventResponseDto", description = "이벤트 응답 DTO")
     @Getter
     @Setter
     @NoArgsConstructor

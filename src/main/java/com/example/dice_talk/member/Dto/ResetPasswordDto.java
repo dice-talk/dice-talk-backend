@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Schema(description = "비밀번호 재설정 DTO")
+@Schema(name = "ResetPasswordDto", description = "비밀번호 재설정 DTO")
 @Getter
 @Setter
 @NoArgsConstructor

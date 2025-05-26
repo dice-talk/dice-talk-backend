@@ -61,6 +61,7 @@ public class AnswerService {
         return answerRepository.save(answer);
     }
 
+    @Transactional
     public Answer updateAnswer(Answer answer, List<MultipartFile> imageFiles, List<Long> keepImageIds) throws IOException {
         AuthorizationUtils.isAdmin();
 
@@ -79,7 +80,7 @@ public class AnswerService {
             for (AnswerImage image : toRemove) {
                 s3Uploader.moveToDeletedFolder(image.getImageUrl(), "deleted-answer-image");
             }
-            answerImageRepository.deleteByAnswerImageIdIn(keepImageIds);
+            answerImageRepository.deleteAll(toRemove);
             existingImages.removeAll(toRemove);
         }
 
@@ -92,7 +93,7 @@ public class AnswerService {
                 image.setImageUrl(imageUrl);
                 image.setAnswer(findAnswer);
 
-                existingImages.add(image);
+//                existingImages.add(image);
             }
             findAnswer.setImages(existingImages);
         }

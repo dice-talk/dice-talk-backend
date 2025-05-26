@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MemberDto {
 
-    @Schema(description = "회원 가입 DTO")
+    @Schema(name = "MemberPostDto", description = "회원 가입 DTO")
     @AllArgsConstructor
     @NoArgsConstructor
     @Setter
@@ -57,34 +57,34 @@ public class MemberDto {
 
     }
 
-    @Schema(description = "회원 정보 수정 DTO")
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    public static class Patch{
+//    @Schema(name = "MemberPatchDto", description = "회원 정보 수정 DTO")
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @Getter
+//    @Setter
+//    public static class Patch{
+//
+//        @Schema(description = "회원 ID", example = "1")
+//        private Long memberId;
+//
+//        @Schema(description = "새 휴대폰 번호", example = "010-5678-1234")
+//        @Pattern(regexp = "^010-\\d{3,4}-\\d{4}$", message = "휴대폰 번호는 010으로 시작되는 11자리 숫자와 '-'로 구성되어야 합니다. 예시)010-1234-5678")
+//        private String phone;
+//
+//        @Schema(description = "새 비밀번호", example = "Zyx987!@#")
+//        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[~!@#$%^&*+=()_-])(?=.*[0-9])+$.{8,16}",
+//                message = "비밀번호는 8~16자 영문 대, 소문자, 숫자, 특수문자를 사용하세요.")
+//        private String password;
+//
+//        @Schema(description = "새 지역", example = "서울시 강남구")
+//        private String region;
+//
+//        @Schema(description = "푸시 알림 허용 여부", example = "true")
+//        private boolean notification;
+//
+//    }
 
-        @Schema(description = "회원 ID", example = "1")
-        private Long memberId;
-
-        @Schema(description = "새 휴대폰 번호", example = "010-5678-1234")
-        @Pattern(regexp = "^010-\\d{3,4}-\\d{4}$", message = "휴대폰 번호는 010으로 시작되는 11자리 숫자와 '-'로 구성되어야 합니다. 예시)010-1234-5678")
-        private String phone;
-
-        @Schema(description = "새 비밀번호", example = "Zyx987!@#")
-        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[~!@#$%^&*+=()_-])(?=.*[0-9])+$.{8,16}",
-                message = "비밀번호는 8~16자 영문 대, 소문자, 숫자, 특수문자를 사용하세요.")
-        private String password;
-
-        @Schema(description = "새 지역", example = "서울시 강남구")
-        private String region;
-
-        @Schema(description = "푸시 알림 허용 여부", example = "true")
-        private boolean notification;
-
-    }
-
-    @Schema(description = "내 정보 조회 응답 DTO")
+    @Schema(name = "MyInfoResponseDto", description = "내 정보 조회 응답 DTO")
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
@@ -114,9 +114,6 @@ public class MemberDto {
         @Schema(description = "다이스 보유량", example = "42")
         private int totalDice;
 
-        @Schema(description = "역할 목록", example = "[\"ROLE_USER\"]")
-        private List<String> roles;
-
         @Schema(description = "회원 상태", example = "MEMBER_ACTIVE")
         private Member.MemberStatus memberStatus;
 
@@ -124,7 +121,7 @@ public class MemberDto {
         private String notification;
     }
 
-    @Schema(description = "마이 페이지 조회 응답 DTO (익명 닉네임)")
+    @Schema(name = "MyPageResponseDto", description = "마이 페이지 조회 응답 DTO (익명 닉네임)")
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter

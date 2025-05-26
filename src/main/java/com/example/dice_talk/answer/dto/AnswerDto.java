@@ -10,7 +10,9 @@ import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Schema(name = "AnswerDto", description = "답변 DTO")
 public class AnswerDto {
+    @Schema(name = "AnswerPostDto", description = "답변 등록 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -26,6 +28,7 @@ public class AnswerDto {
         private Long memberId;
     }
 
+    @Schema(name = "AnswerPatchDto", description = "답변 수정 DTO")
     @Getter
     @Setter
     @NoArgsConstructor
@@ -41,6 +44,7 @@ public class AnswerDto {
         private List<Long> keepImageIds;
     }
 
+    @Schema(name = "AnswerResponseDto", description = "답변 응답 DTO")
     @Getter
     @Setter
     @NoArgsConstructor

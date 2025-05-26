@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class QuestionDto {
-    @Schema(description = "질문 생성 DTO")
+    @Schema(name = "QuestionPostDto", description = "질문 생성 DTO")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -32,7 +32,7 @@ public class QuestionDto {
         private Long memberId;
     }
 
-    @Schema(description = "질문 수정 DTO")
+    @Schema(name = "QuestionPatchDto", description = "질문 수정 DTO")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -59,7 +59,7 @@ public class QuestionDto {
         private List<Long> keepImageIds;
     }
 
-    @Schema(description = "질문 응답 DTO")
+    @Schema(name = "QuestionResponseDto", description = "질문 응답 DTO")
     @Getter
     @AllArgsConstructor
     public static class Response{
