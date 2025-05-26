@@ -30,6 +30,7 @@ public enum ExceptionCode {
     REPORT_ALREADY_COMPLETED(409, "Report Already Completed"),
     AUTH_INVALID_PASSWORD(401, "Auth Invalid Password"),
     NOTIFICATION_NOT_FOUND(404, "Notification not found"),
+    INVALID_TOKEN(401, "Invalid Token"),
     INVALID_IMAGE_METADATA(400, "썸네일 여부 리스트가 이미지 개수와 일치하지 않습니다.");
 
     @Getter

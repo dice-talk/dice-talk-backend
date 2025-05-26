@@ -19,8 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 
 @RestController
@@ -51,6 +54,37 @@ public class AuthController {
         //로그아웃
         authService.logout(username);
         return ResponseEntity.ok().build();
+    }
+
+
+    // 토큰 만료시 재발급 API
+    @Operation(summary = "Access/Refresh 토큰 재발급", description = "만료된 Access Token과 Refresh Token을 받아 새로운 토큰을 발급합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공",
+                    content = @Content(
+                            schema = @Schema(implementation = Map.class),
+                            examples = @ExampleObject(
+                                    value = "{\"accessToken\": \"새로운AccessToken\", \"refreshToken\": \"새로운RefreshToken\"}"
+                            )
+                    )),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"INVALID TOKEN\"}")))}
+    )
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refreshToken(
+            @Parameter(description = "만료된 Access Token", example = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+            @RequestHeader("Authorization") String accessTokenHeader,
+            @Parameter(description = "Refresh Token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+            @RequestHeader("Refresh") String refreshTokenHeader){
+        // Bearer 제거
+        String accessToken = accessTokenHeader.replace("Bearer ", "");
+        String refreshToken = refreshTokenHeader;
+
+        // AuthService에 토큰 재발급 요청
+        Map<String, String> tokens = authService.reissueTokens(accessToken, refreshToken);
+
+        return ResponseEntity.ok(tokens);
     }
 }
 
