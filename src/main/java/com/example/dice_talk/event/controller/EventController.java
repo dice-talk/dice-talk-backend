@@ -69,7 +69,7 @@ public class EventController {
                                     examples = @ExampleObject(value = "{\"error\": \"NOT_FOUND\", \"message\": \"The requested resource could not be found.\"}")))}
     )
     @PatchMapping("/{event-id}")
-    public ResponseEntity<SingleResponseDto<EventDto.Response>> patchEvent(@Parameter(name = "event-id", description = "수정할 이벤트의 ID", example = "101")
+    public ResponseEntity<SingleResponseDto<EventDto.Response>> patchEvent(@Parameter(name = "event-id", description = "수정할 이벤트의 ID", example = "2")
                                                                                @PathVariable("event-id") @Positive long eventId,
                                                                            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "이벤트 수정 요청 본문",
                                                                                    required = true, content = @Content(schema = @Schema(implementation = EventDto.Patch.class)))
@@ -92,10 +92,12 @@ public class EventController {
     )
     @GetMapping
     public ResponseEntity<MultiResponseDto<EventDto.Response>> getEvents(@Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                        @Positive @RequestParam int page,
-                                    @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
-                                        @Positive @RequestParam int size){
-        Page<Event> eventPage = eventService.findEvents(page, size);
+                                                                          @Positive @RequestParam int page,
+                                                                        @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
+                                                                            @Positive @RequestParam int size,
+                                                                         @RequestParam(required = false) Event.EventStatus eventStatus,
+                                                                         @RequestParam(required = false) Long themeId){
+        Page<Event> eventPage = eventService.findEvents(page, size, eventStatus, themeId);
         List<Event> events = eventPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.eventsToEventResponses(events), eventPage), HttpStatus.OK);
     }

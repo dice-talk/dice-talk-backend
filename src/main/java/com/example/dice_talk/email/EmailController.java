@@ -42,8 +42,8 @@ public class EmailController {
     //이메일로 인증번호 전송
     @PostMapping("/email")
     public ResponseEntity sendVerificationCode(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "인증번호를 받을 이메일 주소",
-                                                  required = true, content = @Content(schema = @Schema(implementation = VerificationRequest.class)))
-                                                   @RequestBody VerificationRequest request) {
+                                                  required = true, content = @Content(schema = @Schema(implementation = EmailRequest.class)))
+                                                   @RequestBody EmailRequest request) {
         emailService.sendVerificationCode(request.getEmail());
         return ResponseEntity.ok(new SingleResponseDto<>("인증번호가 이메일로 전송되었습니다."));
     }
