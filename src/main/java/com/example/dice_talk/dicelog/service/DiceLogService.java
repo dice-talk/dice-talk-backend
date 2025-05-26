@@ -81,7 +81,7 @@ public class DiceLogService {
         if(page < 1){
             throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
         }
-        return diceLogRepository.findAll(PageRequest.of(page, size, Sort.by("logId").descending()));
+        return diceLogRepository.findAll(PageRequest.of(page-1, size, Sort.by("logId").descending()));
     }
 
     // 충전 취소
