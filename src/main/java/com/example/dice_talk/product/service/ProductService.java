@@ -51,6 +51,7 @@ public class ProductService {
         AuthorizationUtils.verifyAdmin();
         //저장된 product 가져오기
         Product findProduct = findVerifiedProduct(product.getProductId());
+        product.setProductImage(findProduct.getProductImage());
         // 변경가능한 필드 확인 후 변경
         Optional.ofNullable(product.getProductName())
                 .ifPresent(name -> findProduct.setProductName(name));
@@ -61,7 +62,7 @@ public class ProductService {
         if(file != null && !file.isEmpty()){
             s3Uploader.moveToDeletedFolder(product.getProductImage(), "deleted-product-image");
             String newFileUrl = s3Uploader.upload(file, "product-image");
-            product.setProductImage(newFileUrl);
+            findProduct.setProductImage(newFileUrl);
         }
         // 저장 후 반환
         return productRepository.save(findProduct);
