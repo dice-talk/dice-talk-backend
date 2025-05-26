@@ -25,7 +25,7 @@ public class MainDashboardResponseDto {
     @Schema(description = "답변이 없는 질문글 개수", example = "20")
     private int unansweredQuestionCount;
 
-    @Schema(description = "답변이 없는 질문글 제목 리스트", example = "[{\"title\": \"회원가입 버튼 클릭이 안됩니다.\"}]")
+    @Schema(description = "미답변 질문글 & 주간 등록된 질문글 수와 제목", example = "[{\"title\": \"회원가입 버튼 클릭이 안됩니다.\"}]")
     private List<DashboardQuestion> dashboardQuestions;
 
     //notice 관리
@@ -34,8 +34,10 @@ public class MainDashboardResponseDto {
     private List<DashboardNotice> recentNotices;
 
     //채팅방 관리
+    @Schema(description = "진행중인 채팅방 수", example = "[{\"activeChatRoom\": 40, \"activeGroupChatRoom\": 33, \"activeCoupleChatRoom\": 7}]")
     private List<DashboardChatRoom> dashboardChatRooms;
 
     //주간 데이터
+    @Schema(description = "주간 데이터", example = "[{\"weeklyNewMemberCount\": 23, \"weeklyActiveChatRoomCount\": 14}]")
     private List<DashboardWeekly> dashboardWeeklies;
 }

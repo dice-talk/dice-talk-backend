@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DailyCountDto {
-    @Schema(description = "날짜", example = "2025-05-25T00:00")
+    @Schema(description = "조회 날짜", example = "2025-05-25T00:00")
     LocalDateTime date;
 
-    @Schema(description = "집계 수", example = "11")
+    @Schema(description = "날짜 별 집계 수", example = "11")
     int count;
 }

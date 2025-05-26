@@ -94,15 +94,12 @@ public class MatchingController {
                     @ApiResponse(responseCode = "200", description = "닉네임 회수 성공"),
                     @ApiResponse(responseCode = "400", description = "존재하지 않는 닉네임",
                             content = @Content(examples = @ExampleObject(
-                                            value = "{\"error\": \"BAD_REQUEST\", \"message\": \"Nickname is invalid or does not exist in the pool.\"}"))),
-                    @ApiResponse(responseCode = "409", description = "이미 회수된 닉네임",
-                            content = @Content(examples = @ExampleObject(
-                                            value = "{\"error\": \"CONFLICT\", \"message\": \"Nickname is already available.\"}")))}
+                                            value = "{\"error\": \"BAD_REQUEST\", \"message\": \"Nickname is invalid or does not exist in the pool.\"}")))}
     )
     // 선택: 나갔을 때 호출해서 사용 닉네임 회수
     @PostMapping("/nickname/release")
     public ResponseEntity<Void> releaseNickname(@Parameter(name = "nickname", description = "회수할 닉네임 문자열", example = "호이가 계속되면 두리")
-                                                    @RequestParam String nickname) {
+                                                    @RequestBody String nickname) {
         usedNicknames.remove(nickname);
         return ResponseEntity.ok().build();
     }

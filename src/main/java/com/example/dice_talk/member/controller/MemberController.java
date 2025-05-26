@@ -3,7 +3,10 @@ package com.example.dice_talk.member.controller;
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
+import com.example.dice_talk.exception.BusinessLogicException;
+import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.MemberDto;
+import com.example.dice_talk.member.Dto.PasswordChangeDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.mapper.MemberMapper;
 import com.example.dice_talk.member.service.MemberService;
@@ -54,6 +57,12 @@ public class MemberController {
                             schema = @Schema(implementation = SwaggerErrorResponse.class),
                             examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
                     )
+            ),
+            @ApiResponse(responseCode = "409", description = "중복 회원",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":409,\"message\":\"Member exists\"}")
+                    )
             )
     })
     @PostMapping("/auth/register")
@@ -66,7 +75,9 @@ public class MemberController {
         // 회원가입 로직 실행
         // Member createdMember = memberService.createMember(mapper.memberPostToMember(postDto));
         Member tempMember = mapper.memberPostToMember(postDto);
-
+//        탈퇴회원 재가입 불가 확인 코드 (CI)
+//        String ci =  "abcdefghijklmnopuser@gmail.com010-1111-1111\t";
+//        tempMember.setCi(ci);
         tempMember.setCi("abcdefghijklmnop" + postDto.getEmail() + postDto.getPhone());
 
         Member createdMember = memberService.createMember(tempMember);
@@ -93,8 +104,13 @@ public class MemberController {
     @PostMapping("/notification/{member-id}")
     //앱 푸쉬 알림 수신동의 여부 저장
     public ResponseEntity<Void> setNotificationConsent(@Parameter(description = "회원 ID", example = "1") @PathVariable("member-id") @Positive long memberId,
-                                                       @Parameter(description = "동의 여부", example = "true") @RequestParam boolean consent) {
-        memberService.updateNotificationConsent(memberId, consent);
+                                                       @Parameter(description = "동의 여부", example = "true") @RequestParam boolean consent,
+                                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+
+        if (customPrincipal == null) {
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED);
+        }
+        memberService.updateNotificationConsent(memberId, customPrincipal.getMemberId(), consent);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -114,7 +130,9 @@ public class MemberController {
     public ResponseEntity<SingleResponseDto<MemberDto.MyInfoResponse>> patchMember(@Parameter(description = "수정할 지역") @RequestBody String region,
                                                                                    @Parameter(description = "회원 ID", example = "1") @PathVariable("member-id") @Positive long memberId,
                                                                                    @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        AuthorizationUtils.isOwner(memberId, customPrincipal.getMemberId());
+        if (customPrincipal == null) {
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED);
+            }
         Member member = memberService.updateMember(region, customPrincipal.getMemberId());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberInfoToMemberInfoResponse(member)), HttpStatus.OK);
     }
@@ -132,12 +150,10 @@ public class MemberController {
     })
     @PostMapping("/password")
     public ResponseEntity<Void> changePassword(
-            @Parameter(description = "기존 비밀번호")
-            @Valid @RequestBody String oldPassword,
-            @Parameter(description = "새 비밀번호")
-            @Valid @RequestBody String newPassword,
+            @Parameter(description = "비밀번호 수정 Dto")
+            @Valid @RequestBody PasswordChangeDto passwordChangeDto,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        memberService.changePassword(oldPassword, newPassword, customPrincipal.getMemberId());
+        memberService.changePassword(passwordChangeDto, customPrincipal.getMemberId());
         return ResponseEntity.ok().build();
     }
 
@@ -229,7 +245,7 @@ public class MemberController {
     @DeleteMapping("/my-info/{member-id}")
     public ResponseEntity<Void> deleteMember(
             @Parameter(description = "회원 ID", example = "1") @PathVariable("member-id") @Positive long memberId,
-            @Parameter(description = "탈퇴 사유", example = "사용자 요청") @RequestParam("reason") String reason,
+            @Parameter(description = "탈퇴 사유", example = "사용자 요청") @RequestBody String reason,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
 
         memberService.deleteMember(memberId, customPrincipal.getMemberId(), reason);
@@ -238,7 +254,13 @@ public class MemberController {
 
     @Operation(summary = "회원 영구 정지", description = "관리자가 특정 회원을 정지합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "정지 성공")
+            @ApiResponse(responseCode = "204", description = "정지 성공"),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            )
     })
     @DeleteMapping("/admin/member-page/{member-id}")
     public ResponseEntity<Void> banMember(
