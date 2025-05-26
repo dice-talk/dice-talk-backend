@@ -40,7 +40,7 @@ spring:
   sql:
     init:
       mode: always # SQL 초기화 스크립트를 항상 실행합니다
-      data-locations: classpath:data.sql # data.sql 파일을 로드합니다
+      # data-locations: classpath:data.sql # data.sql 파일을 로드합니다
   output:
     ansi:
       enabled: ALWAYS # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
