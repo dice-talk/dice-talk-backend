@@ -39,8 +39,7 @@ spring:
   #    open-in-view: false # (주석 처리됨) Open EntityManager in View 패턴을 비활성화합니다.
   sql:
     init:
-      mode: always # SQL 초기화 스크립트를 항상 실행합니다
-      # data-locations: classpath:data.sql # data.sql 파일을 로드합니다
+      mode: never
   output:
     ansi:
       enabled: ALWAYS # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
