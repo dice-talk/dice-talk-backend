@@ -8,6 +8,7 @@ import com.example.dice_talk.item.repository.ItemRepository;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +30,7 @@ public class ItemService {
         //관리자만 등록 가능
         AuthorizationUtils.verifyAdmin();
         // S3 업로드 후 Entity 에 Set
-        if(file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()) {
             String imageUrl = s3Uploader.upload(file, "item-image");
             item.setItemImage(imageUrl);
         }
@@ -48,7 +49,7 @@ public class ItemService {
                 .ifPresent(quantity -> findItem.setDescription(quantity));
         Optional.of(item.getDicePrice())
                 .ifPresent(price -> findItem.setDicePrice(price));
-        if(file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()) {
             String imageUrl = s3Uploader.upload(file, "item-image");
             s3Uploader.moveToDeletedFolder(findItem.getItemImage(), "deleted-item-image");
             findItem.setItemImage(imageUrl);
@@ -57,21 +58,40 @@ public class ItemService {
         return itemRepository.save(findItem);
     }
 
-    public Item findItem(long itemId){
+    public Item findItem(long itemId) {
         // 상품 존재하는지 확인 후 반환
         return findVerifiedItem(itemId);
     }
 
-    public Page<Item> findItems(int page, int size){
-        // page 번호 검증
-        if(page < 1){
-            throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
-        }
+    public Page<Item> findItems(int page, int size) {
+        if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
+        if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
         // page 객체에 담아서 반환
-        return itemRepository.findAll(PageRequest.of(page-1, size, Sort.by("dicePrice").ascending()));
+        return itemRepository.findAll(PageRequest.of(page - 1, size, Sort.by("dicePrice").ascending()));
     }
 
-    public void deleteItem(long itemId){
+    public Page<Item> findItemsAdmin(int page, int size, String sort) {
+        if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
+        if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
+
+        Sort sortObj = parseSort(sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sortObj);
+        return itemRepository.findAll(pageable);
+    }
+
+    private Sort parseSort(String sort){
+        String[] parts = sort.split(",");
+        String property = parts[0].trim();
+        Sort.Direction dir;
+        try {
+            dir = Sort.Direction.fromString(parts[1].trim());
+        } catch (IllegalArgumentException e){
+            throw new BusinessLogicException(ExceptionCode.BAD_REQUEST);
+        }
+        return Sort.by(dir, property);
+    }
+
+    public void deleteItem(long itemId) {
         //관리자만 등록 가능
         AuthorizationUtils.verifyAdmin();
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
@@ -79,8 +99,8 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
-    public Item findVerifiedItem(long itemId){
+    public Item findVerifiedItem(long itemId) {
         // itemId로 DB에서 조회 후 없으면 예외 발생
-        return  itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
+        return itemRepository.findById(itemId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_EXIST));
     }
 }
