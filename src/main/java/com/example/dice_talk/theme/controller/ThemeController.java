@@ -134,17 +134,18 @@ public class ThemeController {
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                             examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}"))),
-
             @ApiResponse(responseCode = "403", description = "조회 권한 없음",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
                             examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}"))),
     })
     @GetMapping("/admin")
     public ResponseEntity<MultiResponseDto<ThemeDto.Response>> getAllThemes(@Parameter(description = "페이지 번호(1 이상)", example = "1")
-                                                                            @Positive @RequestParam int page,
+                                                                            @Positive @RequestParam(defaultValue = "1") int page,
                                                                             @Parameter(description = "페이지 크기(1 이상)", example = "10")
-                                                                            @Positive @RequestParam int size) {
-        Page<Theme> themePage = themeService.findThemes(page, size);
+                                                                            @Positive @RequestParam(defaultValue = "10") int size,
+                                                                            @Parameter(description = "테마 상태", example = "THEME_ON")
+                                                                            @RequestParam(required = false) Theme.ThemeStatus status) {
+        Page<Theme> themePage = themeService.findThemes(page, size, status);
         List<Theme> themes = themePage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.themesToThemeResponses(themes), themePage), HttpStatus.OK);
     }
