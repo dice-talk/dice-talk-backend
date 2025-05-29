@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -207,5 +208,29 @@ public class NoticeController {
                                              @PathVariable("notice-id") @Positive long noticeId) {
         noticeService.deleteNotice(noticeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // 관리자용 공지/이벤트 조회(조건)
+    @Operation(summary = "관리자용 공지/이벤트 조회",
+            description = "타입, 상태, 키워드, 페이징·정렬 옵션으로 조회합니다.")
+    @GetMapping("/admin")
+    public ResponseEntity<MultiResponseDto<NoticeDto.Response>> getAdminNotices(
+            @Parameter(description = "공지/이벤트 타입", example = "NOTICE")
+            @RequestParam(required = false) Notice.NoticeType type,
+            @Parameter(description = "상태",           example = "ONGOING")
+            @RequestParam(required = false) Notice.NoticeStatus status,
+            @Parameter(description = "검색 키워드")
+            @RequestParam(required = false) String keyword,
+            @Parameter(description = "페이지 번호", example = "1")
+            @Positive @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 크기", example = "10")
+            @Positive @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "정렬 (필드,asc|desc)", example = "endDate,asc")
+            @RequestParam(defaultValue = "noticeId,desc") String sort
+    ){
+        Page<Notice> noticePage = noticeService.findAdminNotices(
+                type, status, keyword, size, page, sort);
+        List<NoticeDto.Response> notices = mapper.noticesToNoticeResponses(noticePage.getContent());
+        return new ResponseEntity<>(new MultiResponseDto<>(notices, noticePage), HttpStatus.OK);
     }
 }

@@ -107,16 +107,25 @@ public class ReportController {
             )
     })
     @GetMapping("/{report-id}")
-    public ResponseEntity<SingleResponseDto<ReportDto.Response>> getReport(@Parameter(description = "신고 ID", example = "1")
-                                                                           @PathVariable("report-id") @Positive long reportId) {
-        Report report = reportService.findVerifiedReport(reportId);
-        List<Chat> reportedChats = reportService.findReportDetails(reportId);
-        ReportDto.Response response = mapper.reportToReportResponse(report);
-        if (!reportedChats.isEmpty()) {
-            response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
-        }
-        return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);
+    public ResponseEntity<SingleResponseDto<ReportDto.Response>> getReport(
+            @PathVariable("report-id") @Positive long reportId) {
+        ReportDto.Response response = reportService.findReportWithEmail(reportId);
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(response),
+                HttpStatus.OK
+        );
     }
+//    @GetMapping("/{report-id}")
+//    public ResponseEntity<SingleResponseDto<ReportDto.Response>> getReport(@Parameter(description = "신고 ID", example = "1")
+//                                                                           @PathVariable("report-id") @Positive long reportId) {
+//        Report report = reportService.findVerifiedReport(reportId);
+//        List<Chat> reportedChats = reportService.findReportDetails(reportId);
+//        ReportDto.Response response = mapper.reportToReportResponse(report);
+//        if (!reportedChats.isEmpty()) {
+//            response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
+//        }
+//        return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);
+//    }
 
     @Operation(summary = "전체 신고 목록 조회", description = "전체 신고 목록을 조회합니다.")
     @ApiResponses({
@@ -143,16 +152,28 @@ public class ReportController {
             )
     })
     @GetMapping
-    public ResponseEntity<MultiResponseDto<ReportDto.Response>> getReports(@Parameter(description = "페이지 번호(1 이상)", example = "1")
-                                                                           @Positive @RequestParam int page,
-                                                                           @Parameter(description = "페이지 크기(1 이상)", example = "10")
-                                                                           @Positive @RequestParam int size) {
-        Page<Report> reportPage = reportService.findReports(page, size);
-        List<Report> reports = reportPage.getContent();
-        return new ResponseEntity<>(new MultiResponseDto<>(
-                mapper.reportsToReportResponses(reports), reportPage
-        ), HttpStatus.OK);
+    public ResponseEntity<MultiResponseDto<ReportDto.Response>> getReports(
+            @RequestParam int page,
+            @RequestParam int size) {
+        Page<ReportDto.Response> pageReports = reportService.findReportsWithEmail(page, size);
+        List<ReportDto.Response> reports = pageReports.getContent();
+
+        return new ResponseEntity<>(
+                new MultiResponseDto<>(reports, pageReports),
+                HttpStatus.OK
+        );
     }
+//    @GetMapping
+//    public ResponseEntity<MultiResponseDto<ReportDto.Response>> getReports(@Parameter(description = "페이지 번호(1 이상)", example = "1")
+//                                                                           @Positive @RequestParam int page,
+//                                                                           @Parameter(description = "페이지 크기(1 이상)", example = "10")
+//                                                                           @Positive @RequestParam int size) {
+//        Page<Report> reportPage = reportService.findReports(page, size);
+//        List<Report> reports = reportPage.getContent();
+//        return new ResponseEntity<>(new MultiResponseDto<>(
+//                mapper.reportsToReportResponses(reports), reportPage
+//        ), HttpStatus.OK);
+//    }
 
     // 신고 처리완료
     @Operation(summary = "신고 처리 완료", description = "관리자가 신고 건을 처리 완료 상태로 변경합니다.")

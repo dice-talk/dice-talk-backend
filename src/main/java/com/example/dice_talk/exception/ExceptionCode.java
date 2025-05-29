@@ -32,6 +32,8 @@ public enum ExceptionCode {
     NOTIFICATION_NOT_FOUND(404, "Notification not found"),
     INVALID_TOKEN(401, "Invalid Token"),
     INVALID_IMAGE_METADATA(400, "썸네일 여부 리스트가 이미지 개수와 일치하지 않습니다."),
+    BAD_REQUEST(400, "Invalid sort or column"),
+    ALREADY_EXITED_TODAY(409, "Member Already Existed Today"),
     NOTICE_ALREADY_CLOSED(409, "Notice is already closed");
 
     @Getter
