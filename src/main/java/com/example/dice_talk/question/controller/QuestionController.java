@@ -9,6 +9,7 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.question.dto.QuestionDto;
 import com.example.dice_talk.question.entity.Question;
+import com.example.dice_talk.question.enums.QuestionSearchType;
 import com.example.dice_talk.question.mapper.QuestionMapper;
 import com.example.dice_talk.question.service.QuestionService;
 import com.example.dice_talk.response.SwaggerErrorResponse;
@@ -180,6 +181,7 @@ public class QuestionController {
             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Question question = questionService.findQuestion(
                 questionId);
+        AuthorizationUtils.isAdminOrOwner(question.getMember().getMemberId(), customPrincipal.getMemberId());
         return new ResponseEntity<>(new SingleResponseDto<>(questionMapper.questionToQuestionResponse(question)), HttpStatus.OK);
     }
 
@@ -210,17 +212,21 @@ public class QuestionController {
     })
     @GetMapping("/admin")
     public ResponseEntity<MultiResponseDto<QuestionDto.Response>> getQuestions(@Parameter(description = "페이지 번호(1 이상)", example = "1")
-                                                                               @Positive @RequestParam int page,
+                                                                               @Positive @RequestParam(defaultValue = "1") int page,
                                                                                @Parameter(description = "페이지 크기(1 이상)", example = "10")
-                                                                               @Positive @RequestParam int size,
-                                                                               @Parameter(description = "정렬 타입", example = "newest")
-                                                                               @RequestParam(defaultValue = "newest") String sortType,
-                                                                               @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        Member currentMember = memberService.findVerifiedMember(customPrincipal.getMemberId());
-        Page<Question> questionPage = questionService.findQuestions(page, size, sortType, currentMember);
-        List<Question> questions = questionPage.getContent();
+                                                                               @Positive @RequestParam(defaultValue = "10") int size,
+                                                                               @Parameter(description = "질문 상태", example = "QUESTION_REGISTERED")
+                                                                               @RequestParam(required = false) Question.QuestionStatus status,
+                                                                               @Parameter(description = "정렬 타입", example = "latest")
+                                                                               @RequestParam(defaultValue = "latest") String sortOrder,
+                                                                               @Parameter(description = "검색 범위", example = "TITLE_AUTHOR")
+                                                                               @RequestParam(defaultValue = "TITLE_AUTHOR") QuestionSearchType searchType,
+                                                                               @RequestParam(required = false) String keyword) {
+        Page<Question> questionPage = questionService.findQuestions(page, size, status, sortOrder, searchType, keyword);
+        List<QuestionDto.Response> responses =
+                questionMapper.questionsToQuestionResponses(questionPage.getContent());
         return new ResponseEntity<>(new MultiResponseDto<>
-                (questionMapper.questionsToQuestionResponses(questions), questionPage), HttpStatus.OK);
+                (responses, questionPage), HttpStatus.OK);
     }
 
     // 회원용 질문 목록 조회

@@ -3,7 +3,6 @@ package com.example.dice_talk.member.service;
 import com.example.dice_talk.auth.utils.AuthorityUtils;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
-import com.example.dice_talk.dashboard.dto.DashboardWeekly;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.PasswordChangeDto;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +35,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final AuthorityUtils authorityUtils;
 
-
     public Member createMember(Member member) {
 //        CI 중복 확인
         if (isCiAlreadyRegistered(member.getCi())) {
@@ -47,9 +46,9 @@ public class MemberService {
         //비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(member.getPassword());
         member.setPassword(encryptedPassword);
-        //role 초기화
-        List<String> roles = authorityUtils.createRoles(member.getEmail());
-        member.setRoles(roles);
+//        //role 초기화
+//        List<String> roles = authorityUtils.createRoles(member.getEmail());
+//        member.setRoles(roles);
         //회원가입 직후 0으로 초기화
         member.setTotalDice(0);
 
@@ -257,5 +256,11 @@ public class MemberService {
 
     public List<DailyCountDto> weeklyNewMember(LocalDateTime start, LocalDateTime end) {
         return memberRepository.countSignupsByDate(start, end);
+    }
+
+    //관리자 페이지 요청 여부 확인 (관리자 회원가입 관리)
+    public boolean isAdminRequest(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/admin") || request.getHeader("X-Admin-Signup") != null;
     }
 }

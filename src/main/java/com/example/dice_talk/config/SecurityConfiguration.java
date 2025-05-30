@@ -1,6 +1,5 @@
 package com.example.dice_talk.config;
 
-
 import com.example.dice_talk.auth.MemberDetailsService;
 import com.example.dice_talk.auth.filter.JwtAuthenticationFilter;
 import com.example.dice_talk.auth.filter.JwtVerificationFilter;
@@ -65,7 +64,7 @@ public class SecurityConfiguration {
                 .headers().frameOptions().sameOrigin()
                 .and()
                 .csrf().disable()
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .formLogin().disable()
@@ -115,7 +114,9 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // setAllowedOrigins : 모든 출처에 대해 허용
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList( "https://dicetalk.co.kr",
+                "https://www.dicetalk.co.kr", "http://localhost:5173",
+                "http://localhost:3000"));
         // setAllowedMethods : 지정한 HTTP Method 에 대한 통신 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         // 클라이언트가 보낼 수 있는 헤더 명시 (Authorization, Content-Type 등)

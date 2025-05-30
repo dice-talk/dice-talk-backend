@@ -8,6 +8,7 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.entity.QuestionImage;
+import com.example.dice_talk.question.enums.QuestionSearchType;
 import com.example.dice_talk.question.repository.QuestionImageRepository;
 import com.example.dice_talk.question.repository.QuestionRepository;
 import com.example.dice_talk.utils.AuthorizationUtils;
@@ -15,9 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -94,20 +98,59 @@ public class QuestionService {
         return questionRepository.save(findQuestion);
     }
 
-    public Page<Question> findQuestions(int page, int size, String sortType, Member currentMember) {
-        // 페이지 번호 검증
-        if (page < 1) {
-            throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
-        }
-        // 정렬 조건 설정
-        if (sortType == null || sortType.isBlank()) {
-            sortType = "newest";
-        }
-        Sort sort = getSortType(sortType);
+    public Page<Question> findQuestions(int page, int size, Question.QuestionStatus status, String sortOrder, QuestionSearchType searchType, String keyword) {
+        if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
+        if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
+
+        // Pageable 생성(createdAt 기준 최신순, 오래된 순)
+        Sort sort = "oldest".equalsIgnoreCase(sortOrder)
+                ? Sort.by("createdAt").ascending()
+                : Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-        // 비활성화 글 제외하고 조회
-        List<Question.QuestionStatus> statuses = List.of(Question.QuestionStatus.QUESTION_REGISTERED, Question.QuestionStatus.QUESTION_ANSWERED);
-        return questionRepository.findByQuestionStatusIn(statuses, pageable);
+
+        // Specification 빌드
+        Specification<Question> spec = Specification.where(null);
+
+        // QuestionStatus 로 필터링
+        if (status != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("questionStatus"), status));
+        }
+
+        // 키워드 검색 (title, content, member.name)
+        if (keyword != null && !keyword.isBlank()) {
+            String pattern = "%" + keyword.trim() + "%";
+            switch (searchType) {
+                case TITLE:
+                    spec = spec.and((root, query, cb) ->
+                            cb.like(root.get("title"), pattern)
+                    );
+                    break;
+                case AUTHOR:
+                    spec = spec.and((root, query, cb) -> {
+                        Join<Question, Member> m = root.join("member", JoinType.LEFT);
+                        return cb.like(m.get("email"), pattern);
+                    });
+                    break;
+                case TITLE_AUTHOR:
+                    spec = spec.and((root, query, cb) -> {
+                        Join<Question, Member> m = root.join("member", JoinType.LEFT);
+                        return cb.or(
+                                cb.like(root.get("title"), pattern),
+                                cb.like(m.get("email"), pattern)
+                        );
+                    });
+                    break;
+                case CONTENT:
+                    spec = spec.and((root, query, cb) ->
+                            cb.like(root.get("content"), pattern)
+                    );
+                    break;
+            }
+            ;
+        }
+
+        return questionRepository.findAll(spec, pageable);
     }
 
     public Page<Question> findMyQuestions(int page, int size, Long memberId) {
@@ -196,10 +239,9 @@ public class QuestionService {
         //7일간 작성된 질문 글 조회
         List<Question> weeklyQuestions = questionRepository.findAllByCreatedAtAfterAndQuestionStatusIn(sevenDaysAgo, statuses);
 
-        return  questions.stream().map(question -> new DashboardQuestion(question.getTitle(), questions.size(), weeklyQuestions.size()))
+        return questions.stream().map(question -> new DashboardQuestion(question.getTitle(), questions.size(), weeklyQuestions.size()))
                 .collect(Collectors.toList());
     }
-
 
 
 }

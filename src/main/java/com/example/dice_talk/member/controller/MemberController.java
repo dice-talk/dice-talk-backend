@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Member", description = "회원 API")
@@ -72,18 +73,30 @@ public class MemberController {
                     content = @Content(schema = @Schema(implementation = MemberDto.Post.class))
             )
             @RequestBody @Valid MemberDto.Post postDto) {
-        // 회원가입 로직 실행
-        // Member createdMember = memberService.createMember(mapper.memberPostToMember(postDto));
+
         Member tempMember = mapper.memberPostToMember(postDto);
-//        탈퇴회원 재가입 불가 확인 코드 (CI)
-//        String ci =  "abcdefghijklmnopuser@gmail.com010-1111-1111\t";
-//        tempMember.setCi(ci);
+        //로컬 테스트용 임시 Ci 발급
         tempMember.setCi("abcdefghijklmnop" + postDto.getEmail() + postDto.getPhone());
+        tempMember.setRoles(List.of("USER"));
 
         Member createdMember = memberService.createMember(tempMember);
         URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
         return ResponseEntity.created(location).build();
     }
+
+    //관리자 회원가입
+    @PostMapping("/admin/register")
+    public ResponseEntity<Void> postAdmin (@Parameter(description = "회원 가입 요청 DTO", required = true,
+                                            content = @Content(schema = @Schema(implementation = MemberDto.Post.class)))
+                                               @RequestBody @Valid MemberDto.Post postDto){
+
+        Member admin = mapper.memberPostToMember(postDto);
+        admin.setRoles(List.of("ADMIN"));
+        admin.setCi("ADMIN_CI_" + postDto.getEmail());
+        Member register = memberService.createMember(admin);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
     @Operation(summary = "푸시 알림 설정", description = "회원의 푸시 알림 동의 여부를 저장합니다.")
     @ApiResponses({

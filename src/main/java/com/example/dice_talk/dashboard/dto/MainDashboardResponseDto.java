@@ -38,6 +38,22 @@ public class MainDashboardResponseDto {
     private List<DashboardChatRoom> dashboardChatRooms;
 
     //주간 데이터
-    @Schema(description = "주간 데이터", example = "[{\"weeklyNewMemberCount\": 23, \"weeklyActiveChatRoomCount\": 14}]")
+    @Schema(
+            description = "주간 데이터",
+            example = "[" +
+                    "{" +
+                    "\"weekStartDate\": \"2025-05-20\"," +
+                    "\"weekEndDate\": \"2025-05-26\"," +
+                    "\"weeklyNewMemberCount\": [" +
+                    "{\"date\": \"2025-05-20\", \"count\": 5}," +
+                    "{\"date\": \"2025-05-21\", \"count\": 7}" +
+                    "]," +
+                    "\"weeklyActiveChatRoomCount\": [" +
+                    "{\"date\": \"2025-05-20\", \"count\": 4}," +
+                    "{\"date\": \"2025-05-21\", \"count\": 6}" +
+                    "]" +
+                    "}" +
+                    "]"
+    )
     private List<DashboardWeekly> dashboardWeeklies;
 }

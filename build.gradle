@@ -18,6 +18,11 @@ repositories {
 	maven { url = uri("https://jitpack.io") }
 }
 
+// QueryDSL 버전 변수 추가
+ext {
+	querydslVersion = '5.0.0'
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -41,9 +46,16 @@ dependencies {
 	implementation 'software.amazon.awssdk:s3:2.25.0'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
+
+	// toss 
 	implementation("com.github.toss:toss-cert-java-sdk:0.0.14")
-
-
+  
+	// QueryDSL JPA 모듈 추가
+	implementation "com.querydsl:querydsl-jpa:${querydslVersion}"
+	// QueryDSL JPA 어노테이션 프로세서 추가
+	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jpa"
+	implementation 'javax.persistence:javax.persistence-api:2.2'
+	annotationProcessor 'javax.persistence:javax.persistence-api:2.2'
 
 }
 
@@ -53,4 +65,22 @@ tasks.named('test') {
 
 jar {
 	enabled = false
+}
+
+// QueryDSL Q타입(메타모델) 소스 디렉토리 추가
+sourceSets {
+	main {
+		java {
+			srcDir("$buildDir/generated/sources/annotationProcessor/java/main")
+		}
+	}
+}
+
+// Java 컴파일 시 Annotation Processor 출력 경로 설정
+tasks.withType(JavaCompile).configureEach { task ->
+	task.options.annotationProcessorGeneratedSourcesDirectory =
+			layout.buildDirectory
+					.dir("generated/sources/annotationProcessor/java/main")
+					.get()
+					.asFile
 }

@@ -11,12 +11,15 @@ import com.example.dice_talk.notice.entity.NoticeImage;
 import com.example.dice_talk.notice.event.NoticeCreatedEvent;
 import com.example.dice_talk.notice.repository.NoticeImageRepository;
 import com.example.dice_talk.notice.repository.NoticeRepository;
+import com.example.dice_talk.notice.repository.NoticeSpecification;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -165,7 +169,29 @@ public class NoticeService {
         return recentNotice.stream()
                 .map(notice -> new DashboardNotice(notice.getTitle(), noticeList.size()))
                 .collect(Collectors.toList());
+    }
 
+    // 관리자 웹용 공지/이벤트 검색, 정렬
+    public Page<Notice> findAdminNotices(
+            Notice.NoticeType type,
+            Notice.NoticeStatus status,
+            String keyword,
+            int size, int page,
+            String sort){
+        // sort 파싱
+        String[] parts = sort.split(",");
+        Sort.Direction dir = Sort.Direction.fromString(parts[1]);
+        Sort s = Sort.by(dir, parts[0]);
+        // Pageable 생성
+        Pageable pageable = PageRequest.of(page - 1, size, s);
+
+        // Specification 조합
+        Specification<Notice> spec = Specification
+                .where(NoticeSpecification.hasType(type))
+                .and(NoticeSpecification.hasStatus(status))
+                .and(NoticeSpecification.containsKeyword(keyword));
+
+        return noticeRepository.findAll(spec, pageable);
     }
 
 }

@@ -167,8 +167,8 @@ public class ChatRoomController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // 특정 채팅방에 소속된 특정 회원의 상태를 '퇴장 상태' 로 변경하는 메서드
-    @Operation(summary = "채팅방 특정 회원 퇴장", description = "관리자가 채팅 참여자를 채팅방에서 퇴장 처리합니다.",
+    // 채팅방을 나가는 메서드
+    @Operation(summary = "채팅방 나가기", description = "특정 회원을 채팅방에서 퇴장 처리합니다.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "퇴장 성공"),
                     @ApiResponse(responseCode = "403", description = "퇴장 권한 없음",
@@ -183,6 +183,25 @@ public class ChatRoomController {
                                            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         AuthorizationUtils.isAdminOrOwner(memberId, customPrincipal.getMemberId());
         chatRoomService.exitChatPart(chatRoomId, memberId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // 아이템 사용 후 채팅방을 나가는 메서드
+    @Operation(summary = "채팅방 나가기 (아이템 사용 후)", description = "특정 회원을 채팅방에서 퇴장 처리합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "퇴장 성공"),
+                    @ApiResponse(responseCode = "403", description = "퇴장 권한 없음",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
+    )
+    @DeleteMapping("/force/{chat-room-id}/{member-id}")
+    public ResponseEntity<Void> forceExitFromChatRoom(@Parameter(name = "chat-room-id", description = "대상 채팅방의 ID", example = "101")
+                                                 @PathVariable("chat-room-id") @Positive long chatRoomId,
+                                                 @Parameter(name = "member-id", description = "탈퇴 대상 회원의 ID", example = "42")
+                                                 @PathVariable("member-id") @Positive long memberId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+        AuthorizationUtils.isAdminOrOwner(memberId, customPrincipal.getMemberId());
+        chatRoomService.forceExitChatPart(chatRoomId, memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
