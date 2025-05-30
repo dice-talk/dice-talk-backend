@@ -31,6 +31,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
 #        dialect: org.hibernate.dialect.MySQL8Dialect
+
         format_sql: true # SQL 쿼리를 포맷하여 가독성을 높입니다.
         highlight_sql: true # SQL 쿼리에서 중요한 부분을 강조합니다.
         color-codes: true # SQL 쿼리의 컬러 코드를 사용합니다.
@@ -106,4 +107,6 @@ springdoc:
     tagsSorter: alpha # 태그 순 정렬
   api-docs:
     path: /v3/api-docs
+
+
 
