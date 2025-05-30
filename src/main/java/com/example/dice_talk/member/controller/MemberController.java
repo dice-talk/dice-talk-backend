@@ -36,6 +36,7 @@ import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Member", description = "회원 API")
 @SecurityRequirement(name = "JWT")
@@ -140,13 +141,13 @@ public class MemberController {
             )
     })
     @PatchMapping("/my-info/{member-id}")
-    public ResponseEntity<SingleResponseDto<MemberDto.MyInfoResponse>> patchMember(@Parameter(description = "수정할 지역") @RequestBody String region,
+    public ResponseEntity<SingleResponseDto<MemberDto.MyInfoResponse>> patchMember(@Parameter(description = "수정할 지역") @RequestBody Map<String, String> body,
                                                                                    @Parameter(description = "회원 ID", example = "1") @PathVariable("member-id") @Positive long memberId,
                                                                                    @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         if (customPrincipal == null) {
             throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED);
             }
-        Member member = memberService.updateMember(region, customPrincipal.getMemberId());
+        Member member = memberService.updateMember(body.get("region"), customPrincipal.getMemberId());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberInfoToMemberInfoResponse(member)), HttpStatus.OK);
     }
 
