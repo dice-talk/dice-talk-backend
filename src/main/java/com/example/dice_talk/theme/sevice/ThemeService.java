@@ -8,6 +8,7 @@ import com.example.dice_talk.theme.repository.ThemeRepository;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,13 +59,16 @@ public class ThemeService {
     }
 
     // 관리자용 (비활성화 테마까지 조회)
-    public Page<Theme> findThemes(int page, int size){
-        // page 번호 검증
-        if(page < 1){
-            throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
+    public Page<Theme> findThemes(int page, int size, Theme.ThemeStatus status){
+        if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
+        if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
+
+        Pageable pageable = PageRequest.of(page-1, size, Sort.by("themeId").descending());
+
+        if(status == null){
+            return themeRepository.findAll(pageable);
         }
-        // page 객체에 담아서 반환
-        return themeRepository.findAll(PageRequest.of(page-1, size, Sort.by("themeId").descending()));
+        return themeRepository.findAllByThemeStatus(status, pageable);
     }
 
     public void deleteTheme(long themeId){

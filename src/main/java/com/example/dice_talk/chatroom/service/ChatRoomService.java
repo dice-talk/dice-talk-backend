@@ -13,6 +13,7 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class  ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
@@ -39,15 +41,7 @@ public class  ChatRoomService {
     private final ChatService chatService;
     private final RoomEventRepository roomEventRepository;
     private final MemberService memberService;
-
-    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatPartRepository chatPartRepository, TaskScheduler taskScheduler, ChatService chatService, RoomEventRepository roomEventRepository, MemberService memberService) {
-        this.chatRoomRepository = chatRoomRepository;
-        this.chatPartRepository = chatPartRepository;
-        this.taskScheduler = taskScheduler;
-        this.chatService = chatService;
-        this.roomEventRepository = roomEventRepository;
-        this.memberService = memberService;
-    }
+    private final ExitLogService exitLogService;
 
     public boolean isMemberPossibleToPart(long memberId) {
         memberService.findVerifiedMember(memberId);
@@ -151,6 +145,17 @@ public class  ChatRoomService {
 
     // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경
     public void exitChatPart(long chatRoomId, long memberId) {
+        Optional<ChatPart> chatPart = chatPartRepository.findByChatRoom_ChatRoomIdAndMember_MemberId(chatRoomId, memberId);
+        ChatPart foundChatPart = chatPart.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        if(exitLogService.hasLeftToday(memberId)){
+            throw new BusinessLogicException(ExceptionCode.ALREADY_EXITED_TODAY);
+        }
+        foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
+        chatPartRepository.save(foundChatPart);
+    }
+
+    // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경 (아이템 사용 후)
+    public void forceExitChatPart(long chatRoomId, long memberId) {
         Optional<ChatPart> chatPart = chatPartRepository.findByChatRoom_ChatRoomIdAndMember_MemberId(chatRoomId, memberId);
         ChatPart foundChatPart = chatPart.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
         foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);

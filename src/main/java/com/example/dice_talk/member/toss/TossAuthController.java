@@ -34,132 +34,169 @@ public class TossAuthController {
     private final MemberService memberService;
     private final TossAuthService tossAuthService;
 
-    @Operation(summary = "본인인증 결과 조회", description = "Toss 인증 결과를 조회하여 사용자 정보를 반환합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = Map.class),
-                            examples = @ExampleObject(value = "{\"name\":\"홍길동\",\"birth\":\"1990-01-01\",\"gender\":\"MALE\",\"ci\":\"CI_CODE\"}"))
-            ),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터",
-                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
-            )
-    })
     @PostMapping("/cert")
-    public ResponseEntity<Map<String, Object>> getCertResult(
-            @Parameter(description = "인증 거래 ID(txId)", example = "abc123") @RequestParam String txId) {
-        // Toss Access Token 발급
-        String accessToken = tossAuthService.getAccessToken();
+    public ResponseEntity<Map<String, Object>> getCertResult(@RequestParam String txId) {
+        try { // 👈 try-catch 시작
+            String accessToken = tossAuthService.getAccessToken();
+            Map<String, Object> tossResponse = tossAuthService.getVerificationResult(accessToken, txId); // 여기서 Exception 발생 가능
 
-        // Toss 서버에서 본인 인증 결과 조회
-        Map<String, Object> result = tossAuthService.getVerificationResult(accessToken, txId);
+            // ... (이전 답변과 동일한 성공 및 오류 처리 로직) ...
+            if (!"SUCCESS".equals(tossResponse.get("resultType"))) {
+                System.err.println("Toss API Error in Controller (/cert): " + tossResponse);
+                Map<String, Object> errorData = (Map<String, Object>) tossResponse.get("error");
+                String reason = "Toss API returned an error.";
+                if (errorData != null && errorData.get("reason") != null) {
+                    reason = (String) errorData.get("reason");
+                }
+                Map<String, Object> clientErrorResponse = new HashMap<>();
+                clientErrorResponse.put("error", reason);
+                return new ResponseEntity<>(clientErrorResponse, HttpStatus.BAD_REQUEST);
+            }
 
-        // 필요한 데이터 추출
-        Map<String, Object> response = new HashMap<>();
-        response.put("name", result.get("name"));
-        response.put("birth", result.get("birth"));
-        response.put("gender", result.get("gender"));
-        response.put("ci", result.get("ci"));
+            Map<String, Object> successData = (Map<String, Object>) tossResponse.get("success");
+            if (successData == null) {
+                System.err.println("Toss 응답에 success 객체가 없습니다 (/cert): " + tossResponse);
+                throw new BusinessLogicException(ExceptionCode.TOSS_RESPONSE_ERROR);
+            }
 
-        return new ResponseEntity<>(response, HttpStatus.OK); // 본인 인증 결과 반환
+            Map<String, Object> personalData = (Map<String, Object>) successData.get("personalData");
+            if (personalData == null) {
+                System.err.println("Toss 응답의 success 객체 내에 personalData가 없습니다 (/cert): " + successData);
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("message", "개인 정보(personalData)를 찾을 수 없습니다.");
+                errorResponse.put("userCiToken_if_available", successData.get("userCiToken"));
+                return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+            }
+
+            Map<String, Object> clientResponse = new HashMap<>();
+            clientResponse.put("name", personalData.get("name"));
+            clientResponse.put("birth", personalData.get("birthday"));
+            clientResponse.put("gender", personalData.get("gender"));
+            clientResponse.put("ci", personalData.get("ci"));
+            clientResponse.put("ageGroup", personalData.get("ageGroup"));
+            // clientResponse.put("phone", personalData.get("MOBILE_PHONE"));
+
+            return new ResponseEntity<>(clientResponse, HttpStatus.OK);
+
+        } catch (BusinessLogicException e) {
+            System.err.println("BusinessLogicException in getCertResult (/cert): " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("errorCode", e.getExceptionCode().getStatus());
+            errorResponse.put("errorMessage", e.getExceptionCode().getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(e.getExceptionCode().getStatus()));
+        } catch (Exception e) { // 👈 TossAuthService.getVerificationResult()에서 던진 Exception 처리
+            System.err.println("Unexpected error in getCertResult (/cert): " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Toss 인증 결과 처리 중 서버 내부 오류가 발생했습니다.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        } // 👈 try-catch 끝
     }
 
-    @Operation(summary = "인증 요청 URL 생성", description = "Toss 본인인증 요청을 위한 URL을 생성하여 반환합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 URL 반환",
-                    content = @Content(schema = @Schema(implementation = Map.class),
-                            examples = @ExampleObject(value = "{\"url\":\"https://toss.im/auth?x=...\"}"))
-            )
-    })
     @PostMapping("/request")
     public ResponseEntity<Map<String, String>> requestAuthUrl(){
+        // createTossAuthRequest는 Exception을 던지지 않으므로 try-catch 불필요 (내부에서 처리하거나 RuntimeException 발생 시)
         Map<String, String> response = tossAuthService.createTossAuthRequest();
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    //이메일 찾기 로직
-    @Operation(summary = "이메일 찾기", description = "인증된 CI로 등록된 회원 이메일을 조회하여 반환합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "이메일 반환",
-                    content = @Content(schema = @Schema(implementation = Map.class),
-                            examples = @ExampleObject(value = "{\"email\":\"user@example.com\"}"))
-            ),
-            @ApiResponse(responseCode = "404", description = "등록된 회원 없음",
-                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
-            )
-    })
     @PostMapping("/recover/email")
-    public ResponseEntity<Map<String, Object>> findEmail(
-            @Parameter(description = "인증 거래 ID(txId)", example = "abc123") @RequestParam String txId) {
-        // Toss Access Token 발급
-        String accessToken = tossAuthService.getAccessToken();
+    public ResponseEntity<Map<String, Object>> findEmail(@RequestParam String txId) {
+        try { // 👈 try-catch 시작
+            String accessToken = tossAuthService.getAccessToken();
+            Map<String, Object> tossResult = tossAuthService.getVerificationResult(accessToken, txId); // 여기서 Exception 발생 가능
 
-        // Toss 서버에서 본인 인증 결과 조회
-        Map<String, Object> result = tossAuthService.getVerificationResult(accessToken, txId);
-        // Ci 통해서 등록 회원 찾기
-        String ci = (String) result.get("ci");
-        //등록된 회원인지 확인 (없다면 404)
-        Member member = memberService.isCifindMember(ci);
+            // CI 추출 전 tossResult의 유효성 검사 (resultType, success, personalData 등) 필요
+            if (!"SUCCESS".equals(tossResult.get("resultType")) || tossResult.get("success") == null) {
+                System.err.println("Toss API Error in findEmail: " + tossResult);
+                throw new BusinessLogicException(ExceptionCode.TOSS_VERIFICATION_FAILED);
+            }
+            Map<String, Object> successData = (Map<String, Object>) tossResult.get("success");
+            Map<String, Object> personalData = (Map<String, Object>) successData.get("personalData");
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("email", member.getEmail());
+            if (personalData == null || personalData.get("ci") == null) {
+                System.err.println("CI not found in Toss response for findEmail: " + tossResult);
+                throw new BusinessLogicException(ExceptionCode.TOSS_CI_NOT_FOUND);
+            }
 
-        //성공시 사용자의 이메일 반환
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            String ci = (String) personalData.get("ci"); // 복호화된 CI가 여기에 있어야 함
+            Member member = memberService.isCifindMember(ci); // isCifindMember는 CI로 회원을 찾고 없으면 예외 발생 가정
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("email", member.getEmail());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (BusinessLogicException e) {
+            System.err.println("BusinessLogicException in findEmail: " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("errorCode", e.getExceptionCode().getStatus());
+            errorResponse.put("errorMessage", e.getExceptionCode().getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(e.getExceptionCode().getStatus()));
+        } catch (Exception e) { // 👈 TossAuthService.getVerificationResult()에서 던진 Exception 처리
+            System.err.println("Unexpected error in findEmail: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "이메일 찾기 처리 중 서버 내부 오류가 발생했습니다.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        } // 👈 try-catch 끝
     }
 
-    //비밀번호 찾기 -> 성공시 비밀번호 재설정
-    @Operation(summary = "비밀번호 찾기", description = "인증된 CI와 이메일 일치 시 비밀번호 재설정 URI를 반환합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "재설정 URI 반환",
-                    content = @Content(schema = @Schema(implementation = String.class),
-                            examples = @ExampleObject(value = "/auth/recover/password/1"))
-            ),
-            @ApiResponse(responseCode = "400", description = "이메일 불일치 또는 잘못된 파라미터",
-                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
-            )
-    })
     @PostMapping("/recover/password")
-    public ResponseEntity<String> findPassword(
-            @Parameter(description = "인증 거래 ID(txId)", example = "abc123") @RequestParam String txId,
-            @Parameter(description = "회원 이메일", example = "user@example.com") @RequestParam String email
-    ) {
-        // Toss Access Token 발급
-        String accessToken = tossAuthService.getAccessToken();
+    public ResponseEntity<String> findPassword(@RequestParam String txId, @RequestParam String email) {
+        try { // 👈 try-catch 시작
+            String accessToken = tossAuthService.getAccessToken();
+            Map<String, Object> tossResult = tossAuthService.getVerificationResult(accessToken, txId); // 여기서 Exception 발생 가능
 
-        // Toss 서버에서 본인 인증 결과 조회
-        Map<String, Object> result = tossAuthService.getVerificationResult(accessToken, txId);
+            // CI 추출 전 tossResult의 유효성 검사
+            if (!"SUCCESS".equals(tossResult.get("resultType")) || tossResult.get("success") == null) {
+                System.err.println("Toss API Error in findPassword: " + tossResult);
+                throw new BusinessLogicException(ExceptionCode.TOSS_VERIFICATION_FAILED);
+            }
+            Map<String, Object> successData = (Map<String, Object>) tossResult.get("success");
+            Map<String, Object> personalData = (Map<String, Object>) successData.get("personalData");
 
-        //이메일 확인 및 반환 데이터
-        String ci = (String) result.get("ci");
-        //등록된 회원인지 확인 (없다면 404)
-        Member member = memberService.isCifindMember(ci);
+            if (personalData == null || personalData.get("ci") == null) {
+                System.err.println("CI not found in Toss response for findPassword: " + tossResult);
+                throw new BusinessLogicException(ExceptionCode.TOSS_CI_NOT_FOUND);
+            }
 
-        //사용자가 입력한 이메일과 본인인증으로 찾은 이메일이 같지 않다면
-        if(!member.getEmail().equals(email)) {
-            throw new IllegalStateException("이메일이 잘못 입력되었습니다.");
-        }
+            String ci = (String) personalData.get("ci"); // 복호화된 CI
+            Member member = memberService.isCifindMember(ci);
 
-        URI location = UriCreator.createUri(PASSWORD_DEFAULT_URI, member.getMemberId());
+            if (!member.getEmail().equals(email)) {
+                // BusinessLogicException 사용 권장
+                throw new BusinessLogicException(ExceptionCode.EMAIL_MISMATCH);
+                // throw new IllegalStateException("이메일이 잘못 입력되었습니다."); // 기존 코드
+            }
 
-        return ResponseEntity.created(location).body(member.getEmail());
+            URI location = UriCreator.createUri(PASSWORD_DEFAULT_URI, member.getMemberId());
+            return ResponseEntity.created(location).body(member.getEmail()); // 또는 성공 메시지
+
+        } catch (BusinessLogicException e) {
+            System.err.println("BusinessLogicException in findPassword: " + e.getMessage());
+            // 클라이언트에 전달할 오류 메시지 포맷팅
+            // return new ResponseEntity<>(e.getExceptionCode().getMessage(), HttpStatus.valueOf(e.getExceptionCode().getStatus()));
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("errorCode", e.getExceptionCode().getStatus());
+            errorResponse.put("errorMessage", e.getExceptionCode().getMessage());
+            return new ResponseEntity<>(errorResponse.toString(), HttpStatus.valueOf(e.getExceptionCode().getStatus())); // String 반환 타입에 맞게 수정 필요
+        } catch (Exception e) { // 👈 TossAuthService.getVerificationResult()에서 던진 Exception 처리
+            System.err.println("Unexpected error in findPassword: " + e.getMessage());
+            e.printStackTrace();
+            // return new ResponseEntity<>("비밀번호 찾기 처리 중 서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "비밀번호 찾기 처리 중 서버 내부 오류가 발생했습니다.");
+            return new ResponseEntity<>(errorResponse.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // String 반환 타입에 맞게 수정 필요
+        } // 👈 try-catch 끝
     }
 
-    @Operation(summary = "비밀번호 재설정", description = "URI로 전달 받은 회원 ID로 비밀번호를 재설정합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "재설정 성공"),
-            @ApiResponse(responseCode = "400", description = "유효성 검사 실패",
-                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
-            )
-    })
     @PostMapping("/resetting/password/{member-id}")
-    public ResponseEntity<Void> resetPassword(@Parameter(description = "회원 ID", example = "1") @PathVariable("member-id") @Positive long memberId,
-                                        @Parameter(description = "새 비밀번호 DTO", required = true)
-                                        @RequestBody ResetPasswordDto resetDto){
-        //비밀번호 재설정 로직
+    public ResponseEntity<Void> resetPassword(@PathVariable("member-id") @Positive long memberId,
+                                              @RequestBody ResetPasswordDto resetDto){
+        // 이 메소드는 getVerificationResult를 직접 호출하지 않으므로,
+        // memberService.resetPassword 내에서 발생하는 예외만 고려하면 됩니다.
+        // (일반적으로 Service 계층에서 예외를 처리하거나 ControllerAdvise 등으로 전역 처리)
         memberService.resetPassword(memberId, resetDto);
-        //비밀 번경 성공 응답
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
-

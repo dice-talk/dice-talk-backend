@@ -5,6 +5,7 @@ import com.example.dice_talk.chat.service.ChatService;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.report.dto.ReportDto;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.event.ReportCompletedEvent;
 import com.example.dice_talk.report.event.ReportCreatedEvent;
@@ -103,5 +104,29 @@ public class ReportService {
         return optionalReport.orElseThrow(() -> (
                 new BusinessLogicException(ExceptionCode.REPORT_NOT_FOUND)
                 ));
+    }
+
+    public Page<ReportDto.Response> findReportsWithEmail(int page, int size) {
+        return reportRepository.findAllWithMemberEmail(
+                PageRequest.of(page-1, size, Sort.by("reportId").descending())
+        );
+    }
+
+    public ReportDto.Response findReportWithEmail(long reportId) {
+        return reportRepository.findByIdWithMemberEmail(reportId);
+    }
+
+    public Page<ReportDto.Response> findReportsByMemberId(Long memberId, int page, int size) {
+        return reportRepository.findByMemberIdWithEmail(
+                memberId,
+                PageRequest.of(page-1, size, Sort.by("reportId").descending())
+        );
+    }
+
+    public Page<ReportDto.Response> findReportsByStatus(Report.ReportStatus status, int page, int size) {
+        return reportRepository.findByStatusWithMemberEmail(
+                status,
+                PageRequest.of(page-1, size, Sort.by("reportId").descending())
+        );
     }
 }

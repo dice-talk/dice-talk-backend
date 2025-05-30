@@ -35,7 +35,7 @@ public class DiceLogDto {
         @Schema(description = "회원 ID (서버에서 주입)", example = "1", hidden = true)
         private Long memberId;
 
-        @Schema(description = "상품 ID (충전 시 필수)", example = "101")
+        @Schema(description = "상품 ID (충전 시 필수)", example = "1")
         private Long productId;
 
         @Schema(description = "아이템 ID (사용 시 필수)", example = "7")
