@@ -13,5 +13,6 @@ public interface ThemeRepository extends JpaRepository<Theme, Long> {
 
     List<Theme> findAllByThemeStatus(Theme.ThemeStatus themeStatus);
     Page<Theme> findAllByThemeStatus (Theme.ThemeStatus status, Pageable pageable);
+    List<Theme> findAllByThemeStatusNot (Theme.ThemeStatus status);
 
 }
