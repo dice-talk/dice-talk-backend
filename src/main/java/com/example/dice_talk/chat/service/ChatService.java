@@ -18,7 +18,6 @@ import java.util.Map;
 
 import static com.example.dice_talk.chatroom.config.StompHandler.saveUserInfo;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional
