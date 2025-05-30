@@ -58,7 +58,7 @@ public class ThemeService {
         return findVerifiedTheme(themeId);
     }
 
-    // 관리자용 (비활성화 테마까지 조회)
+    // 관리자용 (status null 일 시 비활성화 테마까지 전체 조회)
     public Page<Theme> findThemes(int page, int size, Theme.ThemeStatus status){
         if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
         if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
@@ -84,9 +84,9 @@ public class ThemeService {
         return themeRepository.findById(themeId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.THEME_NOT_FOUND));
     }
 
-    // 활성화된 테마 목록 조회 (회원용)
-    public List<Theme> findAllThemesOn(){
-        return themeRepository.findAllByThemeStatus(Theme.ThemeStatus.THEME_ON);
+    // 종료된 테마 이외의 목록 조회 (회원용)
+    public List<Theme> findAllThemesNotClose() {
+        return themeRepository.findAllByThemeStatusNot(Theme.ThemeStatus.THEME_CLOSE);
     }
 
 
