@@ -1,9 +1,9 @@
 -- 회원 데이터
 INSERT INTO member (email, phone, password, name, gender, birth, region, member_status, notification, total_dice, ci, created_at, last_modified_at)
 VALUES 
-('admin@example.com', '01012345678', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '관리자', 'MALE', '19900101', '서울', 'MEMBER_ACTIVE', true, 1000, 'CI123456', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('user1@example.com', '01023456789', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '일반회원1', 'MALE', '19910101', '부산', 'MEMBER_ACTIVE', true, 500, 'CI234567', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('user2@example.com', '01034567890', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '일반회원2', 'FEMALE', '19920101', '인천', 'MEMBER_ACTIVE', true, 300, 'CI345678', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('admin@example.com', '010-1234-5678', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '관리자', 'MALE', '1990-01-01', '서울특별시 강남구', 'MEMBER_ACTIVE', true, 1000, 'CI123456', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('user1@example.com', '010-2345-6789', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '일반회원1', 'MALE', '1991-01-01', '경기도 수원시', 'MEMBER_ACTIVE', true, 500, 'CI234567', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('user2@example.com', '010-3456-7890', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '일반회원2', 'FEMALE', '1992-01-01', '인천광역시 부평구', 'MEMBER_ACTIVE', true, 300, 'CI345678', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 회원 권한 데이터
 INSERT INTO member_roles (member_member_id, roles)
