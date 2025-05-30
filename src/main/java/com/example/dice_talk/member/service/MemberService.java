@@ -76,6 +76,7 @@ public class MemberService {
         if (isMatch) {
             Optional.ofNullable(passwordChangeDto.getNewPassword()).ifPresent(newPw->
                     findMember.setPassword(passwordEncoder.encode(newPw)));
+            memberRepository.save(findMember);
         } else {
             throw new BusinessLogicException(ExceptionCode.AUTH_INVALID_PASSWORD);
         }
