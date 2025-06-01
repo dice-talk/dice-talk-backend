@@ -32,6 +32,24 @@ public class QuestionDto {
         private Long memberId;
     }
 
+    @Schema(name = "GuestQuestionPostDto", description = "비회원 질문 생성 DTO")
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    public static class GuestPost{
+        @Schema(description = "질문 제목", example = "다이스톡 언제 오픈하나요?")
+        @NotBlank(message = "제목은 필수 입력란입니다.")
+        private String title;
+
+        @Schema(description = "질문 내용", example = "언제 오픈하나요?")
+        @NotBlank(message = "내용은 필수 입력란입니다.")
+        private String content;
+
+        @Schema(description = "인증된 이메일", example = "2")
+        private String email;
+    }
+
     @Schema(name = "QuestionPatchDto", description = "질문 수정 DTO")
     @Getter
     @AllArgsConstructor
@@ -77,6 +95,9 @@ public class QuestionDto {
 
         @Schema(description = "회원 ID", example = "2")
         private Long memberId;
+
+        @Schema(description = "작성자 Email", example = "user@gmail.com")
+        private String email;
 
         @Schema(description = "답변 Response DTO", implementation = AnswerDto.Response.class)
         private AnswerDto.Response answer;

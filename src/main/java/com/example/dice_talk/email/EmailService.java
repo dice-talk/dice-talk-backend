@@ -51,4 +51,12 @@ public class EmailService {
         message.setText("인증 코드: " + code);
         mailSender.send(message);
     }
+
+    public void sendEmailForAnswered(String to, String content){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("답변 완료 알림");
+        message.setText(content);
+        mailSender.send(message);
+    }
 }

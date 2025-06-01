@@ -171,25 +171,25 @@ public class NoticeController {
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.noticeToNoticeResponse(findNotice)), HttpStatus.OK);
     }
 
-    @Operation(summary = "공지/이벤트 목록 조회", description = "전체 공지사항 및 이벤트 목록을 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = NoticeDto.Response.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "잘못된 페이지 파라미터",
-                    content = @Content(
-                            schema = @Schema(implementation = SwaggerErrorResponse.class),
-                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
-                    )
-            )
-    })
-    @GetMapping
-    public ResponseEntity<MultiResponseDto<NoticeDto.Response>> getNotices(@Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam @Positive int page,
-                                                                           @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam @Positive int size) {
-        Page<Notice> noticePage = noticeService.findNotices(page, size);
-        List<Notice> notices = noticePage.getContent();
-        return new ResponseEntity<>(new MultiResponseDto<>(mapper.noticesToNoticeResponses(notices), noticePage), HttpStatus.OK);
-    }
+//    @Operation(summary = "공지/이벤트 목록 조회", description = "전체 공지사항 및 이벤트 목록을 조회합니다.")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "조회 성공",
+//                    content = @Content(schema = @Schema(implementation = NoticeDto.Response.class))
+//            ),
+//            @ApiResponse(responseCode = "400", description = "잘못된 페이지 파라미터",
+//                    content = @Content(
+//                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+//                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
+//                    )
+//            )
+//    })
+//    @GetMapping
+//    public ResponseEntity<MultiResponseDto<NoticeDto.Response>> getNotices(@Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam @Positive int page,
+//                                                                           @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam @Positive int size) {
+//        Page<Notice> noticePage = noticeService.findNotices(page, size);
+//        List<Notice> notices = noticePage.getContent();
+//        return new ResponseEntity<>(new MultiResponseDto<>(mapper.noticesToNoticeResponses(notices), noticePage), HttpStatus.OK);
+//    }
 
     @Operation(summary = "공지/이벤트 삭제", description = "특정 공지사항 또는 이벤트를 삭제합니다.")
     @ApiResponses({
@@ -210,10 +210,10 @@ public class NoticeController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // 관리자용 공지/이벤트 조회(조건)
-    @Operation(summary = "관리자용 공지/이벤트 조회",
+    //공지/이벤트 조회(조건)
+    @Operation(summary = "공지/이벤트 목록 조회",
             description = "타입, 상태, 키워드, 페이징·정렬 옵션으로 조회합니다.")
-    @GetMapping("/admin")
+    @GetMapping
     public ResponseEntity<MultiResponseDto<NoticeDto.Response>> getAdminNotices(
             @Parameter(description = "공지/이벤트 타입", example = "NOTICE")
             @RequestParam(required = false) Notice.NoticeType type,

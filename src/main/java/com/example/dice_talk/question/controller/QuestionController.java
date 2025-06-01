@@ -36,6 +36,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.io.IOException;
@@ -253,8 +254,10 @@ public class QuestionController {
                                                                                  @Positive @RequestParam int page,
                                                                                  @Parameter(description = "페이지 크기(1 이상)", example = "10")
                                                                                  @Positive @RequestParam int size,
+                                                                                 @Parameter(description = "정렬방식", example = "asc / desc")
+                                                                                 @RequestParam(value = "sort") String sort,
                                                                                  @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        Page<Question> questionPage = questionService.findMyQuestions(page, size, customPrincipal.getMemberId());
+        Page<Question> questionPage = questionService.findMyQuestions(page, size, sort, customPrincipal.getMemberId());
         List<Question> questions = questionPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>
                 (questionMapper.questionsToQuestionResponses(questions), questionPage), HttpStatus.OK);
@@ -282,5 +285,29 @@ public class QuestionController {
                                                @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         questionService.deleteQuestion(questionId, customPrincipal.getMemberId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "비회원 질문 등록", description = "비회원이 새로운 질문을 등록합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "등록 성공"),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
+                    )
+            )
+    })
+    @PostMapping(value = "/guest", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> postQuestionForGuest(@Parameter(description = "질문 생성 DTO 문자열(JSON)")
+                                             @RequestParam("guestQuestionPostDto") String guestQuestionPostDtoString,
+                                             @Parameter(description = "질문 이미지 파일 목록", required = false)
+                                             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
+        QuestionDto.GuestPost guestQuestionPostDto = jsonParserUtil.parse(guestQuestionPostDtoString, QuestionDto.GuestPost.class);
+
+        // question 만들고
+        Question createdQuestion = questionService.createGuestQuestion(guestQuestionPostDto, imageFiles);
+        // URI 만들기
+        URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, createdQuestion.getQuestionId());
+        return ResponseEntity.created(location).build();
     }
 }

@@ -15,5 +15,5 @@ public interface ChatPartRepository extends JpaRepository<ChatPart, Long> {
     Optional<ChatPart> findFirstByMember_MemberIdOrderByPartIdDesc(long memberId);
     List<ChatPart> findByChatRoom_ChatRoomId(Long chatRoomId);
     Optional<ChatPart> findByChatRoom_ChatRoomIdAndMember_MemberId(Long chatRoomId, Long memberId);
-
-}
+    Optional<ChatPart> findTopByMember_MemberIdAndExitStatusOrderByCreatedAtDesc(
+            Long memberId, ChatPart.ExitStatus exitStatus);}

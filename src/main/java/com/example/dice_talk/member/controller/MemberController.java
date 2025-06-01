@@ -7,6 +7,7 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.Dto.PasswordChangeDto;
+import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.mapper.MemberMapper;
 import com.example.dice_talk.member.service.MemberService;
@@ -283,4 +284,35 @@ public class MemberController {
         memberService.banMember(memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Operation(summary = "관리자용 정지 회원 목록 조회", description = "정지 회원 정보 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = MemberDto.MyInfoResponse.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")
+                    )
+            )
+    })
+    @GetMapping("/admin/deleted-members")
+    public ResponseEntity<MultiResponseDto<MemberDto.DeletedMemberResponse>> getDeletedMembers(
+            @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam("page") @Positive int page,
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam("size") @Positive int size) {
+        AuthorizationUtils.verifyAdmin();
+        Page<MemberDto.DeletedMemberResponse> responsePage = memberService.findDeletedMembers(page, size);
+        return new ResponseEntity<>(
+                new MultiResponseDto<>(responsePage.getContent(), responsePage),
+                HttpStatus.OK
+        );
+    }
+
 }
