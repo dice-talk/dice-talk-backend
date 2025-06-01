@@ -46,6 +46,9 @@ public class AnswerService {
     public Answer createAnswer(Answer answer, List<MultipartFile> imageFiles) throws IOException {
         memberService.findVerifiedMember(answer.getMember().getMemberId());
         Question question = verifyExistsAnswerInQuestion(answer);
+        if(question.getQuestionStatus() == Question.QuestionStatus.QUESTION_DELETED){
+            throw new BusinessLogicException(ExceptionCode.QUESTION_DELETED);
+        }
         question.setQuestionStatus(Question.QuestionStatus.QUESTION_ANSWERED);
         if (imageFiles != null && !imageFiles.isEmpty()) {
             for (MultipartFile file : imageFiles) {
@@ -53,7 +56,7 @@ public class AnswerService {
                 AnswerImage image = new AnswerImage();
                 image.setImageUrl(imageUrl);
                 image.setAnswer(answer);
-                answer.getImages().add(image);
+                answer.setImage(image);
             }
         }
         // 이벤트 발행
