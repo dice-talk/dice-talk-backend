@@ -19,9 +19,13 @@ public class HomeResponseDto {
     @Schema(description = "새로운 알림 유무")
     private boolean hasNewNotifications;
 
-    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications) {
+    @Schema(description = "현재 참여중인 채팅방 ID")
+    private long curChatRoomId;
+
+    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications, long curChatRoomId) {
         this.themes = themes;
         this.notices = notices;
         this.hasNewNotifications = hasNewNotifications;
+        this.curChatRoomId = curChatRoomId;
     }
 }

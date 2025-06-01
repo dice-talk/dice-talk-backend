@@ -38,6 +38,7 @@ public enum ExceptionCode {
     TOSS_CI_NOT_FOUND(401,"Toss CI를 찾을 수 없습니다."),
     EMAIL_MISMATCH(401,"Toss email 매칭에 실패했습니다."),
     BAD_REQUEST(400, "Invalid sort or column"),
+    QUESTION_DELETED(404, "Question Deleted"),
     ALREADY_EXITED_TODAY(409, "Member Already Existed Today");
 
     @Getter

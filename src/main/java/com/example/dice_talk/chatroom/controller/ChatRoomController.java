@@ -219,4 +219,22 @@ public class ChatRoomController {
                                               @PathVariable("member-id") long memberId) {
         return new ResponseEntity<>(new SingleResponseDto<>(chatRoomService.isMemberPossibleToPart(memberId)), HttpStatus.OK);
     }
+
+    // 현재 참여중인 채팅방 있으면 ID 조회
+    @Operation(summary = "현재 참여중인 채팅방 ID 조회", description = "회원이 현재 참여하고 있는 채팅방의 ID 를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "참여하고있는 채팅방의 ID 반환",
+                            content = @Content(schema = @Schema(type = "boolean", example = "123"))),
+                    @ApiResponse(responseCode = "404", description = "참여하고 있는 채팅방 없음",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"NOTFOUND\", \"message\": \"Chatroom not found\"}")))}
+    )
+    @GetMapping("/curChatRoom")
+    public ResponseEntity<Long> getCurChatRoom(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
+        long curChatRoomId = chatRoomService.findCurChatRoom(customPrincipal.getMemberId());
+        return new ResponseEntity<>(curChatRoomId, HttpStatus.OK);
+    }
+
+
 }

@@ -61,6 +61,8 @@ public class Question extends BaseEntity {
     }
 
     public enum QuestionStatus{
+        QUESTION_GUEST("비회원 문의"),
+        QUESTION_GUEST_ANSWERED("비회원 문의 답변 완료 상태"),
         QUESTION_REGISTERED("문의 등록 상태"),
         QUESTION_ANSWERED("답변 완료 상태"),
         QUESTION_DELETED("문의 삭제 상태"),

@@ -6,6 +6,7 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.question.dto.QuestionDto;
 import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.entity.QuestionImage;
 import com.example.dice_talk.question.enums.QuestionSearchType;
@@ -45,6 +46,26 @@ public class QuestionService {
 
     public Question createQuestion(Question question, List<MultipartFile> imageFiles) throws IOException {
         memberService.findVerifiedMember(question.getMember().getMemberId());
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            for (MultipartFile file : imageFiles) {
+                String imageUrl = s3Uploader.upload(file, "question-image");
+                QuestionImage image = new QuestionImage();
+                image.setImageUrl(imageUrl);
+                image.setQuestion(question);
+                question.setImage(image);
+            }
+        }
+        return questionRepository.save(question);
+    }
+
+    @Transactional
+    public Question createGuestQuestion(QuestionDto.GuestPost guestPost, List<MultipartFile> imageFiles) throws IOException {
+        Member member = memberService.findMemberByEmail(guestPost.getEmail());
+        Question question = new Question();
+        question.setQuestionStatus(Question.QuestionStatus.QUESTION_GUEST);
+        question.setMember(member);
+        question.setTitle(guestPost.getTitle());
+        question.setContent(guestPost.getContent());
         if (imageFiles != null && !imageFiles.isEmpty()) {
             for (MultipartFile file : imageFiles) {
                 String imageUrl = s3Uploader.upload(file, "question-image");
@@ -153,11 +174,14 @@ public class QuestionService {
         return questionRepository.findAll(spec, pageable);
     }
 
-    public Page<Question> findMyQuestions(int page, int size, Long memberId) {
-        if (page < 1) {
-            throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
+    public Page<Question> findMyQuestions(int page, int size, String sort, Long memberId) {
+        if (page < 1) throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
+        Pageable pageable;
+        if(sort.toUpperCase().equals("ASC")){
+             pageable = PageRequest.of(page - 1, size, Sort.by("questionId").ascending());
+        } else {
+             pageable = PageRequest.of(page - 1, size, Sort.by("questionId").descending());
         }
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("questionId").descending());
         memberService.findVerifiedMember(memberId);
         return questionRepository.findAllActiveByMember_MemberId(memberId, pageable);
     }

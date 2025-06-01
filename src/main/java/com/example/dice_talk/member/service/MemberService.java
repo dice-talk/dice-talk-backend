@@ -5,6 +5,7 @@ import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.Dto.PasswordChangeDto;
 import com.example.dice_talk.member.Dto.ResetPasswordDto;
 import com.example.dice_talk.member.entity.DeletedMember;
@@ -15,6 +16,7 @@ import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -158,6 +160,14 @@ public class MemberService {
         return member;
     }
 
+    // 검증 로직 : 이메일로 등록된 Member 조회
+    public Member findMemberByEmail(String email){
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND)
+        );
+        return member;
+    }
+
     //검증 로직 : 회원가입 직후에 사용자에게 앱 푸쉬알림 허용 여부 받기
     public void updateNotificationConsent(long memberId, long currentId,  boolean consent) {
         AuthorizationUtils.isOwner(memberId, currentId);
@@ -263,5 +273,27 @@ public class MemberService {
     public boolean isAdminRequest(HttpServletRequest request) {
         String path = request.getRequestURI();
         return path.startsWith("/admin") || request.getHeader("X-Admin-Signup") != null;
+    }
+
+    // 탈퇴 회원 목록 조회
+    public Page<MemberDto.DeletedMemberResponse> findDeletedMembers(int page, int size) {
+        Page<Member> memberPage = memberRepository.findAllDeletedMembers(
+                PageRequest.of(page - 1, size, Sort.by("memberId").descending())
+        );
+
+        return memberPage.map(member -> {
+            DeletedMember deletedMember = deletedMemberRepository.findByMemberId(member.getMemberId())
+                    .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+
+            return MemberDto.DeletedMemberResponse.builder()
+                    .memberId(member.getMemberId())
+                    .email(member.getEmail())
+                    .name(member.getName())
+                    .birth(member.getBirth())
+                    .region(member.getRegion())
+                    .deleteReason(deletedMember.getReason())
+                    .deletedAt(deletedMember.getCreatedAt())
+                    .build();
+        });
     }
 }

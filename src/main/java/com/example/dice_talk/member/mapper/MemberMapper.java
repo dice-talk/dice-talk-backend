@@ -2,8 +2,10 @@ package com.example.dice_talk.member.mapper;
 
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.member.Dto.MemberDto;
+import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +48,13 @@ public interface MemberMapper {
             return myPageResponse;
         }
     }
+//
+//    @Mapping(target = "memberId", source = "memberId")
+//    @Mapping(target = "email", source = "email")
+//    @Mapping(target = "name", source = "name")
+//    @Mapping(target = "deleteReason", source = "reason")
+//    @Mapping(target = "deletedAt", source = "createdAt")
+//    MemberDto.DeletedMemberResponse deletedMemberToResponse(DeletedMember deletedMember);
 
 
 }

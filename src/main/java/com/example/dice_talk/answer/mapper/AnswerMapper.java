@@ -18,6 +18,11 @@ public interface AnswerMapper {
 
     Answer answerPatchToAnswer(AnswerDto.Patch patchDto);
 
+    @Mapping(target = "answerImages", source = "images")
+    @Mapping(target = "questionId", source = "question.questionId")
+    @Mapping(target = "memberId", source = "question.member.memberId")
+    AnswerDto.Response answerToAnswerResponse(Answer answer);
+
     default List<AnswerImageDto.Response> answerImagesToResponses(List<AnswerImage> images){
         if(images == null) return List.of();
         return images.stream().map(image -> new AnswerImageDto.Response(
