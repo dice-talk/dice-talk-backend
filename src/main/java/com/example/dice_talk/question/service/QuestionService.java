@@ -6,6 +6,7 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
+import com.example.dice_talk.question.dto.QuestionDto;
 import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.entity.QuestionImage;
 import com.example.dice_talk.question.enums.QuestionSearchType;
@@ -45,6 +46,26 @@ public class QuestionService {
 
     public Question createQuestion(Question question, List<MultipartFile> imageFiles) throws IOException {
         memberService.findVerifiedMember(question.getMember().getMemberId());
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            for (MultipartFile file : imageFiles) {
+                String imageUrl = s3Uploader.upload(file, "question-image");
+                QuestionImage image = new QuestionImage();
+                image.setImageUrl(imageUrl);
+                image.setQuestion(question);
+                question.setImage(image);
+            }
+        }
+        return questionRepository.save(question);
+    }
+
+    @Transactional
+    public Question createGuestQuestion(QuestionDto.GuestPost guestPost, List<MultipartFile> imageFiles) throws IOException {
+        Member member = memberService.findMemberByEmail(guestPost.getEmail());
+        Question question = new Question();
+        question.setQuestionStatus(Question.QuestionStatus.QUESTION_GUEST);
+        question.setMember(member);
+        question.setTitle(guestPost.getTitle());
+        question.setContent(guestPost.getContent());
         if (imageFiles != null && !imageFiles.isEmpty()) {
             for (MultipartFile file : imageFiles) {
                 String imageUrl = s3Uploader.upload(file, "question-image");

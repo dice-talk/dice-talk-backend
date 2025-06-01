@@ -158,6 +158,14 @@ public class MemberService {
         return member;
     }
 
+    // 검증 로직 : 이메일로 등록된 Member 조회
+    public Member findMemberByEmail(String email){
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND)
+        );
+        return member;
+    }
+
     //검증 로직 : 회원가입 직후에 사용자에게 앱 푸쉬알림 허용 여부 받기
     public void updateNotificationConsent(long memberId, long currentId,  boolean consent) {
         AuthorizationUtils.isOwner(memberId, currentId);

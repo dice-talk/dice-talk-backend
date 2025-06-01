@@ -286,4 +286,28 @@ public class QuestionController {
         questionService.deleteQuestion(questionId, customPrincipal.getMemberId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Operation(summary = "비회원 질문 등록", description = "비회원이 새로운 질문을 등록합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "등록 성공"),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}")
+                    )
+            )
+    })
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> postQuestionForGuest(@Parameter(description = "질문 생성 DTO 문자열(JSON)")
+                                             @RequestParam("GuestQuestionPostDto") String guestQuestionPostDtoString,
+                                             @Parameter(description = "질문 이미지 파일 목록", required = false)
+                                             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
+        QuestionDto.GuestPost guestQuestionPostDto = jsonParserUtil.parse(guestQuestionPostDtoString, QuestionDto.GuestPost.class);
+
+        // question 만들고
+        Question createdQuestion = questionService.createGuestQuestion(guestQuestionPostDto, imageFiles);
+        // URI 만들기
+        URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, createdQuestion.getQuestionId());
+        return ResponseEntity.created(location).build();
+    }
 }
