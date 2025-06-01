@@ -14,10 +14,15 @@ spring:
   jackson:
     time-zone: Asia/Seoul
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/dicetalkdb?serverTimezone=Asia/Seoul
+    username: admin
+    password: gkskqnxjdbreodRKwl
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#    username: sa
+#    password:
 #  datasource:
 #    url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
 #    username: ${RDS_USERNAME}
@@ -29,8 +34,8 @@ spring:
     show-sql: true # JPA에서 실행되는 SQL 쿼리를 콘솔에 출력합니다.
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-#        dialect: org.hibernate.dialect.MySQL8Dialect
+#        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
         format_sql: true # SQL 쿼리를 포맷하여 가독성을 높입니다.
         highlight_sql: true # SQL 쿼리에서 중요한 부분을 강조합니다.

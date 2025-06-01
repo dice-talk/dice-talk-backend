@@ -67,7 +67,7 @@ public class HomeController {
     @GetMapping("/home")
     public ResponseEntity<HomeResponseDto> getHome(@Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
         Member member = memberService.findVerifiedMember(customPrincipal.getMemberId());
-        List<ThemeDto.Response> themes = themeMapper.themesToThemeResponses(themeService.findAllThemesOn());
+        List<ThemeDto.Response> themes = themeMapper.themesToThemeResponses(themeService.findAllThemesNotClose());
         List<NoticeDto.Response> notices = noticeMapper.noticesToNoticeResponses(noticeService.findBannerEvents());
         boolean hasNewNotifications = notificationService.countUnread(customPrincipal.getMemberId()) > 0;
         return new ResponseEntity<>(new HomeResponseDto(themes, notices, hasNewNotifications), HttpStatus.OK);

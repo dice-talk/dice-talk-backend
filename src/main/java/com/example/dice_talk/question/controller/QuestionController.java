@@ -36,6 +36,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.io.IOException;
@@ -253,8 +254,10 @@ public class QuestionController {
                                                                                  @Positive @RequestParam int page,
                                                                                  @Parameter(description = "페이지 크기(1 이상)", example = "10")
                                                                                  @Positive @RequestParam int size,
+                                                                                 @Parameter(description = "정렬방식", example = "asc / desc")
+                                                                                 @RequestParam(value = "sort") String sort,
                                                                                  @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        Page<Question> questionPage = questionService.findMyQuestions(page, size, customPrincipal.getMemberId());
+        Page<Question> questionPage = questionService.findMyQuestions(page, size, sort, customPrincipal.getMemberId());
         List<Question> questions = questionPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>
                 (questionMapper.questionsToQuestionResponses(questions), questionPage), HttpStatus.OK);

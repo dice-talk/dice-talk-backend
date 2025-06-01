@@ -153,11 +153,14 @@ public class QuestionService {
         return questionRepository.findAll(spec, pageable);
     }
 
-    public Page<Question> findMyQuestions(int page, int size, Long memberId) {
-        if (page < 1) {
-            throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
+    public Page<Question> findMyQuestions(int page, int size, String sort, Long memberId) {
+        if (page < 1) throw new IllegalArgumentException("페이지의 번호는 1 이상이어야 합니다.");
+        Pageable pageable;
+        if(sort.toUpperCase().equals("ASC")){
+             pageable = PageRequest.of(page - 1, size, Sort.by("questionId").ascending());
+        } else {
+             pageable = PageRequest.of(page - 1, size, Sort.by("questionId").descending());
         }
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("questionId").descending());
         memberService.findVerifiedMember(memberId);
         return questionRepository.findAllActiveByMember_MemberId(memberId, pageable);
     }
