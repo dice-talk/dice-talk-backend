@@ -1,10 +1,12 @@
 package com.example.dice_talk.chatroom.mapper;
 
 import com.example.dice_talk.chat.entity.Chat;
+import com.example.dice_talk.chat.mapper.ChatMapper;
 import com.example.dice_talk.chatroom.dto.ChatPartDto;
 import com.example.dice_talk.chatroom.dto.ChatRoomDto;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
+import com.example.dice_talk.roomevent.mapper.RoomEventMapper;
 import com.example.dice_talk.theme.entity.Theme;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,8 +14,9 @@ import org.mapstruct.Mappings;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ChatMapper.class, RoomEventMapper.class})
 public interface ChatRoomMapper {
+    // chatRoom Post
     @Mapping(target = "theme.themeId", source = "themeId")
     default ChatRoom chatRoomPostToChatRoom(ChatRoomDto.Post dto){
         ChatRoom chatRoom = new ChatRoom();
@@ -28,14 +31,19 @@ public interface ChatRoomMapper {
         return chatRoom;
     }
 
+    // ChatPart 생성
     @Mapping(target = "member.memberId", source = "memberId")
     ChatPart chatPartPostToChatPart(ChatPartDto.Post dto);
 
+    // ChatRoom 수정
     ChatRoom chatRoomPatchToChatRoom(ChatRoomDto.Patch dto);
 
+    // ChatRoom 상세조회
+    @Mapping(target = "chatRoomId", source = "chatRoomId")
     @Mapping(target = "themeName", source = "theme.name")
     ChatRoomDto.SingleResponse chatRoomToChatRoomSingleResponse(ChatRoom chatRoom);
 
+    // ChatRoom 목록 조회
     default ChatRoomDto.MultiResponse chatRoomToChatRoomMultiResponse(ChatRoom chatRoom) {
         ChatRoomDto.MultiResponse dto = new ChatRoomDto.MultiResponse();
         dto.setChatRoomId(chatRoom.getChatRoomId());
@@ -53,5 +61,10 @@ public interface ChatRoomMapper {
 
     List<ChatRoomDto.MultiResponse> chatRoomsToChatRoomMultiResponses(List<ChatRoom> chatRooms);
 
+    // ChatPart 응답
+    @Mapping(target = "memberId", source = "member.memberId")
+    @Mapping(target = "chatRoomId", source = "chatRoom.chatRoomId")
+    ChatPartDto.Response chatPartToChatPartResponse(ChatPart chatPart);
 
+    List<ChatPartDto.Response> chatPartsToChatPartResponses(List<ChatPart> chatParts);
 }
