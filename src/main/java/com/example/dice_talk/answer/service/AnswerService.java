@@ -6,6 +6,7 @@ import com.example.dice_talk.answer.event.AnsweredEvent;
 import com.example.dice_talk.answer.repository.AnswerImageRepository;
 import com.example.dice_talk.answer.repository.AnswerRepository;
 import com.example.dice_talk.aws.S3Uploader;
+import com.example.dice_talk.email.EmailService;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
@@ -13,6 +14,7 @@ import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.question.entity.Question;
 import com.example.dice_talk.question.service.QuestionService;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AnswerService {
     private final AnswerRepository answerRepository;
     private final MemberService memberService;
@@ -32,24 +35,19 @@ public class AnswerService {
     private final S3Uploader s3Uploader;
     private final AnswerImageRepository answerImageRepository;
     private final ApplicationEventPublisher publisher;
-
-    public AnswerService(AnswerRepository answerRepository, MemberService memberService, QuestionService questionService, S3Uploader s3Uploader, AnswerImageRepository answerImageRepository, ApplicationEventPublisher publisher) {
-        this.answerRepository = answerRepository;
-        this.memberService = memberService;
-        this.questionService = questionService;
-        this.s3Uploader = s3Uploader;
-        this.answerImageRepository = answerImageRepository;
-        this.publisher = publisher;
-    }
+    private final EmailService emailService;
 
     @Transactional
     public Answer createAnswer(Answer answer, List<MultipartFile> imageFiles) throws IOException {
-        memberService.findVerifiedMember(answer.getMember().getMemberId());
+        Member member = memberService.findVerifiedMember(answer.getMember().getMemberId());
         Question question = verifyExistsAnswerInQuestion(answer);
         if(question.getQuestionStatus() == Question.QuestionStatus.QUESTION_DELETED){
             throw new BusinessLogicException(ExceptionCode.QUESTION_DELETED);
         }
-        question.setQuestionStatus(Question.QuestionStatus.QUESTION_ANSWERED);
+        if(question.getQuestionStatus() == Question.QuestionStatus.QUESTION_GUEST){
+            question.setQuestionStatus(Question.QuestionStatus.QUESTION_GUEST_ANSWERED);
+        } else question.setQuestionStatus(Question.QuestionStatus.QUESTION_ANSWERED);
+
         if (imageFiles != null && !imageFiles.isEmpty()) {
             for (MultipartFile file : imageFiles) {
                 String imageUrl = s3Uploader.upload(file, "answer-image");
@@ -61,7 +59,25 @@ public class AnswerService {
         }
         // 이벤트 발행
         publisher.publishEvent(new AnsweredEvent(question.getMember().getMemberId(), question.getQuestionId()));
-        return answerRepository.save(answer);
+        Answer saved = answerRepository.save(answer);
+        // 비회원 문의인 경우 답변 이메일 발송
+        if (question.getQuestionStatus() == Question.QuestionStatus.QUESTION_GUEST_ANSWERED){
+            String emailContent = String.format(
+                    "안녕하세요. 다이스톡입니다.\n\n" +
+                            "문의하신 내용에 대한 답변이 등록되었습니다.\n\n" +
+                            "문의 제목: %s\n" +
+                            "문의 내용: %s\n\n" +
+                            "답변 내용: %s\n\n" +
+                            "추가 문의사항이 있으시면 언제든지 문의해 주세요.\n" +
+                            "감사합니다.",
+                    question.getTitle(),
+                    question.getContent(),
+                    answer.getContent()
+            );
+            emailService.sendEmailForAnswered(member.getEmail(), emailContent);
+        }
+
+        return saved;
     }
 
     @Transactional

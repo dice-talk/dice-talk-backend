@@ -96,6 +96,9 @@ public class QuestionDto {
         @Schema(description = "회원 ID", example = "2")
         private Long memberId;
 
+        @Schema(description = "작성자 Email", example = "user@gmail.com")
+        private String email;
+
         @Schema(description = "답변 Response DTO", implementation = AnswerDto.Response.class)
         private AnswerDto.Response answer;
 

@@ -297,9 +297,9 @@ public class QuestionController {
                     )
             )
     })
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/guest", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postQuestionForGuest(@Parameter(description = "질문 생성 DTO 문자열(JSON)")
-                                             @RequestParam("GuestQuestionPostDto") String guestQuestionPostDtoString,
+                                             @RequestParam("guestQuestionPostDto") String guestQuestionPostDtoString,
                                              @Parameter(description = "질문 이미지 파일 목록", required = false)
                                              @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
         QuestionDto.GuestPost guestQuestionPostDto = jsonParserUtil.parse(guestQuestionPostDtoString, QuestionDto.GuestPost.class);
