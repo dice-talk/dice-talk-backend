@@ -12,6 +12,8 @@ import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.repository.DeletedMemberRepository;
 import com.example.dice_talk.member.repository.MemberRepository;
+import com.example.dice_talk.report.dto.ReportDto;
+import com.example.dice_talk.report.service.ReportService;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,7 @@ public class MemberService {
     private final DeletedMemberRepository deletedMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityUtils authorityUtils;
+    private final ReportService reportService;
 
     public Member createMember(Member member) {
 //        CI 중복 확인
@@ -303,5 +306,31 @@ public class MemberService {
                     .deletedAt(deletedMember.getCreatedAt())
                     .build();
         });
+    }
+
+    // 정지된 회원 목록 조회
+    public Page<Member> findBannedMembers(int page, int size){
+        return memberRepository.findAllBannedMembers(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));
+    }
+
+    public MemberDto.BannedMemberResponse findBannedMemberDetail(long memberId) {
+        Member member = findVerifiedMember(memberId);
+        
+        if (member.getMemberStatus() != Member.MemberStatus.MEMBER_BANNED) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }
+
+        List<ReportDto.Response> reports = reportService.findCompletedReportsByMemberId(memberId);
+
+        MemberDto.BannedMemberResponse response = new MemberDto.BannedMemberResponse();
+        response.setMemberId(member.getMemberId());
+        response.setEmail(member.getEmail());
+        response.setName(member.getName());
+        response.setBirth(member.getBirth());
+        response.setRegion(member.getRegion());
+        response.setMemberStatus(member.getMemberStatus());
+        response.setReports(reports);
+
+        return response;
     }
 }

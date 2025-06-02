@@ -35,4 +35,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.memberStatus = 'MEMBER_DELETED'")
     Page<Member> findAllDeletedMembers(Pageable pageable);
 
+    @Query("SELECT m FROM Member m WHERE m.memberStatus = 'MEMBER_BANNED'")
+    Page<Member> findAllBannedMembers(Pageable pageable);
 }
