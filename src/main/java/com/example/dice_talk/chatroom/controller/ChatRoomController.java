@@ -66,30 +66,30 @@ public class ChatRoomController {
                                     examples = @ExampleObject(value = "{\"error\": \"NOT_FOUND\", \"message\": \"The requested resource could not be found.\"}")))}
     )
     @PatchMapping("/{chat-room-id}")
-    public ResponseEntity<SingleResponseDto<ChatRoomDto.SingleResponse>> patchChatRoom(@Parameter(description = "수정할 채팅방의 ID", example = "12")
-                                                                                           @PathVariable("chat-room-id") @Positive long chatRoomId,
-                                                                                       @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                                                                               description = "채팅방 수정 요청 본문",  required = true,
-                                                                                               content = @Content(schema = @Schema(implementation = ChatRoomDto.Patch.class)))
-                                                                                       @Valid @RequestBody ChatRoomDto.Patch dto,
-                                                                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+    public ResponseEntity<SingleResponseDto<String>> patchChatRoom(@Parameter(description = "수정할 채팅방의 ID", example = "12")
+                                                                   @PathVariable("chat-room-id") @Positive long chatRoomId,
+                                                                   @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                                           description = "채팅방 수정 요청 본문", required = true,
+                                                                           content = @Content(schema = @Schema(implementation = ChatRoomDto.Patch.class)))
+                                                                   @Valid @RequestBody ChatRoomDto.Patch dto,
+                                                                   @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         dto.setChatRoomId(chatRoomId);
         ChatRoom chatRoom = chatRoomService.updateChatRoom(mapper.chatRoomPatchToChatRoom(dto));
-        return new ResponseEntity(new SingleResponseDto<>(mapper.chatRoomToChatRoomSingleResponse(chatRoom)), HttpStatus.OK);
+        return new ResponseEntity(new SingleResponseDto<>(chatRoom.getNotice()), HttpStatus.OK);
     }
 
     // 채팅방 전체조회 (관리자용)
     @Operation(summary = "전체 채팅방 목록 조회", description = "관리자가 전체 채팅방 목록을 조회합니다.",
             responses = {
-                @ApiResponse(responseCode = "200", description = "조회 성공",
-                        content = @Content(schema = @Schema(implementation = ChatRoomDto.MultiResponse.class))),
-                @ApiResponse(responseCode = "403", description = "조회 권한 없음",
-                        content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                            examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
+                    @ApiResponse(responseCode = "200", description = "조회 성공",
+                            content = @Content(schema = @Schema(implementation = ChatRoomDto.MultiResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "조회 권한 없음",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping
     public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                                                                        @Positive @RequestParam int page,
+                                                                                    @Positive @RequestParam int page,
                                                                                     @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
                                                                                     @Positive @RequestParam int size) {
         AuthorizationUtils.isAdmin();
@@ -103,22 +103,22 @@ public class ChatRoomController {
     // 로그인한 사용자가 참가했던 1대1 채팅방 전체조회
     @Operation(summary = "전체 1:1 채팅방 목록 조회", description = "로그인한 사용자가 이전에 참여했던 1:1 채팅방 목록을 조회합니다.",
             responses = {
-                @ApiResponse(responseCode = "200", description = "조회 성공",
-                        content = @Content(schema = @Schema(implementation = ChatRoomDto.MultiResponse.class))),
-                @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
-                        content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                                examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}"))),
-                @ApiResponse(responseCode = "403", description = "조회 권한 없음",
-                        content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                                examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
+                    @ApiResponse(responseCode = "200", description = "조회 성공",
+                            content = @Content(schema = @Schema(implementation = ChatRoomDto.MultiResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}"))),
+                    @ApiResponse(responseCode = "403", description = "조회 권한 없음",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping("/my-chat-room/{member-id}")
     public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getMyChatRooms(@Parameter(name = "member-id", description = "조회할 회원의 ID", example = "42")
-                                                                                          @PathVariable("member-id") @Positive long memberId,
+                                                                                      @PathVariable("member-id") @Positive long memberId,
                                                                                       @Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                                                                         @Positive @RequestParam int page,
+                                                                                      @Positive @RequestParam int page,
                                                                                       @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
-                                                                                        @Positive @RequestParam int size,
+                                                                                      @Positive @RequestParam int size,
                                                                                       @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Page<ChatRoom> chatRoomPage = chatRoomService.findMyCoupleChatRooms(page, size, memberId, customPrincipal.getMemberId());
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
@@ -129,22 +129,26 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 상세 조회", description = "특정 채팅방의 상세 정보를 조회합니다.",
             responses = {
-                @ApiResponse(responseCode = "200", description = "조회 성공",
-                        content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
-                @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
-                        content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                                examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}"))),
-                @ApiResponse(responseCode = "403", description = "조회 권한 없음",
-                        content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                                examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
+                    @ApiResponse(responseCode = "200", description = "조회 성공",
+                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"UNAUTHORIZED\", \"message\": \"Authentication is required to access this resource.\"}"))),
+                    @ApiResponse(responseCode = "403", description = "조회 권한 없음",
+                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+                                    examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping("/{chat-room-id}")
     public ResponseEntity<SingleResponseDto<ChatRoomDto.SingleResponse>> getChatRoom(@Parameter(name = "chat-room-id", description = "조회할 채팅방의 ID", example = "15")
-                                                                                         @PathVariable("chat-room-id") @Positive long chatRoomId,
+                                                                                     @PathVariable("chat-room-id") @Positive long chatRoomId,
+                                                                                     @Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
+                                                                                     @Positive @RequestParam int page,
+                                                                                     @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
+                                                                                     @Positive @RequestParam int size,
                                                                                      @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         ChatRoom chatRoom = chatRoomService.findVerifiedChatRoom(chatRoomId);
         return new ResponseEntity(new SingleResponseDto<>(
-                mapper.chatRoomToChatRoomSingleResponse(chatRoom)
+                mapper.chatRoomToChatRoomSingleResponse(chatRoom, page, size)
         ), HttpStatus.OK);
     }
 
@@ -161,7 +165,7 @@ public class ChatRoomController {
     )
     @DeleteMapping("/office/{chat-room-id}")
     public ResponseEntity<Void> deleteChatRoom(@Parameter(name = "chat-room-id", description = "강제종료 대상 채팅방의 ID", example = "101")
-                                                    @PathVariable("chat-room-id") @Positive long chatRoomId) {
+                                               @PathVariable("chat-room-id") @Positive long chatRoomId) {
         AuthorizationUtils.isAdmin();
         chatRoomService.deleteChatRoom(chatRoomId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -177,10 +181,10 @@ public class ChatRoomController {
     )
     @DeleteMapping("/{chat-room-id}/{member-id}")
     public ResponseEntity<Void> exitFromChatRoom(@Parameter(name = "chat-room-id", description = "대상 채팅방의 ID", example = "101")
-                                               @PathVariable("chat-room-id") @Positive long chatRoomId,
-                                           @Parameter(name = "member-id", description = "탈퇴 대상 회원의 ID", example = "42")
-                                           @PathVariable("member-id") @Positive long memberId,
-                                           @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                                 @PathVariable("chat-room-id") @Positive long chatRoomId,
+                                                 @Parameter(name = "member-id", description = "탈퇴 대상 회원의 ID", example = "42")
+                                                 @PathVariable("member-id") @Positive long memberId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         AuthorizationUtils.isAdminOrOwner(memberId, customPrincipal.getMemberId());
         chatRoomService.exitChatPart(chatRoomId, memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -196,10 +200,10 @@ public class ChatRoomController {
     )
     @DeleteMapping("/force/{chat-room-id}/{member-id}")
     public ResponseEntity<Void> forceExitFromChatRoom(@Parameter(name = "chat-room-id", description = "대상 채팅방의 ID", example = "101")
-                                                 @PathVariable("chat-room-id") @Positive long chatRoomId,
-                                                 @Parameter(name = "member-id", description = "탈퇴 대상 회원의 ID", example = "42")
-                                                 @PathVariable("member-id") @Positive long memberId,
-                                                 @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+                                                      @PathVariable("chat-room-id") @Positive long chatRoomId,
+                                                      @Parameter(name = "member-id", description = "탈퇴 대상 회원의 ID", example = "42")
+                                                      @PathVariable("member-id") @Positive long memberId,
+                                                      @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         AuthorizationUtils.isAdminOrOwner(memberId, customPrincipal.getMemberId());
         chatRoomService.forceExitChatPart(chatRoomId, memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -216,7 +220,7 @@ public class ChatRoomController {
     )
     @GetMapping("/isPossible/{member-id}")
     public ResponseEntity<SingleResponseDto<Boolean>> verifyChatPart(@Parameter(name = "member-id", description = "회원의 ID", example = "30")
-                                              @PathVariable("member-id") long memberId) {
+                                                                     @PathVariable("member-id") long memberId) {
         return new ResponseEntity<>(new SingleResponseDto<>(chatRoomService.isMemberPossibleToPart(memberId)), HttpStatus.OK);
     }
 
@@ -231,7 +235,7 @@ public class ChatRoomController {
     )
     @GetMapping("/curChatRoom")
     public ResponseEntity<Long> getCurChatRoom(
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         long curChatRoomId = chatRoomService.findCurChatRoom(customPrincipal.getMemberId());
         return new ResponseEntity<>(curChatRoomId, HttpStatus.OK);
     }

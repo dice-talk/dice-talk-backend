@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,7 +62,7 @@ public class ChatRoomDto {
         @Schema(description = "테마 이름", example = "일상 토크")
         private String themeName;
 
-        private List<ChatDto.Response> chats;
+        private Page<ChatDto.Response> chats;
         private List<ChatPartDto.Response> chatParts;
         private List<RoomEventDto.Response> roomEvents;
 

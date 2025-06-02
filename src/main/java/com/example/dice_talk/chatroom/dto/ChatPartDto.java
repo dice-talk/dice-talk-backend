@@ -20,10 +20,6 @@ public class ChatPartDto {
         @Schema(description = "참가자 닉네임", example = "철수")
         private String nickname;
 
-        @NotBlank
-        @Schema(description = "참가자 프로필 이미지 URL", example = "https://example.com/image.jpg")
-        private String profile;
-
         @Schema(description = "회원 ID", example = "7")
         private long memberId;
     }
@@ -38,9 +34,6 @@ public class ChatPartDto {
 
         @Schema(description = "참가자 닉네임", example = "영희")
         private String nickname;
-
-        @Schema(description = "프로필 이미지", example = "https://example.com/profile.png")
-        private String profile;
 
         @Schema(description = "회원 ID", example = "5")
         private long memberId;

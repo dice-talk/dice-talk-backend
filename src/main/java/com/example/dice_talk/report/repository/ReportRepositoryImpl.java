@@ -226,4 +226,46 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
 
         return new PageImpl<>(reportDtos, pageable, total);
     }
+
+    @Override
+    public List<ReportDto.Response> findAllByMember_MemberIdAndReportStatusWithEmail(Long memberId, Report.ReportStatus reportStatus) {
+        // 1. Report 조회 (회원 ID와 상태로 필터링)
+        List<Report> reports = queryFactory
+                .selectFrom(QReport.report)
+                .where(QReport.report.reportedMemberId.eq(memberId)
+                        .and(QReport.report.reportStatus.eq(reportStatus)))
+                .orderBy(QReport.report.createdAt.desc())
+                .fetch();
+
+        // 2. Member ID 수집
+        Set<Long> memberIds = reports.stream()
+                .flatMap(report -> Arrays.asList(report.getReporterId(), report.getReportedMemberId()).stream())
+                .collect(Collectors.toSet());
+
+        // 3. Member 정보 한 번에 조회
+        Map<Long, String> memberEmailMap = memberRepository.findAllById(memberIds).stream()
+                .collect(Collectors.toMap(Member::getMemberId, Member::getEmail));
+
+        // 4. DTO 변환
+        return reports.stream()
+                .map(report -> {
+                    ReportDto.Response response = ReportDto.Response.from(
+                            report,
+                            memberEmailMap.get(report.getReporterId()),
+                            memberEmailMap.get(report.getReportedMemberId())
+                    );
+
+                    // 5. 채팅 정보 추가
+                    List<Chat> reportedChats = report.getChatReports().stream()
+                            .map(chatReport -> chatService.findChat(chatReport.getChat().getChatId()))
+                            .collect(Collectors.toList());
+
+                    if (!reportedChats.isEmpty()) {
+                        response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
+                    }
+
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
 }
