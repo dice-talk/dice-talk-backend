@@ -273,10 +273,19 @@ public class  ChatRoomService {
         return chatRoomRepository.countActiveRoomsByDate(start, end);
     }
 
-    // 특정 회원이 참여하고 있는 채팅방 조회(참여중 없으면 0 반환)
-    public Long findCurChatRoom(long memberId){
+    // 특정 회원이 참여하고 있는 채팅방과 해당 테마 ID 조회(참여중 없으면 0 반환)
+    public Map<String, Long> findCurIds(long memberId){
         memberService.findVerifiedMember(memberId);
-        return chatPartRepository.findTopByMember_MemberIdAndExitStatusOrderByCreatedAtDesc(memberId, ChatPart.ExitStatus.MEMBER_ENTER)
+        Map<String, Long> curIds = new HashMap<>();
+        Long curChatRoomId =  chatPartRepository.findTopByMember_MemberIdAndExitStatusOrderByCreatedAtDesc(memberId, ChatPart.ExitStatus.MEMBER_ENTER)
                 .map(chatPart -> chatPart.getChatRoom().getChatRoomId()).orElse(0L);
+        curIds.put("curChatRoomId", curChatRoomId);
+        if(curChatRoomId == 0L){
+            curIds.put("curThemeId", 0L);
+            return curIds;
+        }
+        Long curThemeId = findChatRoom(curChatRoomId).getTheme().getThemeId();
+        curIds.put("curThemeId", curThemeId);
+        return curIds;
     }
 }

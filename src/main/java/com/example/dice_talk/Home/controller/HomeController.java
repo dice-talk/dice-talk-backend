@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "HOME GET API", description = "홈 화면 조회 API")
@@ -60,12 +61,13 @@ public class HomeController {
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping("/home")
-    public ResponseEntity<HomeResponseDto> getHome(@Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal){
+    public ResponseEntity<HomeResponseDto> getHome(@Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Member member = memberService.findVerifiedMember(customPrincipal.getMemberId());
         List<ThemeDto.Response> themes = themeMapper.themesToThemeResponses(themeService.findAllThemesNotClose());
         List<NoticeDto.Response> notices = noticeMapper.noticesToNoticeResponses(noticeService.findBannerEvents());
         boolean hasNewNotifications = notificationService.countUnread(customPrincipal.getMemberId()) > 0;
-        Long curChatRoomId = chatRoomService.findCurChatRoom(customPrincipal.getMemberId());
-        return new ResponseEntity<>(new HomeResponseDto(themes, notices, hasNewNotifications, curChatRoomId), HttpStatus.OK);
+        Map<String, Long> curIds = chatRoomService.findCurIds(customPrincipal.getMemberId());
+        return new ResponseEntity<>(new HomeResponseDto(themes, notices, hasNewNotifications,
+                curIds.get("curChatRoomId"), curIds.get("curThemeId")), HttpStatus.OK);
     }
 }
