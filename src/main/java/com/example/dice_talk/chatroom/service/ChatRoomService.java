@@ -143,7 +143,7 @@ public class  ChatRoomService {
         chatRoomRepository.save(chatRoom);
     }
 
-    // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경
+    // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경(나가기)
     public void exitChatPart(long chatRoomId, long memberId) {
         Optional<ChatPart> chatPart = chatPartRepository.findByChatRoom_ChatRoomIdAndMember_MemberId(chatRoomId, memberId);
         ChatPart foundChatPart = chatPart.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -151,6 +151,7 @@ public class  ChatRoomService {
             throw new BusinessLogicException(ExceptionCode.ALREADY_EXITED_TODAY);
         }
         foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
+        exitLogService.createExitLog(memberId);
         chatPartRepository.save(foundChatPart);
     }
 
