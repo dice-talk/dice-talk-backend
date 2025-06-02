@@ -12,6 +12,10 @@ import com.example.dice_talk.member.entity.DeletedMember;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.repository.DeletedMemberRepository;
 import com.example.dice_talk.member.repository.MemberRepository;
+import com.example.dice_talk.report.dto.ReportDto;
+import com.example.dice_talk.report.entity.Report;
+import com.example.dice_talk.report.repository.ReportRepository;
+import com.example.dice_talk.report.service.ReportService;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +40,7 @@ public class MemberService {
     private final DeletedMemberRepository deletedMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityUtils authorityUtils;
+    private final ReportRepository reportRepository;
 
     public Member createMember(Member member) {
 //        CI 중복 확인
@@ -141,13 +146,21 @@ public class MemberService {
     }
 
 
-    //검증로직 : 회원가입 시 이메일 중복 확인
+    //검증로직 : 회원가입 시 이메일 중복 확인 (중복 시 예외처리)
     public void verifyExistsEmail(String email) {
         Optional<Member> findMember = memberRepository.findByEmail(email);
         if (findMember.isPresent()) {
             throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
         }
 
+    }
+
+    // 검증로직 : 이메일 인증 시 존재하는 회원의 이메일인지 확인 (없을 시 예외처리)
+    public String findValidEmail(String email){
+        Member findMember = memberRepository.findByEmail(email).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND)
+        );
+        return findMember.getEmail();
     }
 
     //검증로직 : 등록된 member 조회
@@ -295,5 +308,36 @@ public class MemberService {
                     .deletedAt(deletedMember.getCreatedAt())
                     .build();
         });
+    }
+
+    // 정지된 회원 목록 조회
+    public Page<Member> findBannedMembers(int page, int size){
+        return memberRepository.findAllBannedMembers(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));
+    }
+
+    // 정지된 회원 조회를 위한 검증 메서드
+    private Member findVerifiedBannedMember(long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        if (member.getMemberStatus() != Member.MemberStatus.MEMBER_BANNED) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }
+        return member;
+    }
+
+    public MemberDto.BannedMemberResponse findBannedMemberDetail(long memberId) {
+        Member member = findVerifiedBannedMember(memberId);
+        List<ReportDto.Response> reports = reportRepository.findAllByMember_MemberIdAndReportStatusWithEmail(memberId, Report.ReportStatus.REPORT_COMPLETED);
+
+        MemberDto.BannedMemberResponse response = new MemberDto.BannedMemberResponse();
+        response.setMemberId(member.getMemberId());
+        response.setEmail(member.getEmail());
+        response.setName(member.getName());
+        response.setBirth(member.getBirth());
+        response.setRegion(member.getRegion());
+        response.setMemberStatus(member.getMemberStatus());
+        response.setReports(reports);
+
+        return response;
     }
 }

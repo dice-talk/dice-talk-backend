@@ -143,7 +143,7 @@ public class  ChatRoomService {
         chatRoomRepository.save(chatRoom);
     }
 
-    // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경
+    // 특정 채팅방에 참여중인 특정 회원의 참여 상태 변경(나가기)
     public void exitChatPart(long chatRoomId, long memberId) {
         Optional<ChatPart> chatPart = chatPartRepository.findByChatRoom_ChatRoomIdAndMember_MemberId(chatRoomId, memberId);
         ChatPart foundChatPart = chatPart.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -151,6 +151,7 @@ public class  ChatRoomService {
             throw new BusinessLogicException(ExceptionCode.ALREADY_EXITED_TODAY);
         }
         foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
+        exitLogService.createExitLog(memberId);
         chatPartRepository.save(foundChatPart);
     }
 
@@ -176,7 +177,6 @@ public class  ChatRoomService {
         for (Member member : members) {
             ChatPart chatPart = new ChatPart();
             chatPart.setNickname(member.getName());
-            chatPart.setProfile("member.getProfile()"); // 프로필 적용 로직 필요
             chatPart.setMember(member);
             chatPart.setChatRoom(savedRoom);
             chatPartRepository.save(chatPart);
@@ -197,7 +197,6 @@ public class  ChatRoomService {
         for (Member member : members) {
             ChatPart chatPart = new ChatPart();
             chatPart.setNickname(member.getName());
-            chatPart.setProfile("member.getProfile()"); // 프로필 적용 로직 필요
             chatPart.setMember(member);
             chatPart.setChatRoom(savedRoom);
             chatPartRepository.save(chatPart);
@@ -273,6 +272,22 @@ public class  ChatRoomService {
     //AdminWeb - 주간 진행중인 채팅방
     public List<DailyCountDto> weeklyActiveChatRoom(LocalDateTime start, LocalDateTime end) {
         return chatRoomRepository.countActiveRoomsByDate(start, end);
+    }
+
+    // 특정 회원이 참여하고 있는 채팅방과 해당 테마 ID 조회(참여중 없으면 0 반환)
+    public Map<String, Long> findCurIds(long memberId){
+        memberService.findVerifiedMember(memberId);
+        Map<String, Long> curIds = new HashMap<>();
+        Long curChatRoomId =  chatPartRepository.findTopByMember_MemberIdAndExitStatusOrderByCreatedAtDesc(memberId, ChatPart.ExitStatus.MEMBER_ENTER)
+                .map(chatPart -> chatPart.getChatRoom().getChatRoomId()).orElse(0L);
+        curIds.put("curChatRoomId", curChatRoomId);
+        if(curChatRoomId == 0L){
+            curIds.put("curThemeId", 0L);
+            return curIds;
+        }
+        Long curThemeId = findChatRoom(curChatRoomId).getTheme().getThemeId();
+        curIds.put("curThemeId", curThemeId);
+        return curIds;
     }
 
     // 특정 회원이 참여하고 있는 채팅방 조회(참여중 없으면 0 반환)

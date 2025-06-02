@@ -22,10 +22,14 @@ public class HomeResponseDto {
     @Schema(description = "현재 참여중인 채팅방 ID")
     private long curChatRoomId;
 
-    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications, long curChatRoomId) {
+    @Schema(description = "현재 참여중인 채팅방의 테마 ID")
+    private long curThemeId;
+
+    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications, long curChatRoomId, long curThemeId) {
         this.themes = themes;
         this.notices = notices;
         this.hasNewNotifications = hasNewNotifications;
         this.curChatRoomId = curChatRoomId;
+        this.curThemeId = curThemeId;
     }
 }
