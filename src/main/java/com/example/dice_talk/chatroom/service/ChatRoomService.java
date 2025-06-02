@@ -288,4 +288,11 @@ public class  ChatRoomService {
         curIds.put("curThemeId", curThemeId);
         return curIds;
     }
+
+    // 특정 회원이 참여하고 있는 채팅방 조회(참여중 없으면 0 반환)
+    public Long findCurChatRoom(long memberId){
+        memberService.findVerifiedMember(memberId);
+        return chatPartRepository.findTopByMember_MemberIdAndExitStatusOrderByCreatedAtDesc(memberId, ChatPart.ExitStatus.MEMBER_ENTER)
+                .map(chatPart -> chatPart.getChatRoom().getChatRoomId()).orElse(0L);
+    }
 }
