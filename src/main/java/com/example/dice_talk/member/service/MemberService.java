@@ -141,13 +141,21 @@ public class MemberService {
     }
 
 
-    //검증로직 : 회원가입 시 이메일 중복 확인
+    //검증로직 : 회원가입 시 이메일 중복 확인 (중복 시 예외처리)
     public void verifyExistsEmail(String email) {
         Optional<Member> findMember = memberRepository.findByEmail(email);
         if (findMember.isPresent()) {
             throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
         }
 
+    }
+
+    // 검증로직 : 이메일 인증 시 존재하는 회원의 이메일인지 확인 (없을 시 예외처리)
+    public String findValidEmail(String email){
+        Member findMember = memberRepository.findByEmail(email).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND)
+        );
+        return findMember.getEmail();
     }
 
     //검증로직 : 등록된 member 조회
