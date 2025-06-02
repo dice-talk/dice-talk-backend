@@ -9,6 +9,7 @@ import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.response.SwaggerErrorResponse;
 import com.example.dice_talk.utils.AuthorizationUtils;
+import com.example.dice_talk.utils.UriCreator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.net.URI;
 import java.util.List;
 
 @Tag(name = "ChatRoom API", description = "채팅방 관련 API")
@@ -45,7 +47,7 @@ public class ChatRoomController {
         this.mapper = mapper;
     }
 
-    // 채팅방 생성
+//    // 채팅방 생성
 //    @PostMapping
 //    public ResponseEntity postChatRoom(@Valid @RequestBody ChatRoomDto.Post dto) {
 //        ChatRoom chatRoom = mapper.chatRoomPostToChatRoom(dto);

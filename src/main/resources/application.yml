@@ -3,9 +3,9 @@ spring:
     name: dice-talk
   data:
     redis:
-      host: 172.31.3.55 # 127.0.0.1 # EC2의 내부 IP
+      host: 127.0.0.1 #172.31.3.55 # EC2의 내부 IP
       port: 6379
-#      password: # 로컬 테스트용
+      #      password: # 로컬 테스트용
       password: ${REDIS_PASSWORD}      # 서버용
   h2:
     console:
@@ -13,11 +13,11 @@ spring:
       path: /h2 # H2 콘솔에 접근할 수 있는 URL 경로를 설정합니다.
   jackson:
     time-zone: Asia/Seoul
-#   datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/dicetalkdb?serverTimezone=Asia/Seoul
-#    username: admin
-#    password: gkskqnxjdbreodRKwl
+  #  datasource:
+  #    driver-class-name: org.h2.Driver
+  #    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+  #    username: sa
+  #    password:
   datasource:
     url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
     username: ${RDS_USERNAME}
@@ -29,7 +29,7 @@ spring:
     show-sql: true # JPA에서 실행되는 SQL 쿼리를 콘솔에 출력합니다.
     properties:
       hibernate:
-#        dialect: org.hibernate.dialect.H2Dialect
+        #        dialect: org.hibernate.dialect.H2Dialect
         dialect: org.hibernate.dialect.MySQL8Dialect
 
         format_sql: true # SQL 쿼리를 포맷하여 가독성을 높입니다.
@@ -106,6 +106,4 @@ springdoc:
     tagsSorter: alpha # 태그 순 정렬
   api-docs:
     path: /v3/api-docs
-
-
 
