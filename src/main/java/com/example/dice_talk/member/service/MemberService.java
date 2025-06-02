@@ -13,6 +13,8 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.repository.DeletedMemberRepository;
 import com.example.dice_talk.member.repository.MemberRepository;
 import com.example.dice_talk.report.dto.ReportDto;
+import com.example.dice_talk.report.entity.Report;
+import com.example.dice_talk.report.repository.ReportRepository;
 import com.example.dice_talk.report.service.ReportService;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +40,7 @@ public class MemberService {
     private final DeletedMemberRepository deletedMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityUtils authorityUtils;
-    private final ReportService reportService;
+    private final ReportRepository reportRepository;
 
     public Member createMember(Member member) {
 //        CI 중복 확인
@@ -313,14 +315,19 @@ public class MemberService {
         return memberRepository.findAllBannedMembers(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));
     }
 
-    public MemberDto.BannedMemberResponse findBannedMemberDetail(long memberId) {
-        Member member = findVerifiedMember(memberId);
-        
+    // 정지된 회원 조회를 위한 검증 메서드
+    private Member findVerifiedBannedMember(long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
         if (member.getMemberStatus() != Member.MemberStatus.MEMBER_BANNED) {
             throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
         }
+        return member;
+    }
 
-        List<ReportDto.Response> reports = reportService.findCompletedReportsByMemberId(memberId);
+    public MemberDto.BannedMemberResponse findBannedMemberDetail(long memberId) {
+        Member member = findVerifiedBannedMember(memberId);
+        List<ReportDto.Response> reports = reportRepository.findAllByMember_MemberIdAndReportStatusWithEmail(memberId, Report.ReportStatus.REPORT_COMPLETED);
 
         MemberDto.BannedMemberResponse response = new MemberDto.BannedMemberResponse();
         response.setMemberId(member.getMemberId());

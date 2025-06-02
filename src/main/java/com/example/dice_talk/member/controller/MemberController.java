@@ -12,6 +12,7 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.mapper.MemberMapper;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.member.toss.TossAuthService;
+import com.example.dice_talk.report.service.ReportService;
 import com.example.dice_talk.response.SwaggerErrorResponse;
 import com.example.dice_talk.utils.AuthorizationUtils;
 import com.example.dice_talk.utils.UriCreator;
@@ -38,6 +39,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Tag(name = "Member", description = "회원 API")
 @SecurityRequirement(name = "JWT")
@@ -50,6 +52,7 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberMapper mapper;
     private final TossAuthService tossAuthService;
+    private final ReportService reportService;
 
 
     @Operation(summary = "회원 가입", description = "새로운 회원을 등록합니다.")
@@ -318,7 +321,7 @@ public class MemberController {
     @Operation(summary = "관리자용 정지 회원 목록 조회", description = "정지 회원 정보 목록을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = MemberDto.MyInfoResponse.class))
+                    content = @Content(schema = @Schema(implementation = MemberDto.BannedMemberResponse.class))
             ),
             @ApiResponse(responseCode = "401", description = "인증 필요",
                     content = @Content(
@@ -334,14 +337,23 @@ public class MemberController {
             )
     })
     @GetMapping("/admin/banned-members")
-    public ResponseEntity<MultiResponseDto<MemberDto.MyInfoResponse>> getBannedMembers(
+    public ResponseEntity<MultiResponseDto<MemberDto.BannedMemberResponse>> getBannedMembers(
             @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
             @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         AuthorizationUtils.verifyAdmin();
         Page<Member> bannedMemberPage = memberService.findBannedMembers(page, size);
-        List<Member> bannedMemberList = bannedMemberPage.getContent();
+        List<MemberDto.BannedMemberResponse> responses = bannedMemberPage.getContent().stream()
+                .map(member -> {
+                    MemberDto.BannedMemberResponse response = new MemberDto.BannedMemberResponse();
+                    response.setMemberId(member.getMemberId());
+                    response.setEmail(member.getEmail());
+                    response.setName(member.getName());
+                    response.setReports(reportService.findCompletedReportsByMemberId(member.getMemberId()));
+                    return response;
+                })
+                .collect(Collectors.toList());
         return new ResponseEntity<>(
-                new MultiResponseDto(mapper.membersToMemberResponses(bannedMemberList), bannedMemberPage),
+                new MultiResponseDto<>(responses, bannedMemberPage),
                 HttpStatus.OK);
     }
 
