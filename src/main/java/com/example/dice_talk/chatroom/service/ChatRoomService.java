@@ -176,7 +176,6 @@ public class  ChatRoomService {
         for (Member member : members) {
             ChatPart chatPart = new ChatPart();
             chatPart.setNickname(member.getName());
-            chatPart.setProfile("member.getProfile()"); // 프로필 적용 로직 필요
             chatPart.setMember(member);
             chatPart.setChatRoom(savedRoom);
             chatPartRepository.save(chatPart);
@@ -197,7 +196,6 @@ public class  ChatRoomService {
         for (Member member : members) {
             ChatPart chatPart = new ChatPart();
             chatPart.setNickname(member.getName());
-            chatPart.setProfile("member.getProfile()"); // 프로필 적용 로직 필요
             chatPart.setMember(member);
             chatPart.setChatRoom(savedRoom);
             chatPartRepository.save(chatPart);
