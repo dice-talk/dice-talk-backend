@@ -40,7 +40,7 @@ public class ReportService {
         reports.stream().forEach(
                 report -> reportRepository.save(report)
         );
-        publisher.publishEvent(new ReportCreatedEvent(reports.get(0).getReason(), reports.get(0).getReporterId()));
+        publisher.publishEvent(new ReportCreatedEvent(reports.get(0).getReportReason().getDescription(), reports.get(0).getReporterId()));
     }
 
     // 신고 처리완료
@@ -57,7 +57,7 @@ public class ReportService {
             memberService.banMember(saved.getReportedMemberId());
         }
         String date = report.getCreatedAt().toLocalDate().toString();
-        publisher.publishEvent(new ReportCompletedEvent(reportId, count, report.getReason(), date, report.getReportedMemberId()));
+        publisher.publishEvent(new ReportCompletedEvent(reportId, count, report.getReportReason().getDescription(), date, report.getReportedMemberId()));
         return saved;
     }
 

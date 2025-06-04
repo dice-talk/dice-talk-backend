@@ -4,9 +4,11 @@ import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.mapper.ChatMapper;
+import com.example.dice_talk.dto.ListResponseDto;
 import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.dto.SingleResponseDto;
 import com.example.dice_talk.report.dto.ReportDto;
+import com.example.dice_talk.report.dto.ReportReasonResponse;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.mapper.ReportMapper;
 import com.example.dice_talk.report.service.ReportService;
@@ -31,7 +33,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Report", description = "신고 API")
 @SecurityRequirement(name = "JWT")
@@ -281,5 +285,25 @@ public class ReportController {
         report.setReportStatus(Report.ReportStatus.REPORT_DELETED);
         reportService.deleteReport(reportId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "신고 사유 목록 조회", description = "신고할 수 있는 모든 사유 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = ReportReasonResponse.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}")
+                    )
+            )
+    })
+    @GetMapping("/reasons")
+    public ResponseEntity<ListResponseDto<ReportReasonResponse>> getReportReasons() {
+        List<ReportReasonResponse> reasons = Arrays.stream(Report.ReportReason.values())
+                .map(reason -> new ReportReasonResponse(reason.name(), reason.getDescription()))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(new ListResponseDto<>(reasons), HttpStatus.OK);
     }
 }
