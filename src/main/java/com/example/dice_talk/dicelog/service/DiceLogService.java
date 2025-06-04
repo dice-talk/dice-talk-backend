@@ -37,14 +37,17 @@ public class DiceLogService {
 
     @Transactional
     public DiceLog createDiceLogCharge(DiceLog diceLog, long memberId) {
-        Product product = productService.findVerifiedProduct(diceLog.getProduct().getProductId());
         Member member = memberService.findVerifiedMember(memberId);
-        diceLog.setInfo(product.getProductName());
+        
+        // 다이스 수량 업데이트
+        int newTotalDice = member.getTotalDice() + diceLog.getQuantity();
+        member.setTotalDice(newTotalDice);
+        
+        // 로그 정보 설정
         diceLog.setLogType(DiceLog.LogType.DICE_CHARGE);
         diceLog.setMember(member);
-        diceLog.setQuantity(product.getQuantity());
         member.setDiceLog(diceLog);
-        member.setTotalDice(member.getTotalDice() + diceLog.getQuantity());
+        
         return diceLogRepository.save(diceLog);
     }
 
