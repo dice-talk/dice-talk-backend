@@ -5,7 +5,7 @@ spring:
     redis:
       host: 172.31.3.55 # 127.0.0.1 # EC2의 내부 IP
       port: 6379
-      #      password: # 로컬 테스트용
+#      password: # 로컬 테스트용
       password: ${REDIS_PASSWORD} # 서버용
   h2:
     console:
@@ -15,7 +15,7 @@ spring:
     time-zone: Asia/Seoul
   datasource:
     url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
-    #    url: jdbc:mysql://localhost:3306/dicetalkdb?serverTimezone=Asia/Seoul
+#    url: jdbc:mysql://localhost:3306/dicetalkdb?serverTimezone=Asia/Seoul
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -96,6 +96,12 @@ cloud:
 springdoc:
   override-with-generic-response: false
   swagger-ui:
+#    display-server-url: true
+#    urls:
+#      - name: "Local HTTP"
+#        url: "http://localhost:8080"
+#      - name: "Prod Server"
+#        url: "https://www.dicetalk.co.kr"
     path: /swagger-ui.html
     enabled: true
     operationsSorter: method # method 순 정렬
