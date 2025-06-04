@@ -323,15 +323,19 @@ public class MemberService {
             int page, int size, String search, Member.Gender gender, String ageGroup, String reason, String sort,
             String deletedAtStart, String deletedAtEnd
     ){
-        Pageable pageable = createPageable(page - 1, size, sort);
+        Pageable pageable = createPageable(page, size, sort);
         return deletedMemberRepository.searchDeletedMembersWithMember(
                 search, gender, ageGroup, reason, deletedAtStart, deletedAtEnd, pageable
         );
     }
 
     // 정지된 회원 목록 조회
-    public Page<Member> findBannedMembers(int page, int size){
-        return memberRepository.findAllBannedMembers(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));
+    public Page<MemberDto.BannedMemberListResponse> findBannedMembersWithConditions(
+            int page, int size, String search, Member.Gender gender, String ageGroup, String sort, String bannedAtStart, String bannedAtEnd){
+        Pageable pageable = createPageable(page, size, sort);
+        return memberRepository.searchBannedMembers(
+                search, gender, ageGroup, bannedAtStart, bannedAtEnd, pageable
+        );
     }
 
     // 정지된 회원 조회를 위한 검증 메서드

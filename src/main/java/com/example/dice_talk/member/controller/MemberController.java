@@ -330,7 +330,7 @@ public class MemberController {
         );
     }
 
-    @Operation(summary = "관리자용 정지 회원 목록 조회", description = "정지 회원 정보 목록을 조회합니다.")
+    @Operation(summary = "관리자용 정지 회원 목록 조회", description = "정지 회원 정보 목록을 조회합니다. (검색, 정렬, 성별/연령대/정지일 범위 조건)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = MemberDto.BannedMemberResponse.class))
@@ -349,23 +349,21 @@ public class MemberController {
             )
     })
     @GetMapping("/admin/banned-members")
-    public ResponseEntity<MultiResponseDto<MemberDto.BannedMemberResponse>> getBannedMembers(
+    public ResponseEntity<MultiResponseDto<MemberDto.BannedMemberListResponse>> getBannedMembers(
             @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
-            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size,
+            @Parameter(description = "검색어(이름+이메일)") @RequestParam(required = false) String search,
+            @Parameter(description = "성별", example = "MALE") @RequestParam(required = false) Member.Gender gender,
+            @Parameter(description = "연령대", example = "20대") @RequestParam(required = false) String ageGroup,
+            @Parameter(description = "정렬(예: bannedAt/desc, bannedAt/asc)") @RequestParam(defaultValue = "bannedAt/desc") String sort,
+            @Parameter(description = "정지일 시작(yyyy-MM-dd)", example = "2024-01-01") @RequestParam(required = false) String bannedAtStart,
+            @Parameter(description = "정지일 끝(yyyy-MM-dd)", example = "2024-06-01") @RequestParam(required = false) String bannedAtEnd) {
         AuthorizationUtils.verifyAdmin();
-        Page<Member> bannedMemberPage = memberService.findBannedMembers(page, size);
-        List<MemberDto.BannedMemberResponse> responses = bannedMemberPage.getContent().stream()
-                .map(member -> {
-                    MemberDto.BannedMemberResponse response = new MemberDto.BannedMemberResponse();
-                    response.setMemberId(member.getMemberId());
-                    response.setEmail(member.getEmail());
-                    response.setName(member.getName());
-                    response.setReports(reportService.findCompletedReportsByMemberId(member.getMemberId()));
-                    return response;
-                })
-                .collect(Collectors.toList());
+        Page<MemberDto.BannedMemberListResponse> bannedMemberPage = memberService.findBannedMembersWithConditions(
+                page, size, search, gender, ageGroup, sort, bannedAtStart, bannedAtEnd);
+
         return new ResponseEntity<>(
-                new MultiResponseDto<>(responses, bannedMemberPage),
+                new MultiResponseDto<>(bannedMemberPage.getContent(), bannedMemberPage),
                 HttpStatus.OK);
     }
 

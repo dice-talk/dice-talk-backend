@@ -156,7 +156,7 @@ public class MemberDto {
         private LocalDateTime deletedAt;
     }
 
-    @Schema(name = "BannedMemberResponseDto", description = "정지 회원 응답 DTO")
+    @Schema(name = "BannedMemberResponseDto", description = "정지 회원 상세 조회 응답 DTO")
     @Getter
     @Setter
     @AllArgsConstructor
@@ -177,6 +177,9 @@ public class MemberDto {
         @Schema(description = "지역", example = "서울시 강남구")
         private String region;
 
+        @Schema(description = "성별", example = "MALE")
+        private Member.Gender gender;
+
         @Schema(description = "회원 상태", example = "MEMBER_ACTIVE")
         private Member.MemberStatus memberStatus;
 
@@ -185,5 +188,40 @@ public class MemberDto {
 
         @Schema(description = "신고 당한 내역")
         private List<ReportDto.Response> reports;
+    }
+
+    @Schema(name = "BannedMemberListResponseDto", description = "정지 회원 목록 조회 응답 DTO")
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class BannedMemberListResponse {
+        @Schema(description = "회원 ID", example = "1")
+        private Long memberId;
+
+        @Schema(description = "이메일", example = "user@example.com")
+        private String email;
+
+        @Schema(description = "이름", example = "홍길동")
+        private String name;
+
+        @Schema(description = "생년월일", example = "1998-12-25")
+        private String birth;
+
+        @Schema(description = "지역", example = "서울시 강남구")
+        private String region;
+
+        @Schema(description = "성별", example = "MALE")
+        private Member.Gender gender;
+
+        @Schema(description = "회원 상태", example = "MEMBER_ACTIVE")
+        private Member.MemberStatus memberStatus;
+
+        @Schema(description = "나이대", example = "20대")
+        private String ageGroup;
+
+        @Schema(description = "정지일", example = "2025-06-05T12:00")
+        private LocalDateTime bannedAt;
     }
 }
