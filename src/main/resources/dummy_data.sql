@@ -7,29 +7,29 @@ VALUES ('Dice Friends', '여행에 관한 이야기를 나누는 테마입니다
        ('게임', '인기 게임에 관한 이야기를 나누는 테마입니다.', 'game.png', 'THEME_CLOSE', NOW());
 
 -- 2. Member data
-INSERT INTO member (email, phone, password, name, gender, birth, region, member_status, notification,
+INSERT INTO member (email, password, name, gender, birth, region, member_status, notification,
                     total_dice, ci, created_at)
-VALUES ('q@q.q', '01012345678', '{bcrypt}$2a$10$4z8P8wHcqQgRlvxjNKDeCufjNuCA1GbCLF8jSBw5Mx/4sUMW04Ytq', '김철수', 'MALE', '1990-01-01', '서울',
+VALUES ('q@q.q', '{bcrypt}$2a$10$4z8P8wHcqQgRlvxjNKDeCufjNuCA1GbCLF8jSBw5Mx/4sUMW04Ytq', '김철수', 'MALE', '1990-01-01', '서울',
         'MEMBER_ACTIVE', true, 100, 'ci12345678901', NOW()),
-       ('user2@example.com', '01023456789', '$2a$10$abcdefghijklmnopqrstuv', '이영희', 'FEMALE', '1992-05-12', '부산',
+       ('user2@example.com', '$2a$10$abcdefghijklmnopqrstuv', '이영희', 'FEMALE', '1992-05-12', '부산',
         'MEMBER_ACTIVE', true, 150, 'ci23456789012', NOW()),
-       ('user3@example.com', '01034567890', '$2a$10$abcdefghijklmnopqrstuv', '박민수', 'MALE', '1988-11-30', '대구',
+       ('user3@example.com', '$2a$10$abcdefghijklmnopqrstuv', '박민수', 'MALE', '1988-11-30', '대구',
         'MEMBER_ACTIVE', false, 80, 'ci34567890123', NOW()),
-       ('user4@example.com', '01045678901', '$2a$10$abcdefghijklmnopqrstuv', '정다혜', 'FEMALE', '1995-08-22', '인천',
+       ('user4@example.com', '$2a$10$abcdefghijklmnopqrstuv', '정다혜', 'FEMALE', '1995-08-22', '인천',
         'MEMBER_SLEEP', true, 200, 'ci45678901234', NOW()),
-       ('user5@example.com', '01056789012', '$2a$10$abcdefghijklmnopqrstuv', '최지훈', 'MALE', '1985-03-15', '광주',
+       ('user5@example.com', '$2a$10$abcdefghijklmnopqrstuv', '최지훈', 'MALE', '1985-03-15', '광주',
         'MEMBER_ACTIVE', true, 120, 'ci56789012345', NOW()),
-        ('dice@gmail.com', '010-2401-5119', '{bcrypt}$2a$10$GIuq/QnyYvUXOpHSKcz5k.0cfY4cevVtAjIAwfCunNJGNQddbOfFC', '하나', 'MALE', '1998-12-25', '인천시 연수구',
+        ('dice@gmail.com', '{bcrypt}$2a$10$GIuq/QnyYvUXOpHSKcz5k.0cfY4cevVtAjIAwfCunNJGNQddbOfFC', '하나', 'MALE', '1998-12-25', '인천시 연수구',
         'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2401-5119', NOW()),
-        ('dice2@gmail.com', '010-2402-5119', '{bcrypt}$2a$10$/vTg2S4HY1ZvnN1R3lcROuVhz7stWiA98rHH6Lvz/UKpk1nleREJK', '두리', 'MALE', '1998-12-26', '서울시 강남구',
+        ('dice2@gmail.com', '{bcrypt}$2a$10$/vTg2S4HY1ZvnN1R3lcROuVhz7stWiA98rHH6Lvz/UKpk1nleREJK', '두리', 'MALE', '1998-12-26', '서울시 강남구',
         'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2402-5119', NOW()),
-        ('dice3@gmail.com', '010-2403-5119', '{bcrypt}$2a$10$1hgcPcwsHHSopBqeTsY0XedzTKAHX/Y3G6LuR4vNUymscBRE5j0PW', '세찌', 'MALE', '1998-12-27', '인천시 미추홀구',
+        ('dice3@gmail.com', '{bcrypt}$2a$10$1hgcPcwsHHSopBqeTsY0XedzTKAHX/Y3G6LuR4vNUymscBRE5j0PW', '세찌', 'MALE', '1998-12-27', '인천시 미추홀구',
          'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2403-5119', NOW()),
-        ('dice4@gmail.com', '010-2404-5119', '{bcrypt}$2a$10$Pg9D4MO/D3gvTKJ3VL7b6uJbAjG5vGDbtyyAbQuv2YmVIltJYZmKq', '네찌', 'MALE', '1998-12-28', '인천시 중구',
+        ('dice4@gmail.com', '{bcrypt}$2a$10$Pg9D4MO/D3gvTKJ3VL7b6uJbAjG5vGDbtyyAbQuv2YmVIltJYZmKq', '네찌', 'MALE', '1998-12-28', '인천시 중구',
         'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2404-5119', NOW()),
-        ('dice5@gmail.com', '010-2405-5119', '{bcrypt}$2a$10$SE5k.fmAwIlAvQ/51CMZn.WOCY8hfzpblGebKRQ1SznlSMChCA8iq', '다오', 'MALE', '1998-12-29', '인천시 서구',
+        ('dice5@gmail.com', '{bcrypt}$2a$10$SE5k.fmAwIlAvQ/51CMZn.WOCY8hfzpblGebKRQ1SznlSMChCA8iq', '다오', 'MALE', '1998-12-29', '인천시 서구',
          'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2405-5119', NOW()),
-         ('dice6@gmail.com', '010-2406-5119', '{bcrypt}$2a$10$eD4mfXQd77InF0PTypOn5.z0aiKaz/J4ggnUUdHaZvdpAzO0YGchy', '육댕', 'MALE', '1998-12-20', '인천시 남동구',
+         ('dice6@gmail.com', '{bcrypt}$2a$10$eD4mfXQd77InF0PTypOn5.z0aiKaz/J4ggnUUdHaZvdpAzO0YGchy', '육댕', 'MALE', '1998-12-20', '인천시 남동구',
          'MEMBER_ACTIVE', true, 2000, 'abcdefghijklmnopdice@gmail.com010-2406-5119', NOW());
 
 -- Add member roles

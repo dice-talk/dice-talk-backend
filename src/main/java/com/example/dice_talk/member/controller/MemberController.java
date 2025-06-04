@@ -81,7 +81,7 @@ public class MemberController {
 
         Member tempMember = mapper.memberPostToMember(postDto);
         //로컬 테스트용 임시 Ci 발급
-        tempMember.setCi("abcdefghijklmnop" + postDto.getEmail() + postDto.getPhone());
+        tempMember.setCi("abcdefghijklmnop" + postDto.getEmail());
         tempMember.setRoles(List.of("USER"));
 
         Member createdMember = memberService.createMember(tempMember);

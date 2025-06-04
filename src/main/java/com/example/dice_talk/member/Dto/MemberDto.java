@@ -36,11 +36,6 @@ public class MemberDto {
                 message = "비밀번호는 8~16자 영문 대, 소문자, 숫자, 특수문자를 사용하세요.")
         private String password;
 
-        @Schema(description = "휴대폰 번호", example = "010-1234-5678")
-        @NotBlank
-        @Pattern(regexp = "^010-\\d{3,4}-\\d{4}$", message = "휴대폰 번호는 010으로 시작되는 11자리 숫자와 '-'로 구성되어야 합니다. 예시)010-1234-5678")
-        private String phone;
-
         @Schema(description = "이름", example = "홍길동")
         private String name;
 
@@ -66,9 +61,6 @@ public class MemberDto {
 
         @Schema(description = "이메일", example = "user@example.com")
         private String email;
-
-        @Schema(description = "휴대폰 번호", example = "010-1234-5678")
-        private String phone;
 
         @Schema(description = "이름", example = "홍길동")
         private String name;
