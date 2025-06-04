@@ -111,6 +111,6 @@ springdoc:
 toss:
   secret-key: test_sk_DpexMgkW36v6aXd6BBd93GbR5ozO
   client-key: test_ck_Z1aOwX7K8mOyb5YxMMvqVyQxzvNP
-  base-url: https://sandbox.tosspayments.com
+  # base-url: https://sandbox.tosspayments.com
   success-url: http://localhost:3000/payment/success
   fail-url: http://localhost:3000/payment/fail
