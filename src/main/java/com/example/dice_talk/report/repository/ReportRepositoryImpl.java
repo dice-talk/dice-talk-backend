@@ -67,6 +67,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
 
                     if (!reportedChats.isEmpty()) {
                         response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
+                        response.setChatRoomId(reportedChats.get(0).getChatRoom().getChatRoomId());
                     }
 
                     return response;
@@ -116,6 +117,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
 
         if (!reportedChats.isEmpty()) {
             response.setReportedChats(chatMapper.chatsToChatResponses(reportedChats));
+            response.setChatRoomId(reportedChats.get(0).getChatRoom().getChatRoomId());
         }
 
         return response;

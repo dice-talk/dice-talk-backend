@@ -62,6 +62,9 @@ public class ReportDto {
         @Schema(description = "신고된 채팅 목록", implementation = ChatDto.Response.class)
         private List<ChatDto.Response> reportedChats;
 
+        @Schema(description = "신고된 채팅의 채팅방 ID", example = "1")
+        private Long chatRoomId;
+
         @Schema(description = "신고 처리 상태", example = "REPORT_RECEIVED")
         private Report.ReportStatus reportStatus;
 
