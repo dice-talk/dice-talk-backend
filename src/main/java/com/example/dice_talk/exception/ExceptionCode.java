@@ -39,7 +39,22 @@ public enum ExceptionCode {
     EMAIL_MISMATCH(401,"Toss email 매칭에 실패했습니다."),
     BAD_REQUEST(400, "Invalid sort or column"),
     QUESTION_DELETED(404, "Question Deleted"),
-    ALREADY_EXITED_TODAY(409, "Member Already Existed Today");
+    ALREADY_EXITED_TODAY(409, "Member Already Existed Today"),
+    
+    // Payment 관련 예외 코드 추가
+    PAYMENT_NOT_FOUND(404, "결제 정보를 찾을 수 없습니다."),
+    PAYMENT_MASTER_NOT_FOUND(404, "Payment master not found"),
+    INVALID_PAYMENT_AMOUNT(400, "유효하지 않은 결제 금액입니다."),
+    PAYMENT_FAILED(400, "결제에 실패했습니다."),
+    PAYMENT_ALREADY_COMPLETED(400, "이미 완료된 결제입니다."),
+    PAYMENT_ALREADY_FAILED(400, "이미 실패한 결제입니다."),
+    PAYMENT_ALREADY_CANCELLED(409, "Payment is already cancelled"),
+    PAYMENT_ALREADY_REFUNDED(409, "Payment is already refunded"),
+    PAYMENT_VERIFICATION_FAILED(401, "Payment verification failed"),
+    PAYMENT_AMOUNT_MISMATCH(400, "결제 금액이 일치하지 않습니다."),
+    PAYMENT_TIMEOUT(400, "결제 시간이 초과되었습니다."),
+    INVALID_REFUND_STATUS(400, "환불이 불가능한 결제 상태입니다."),
+    REFUND_FAILED(400, "환불 처리에 실패했습니다.");
 
     @Getter
     private int status;
