@@ -81,7 +81,7 @@ public class MemberController {
 
         Member tempMember = mapper.memberPostToMember(postDto);
         //로컬 테스트용 임시 Ci 발급
-        tempMember.setCi("abcdefghijklmnop" + postDto.getEmail() + postDto.getPhone());
+        tempMember.setCi("abcdefghijklmnop" + postDto.getEmail());
         tempMember.setRoles(List.of("USER"));
 
         Member createdMember = memberService.createMember(tempMember);
@@ -220,7 +220,7 @@ public class MemberController {
                 HttpStatus.OK);
     }
 
-    @Operation(summary = "관리자용 회원 목록 조회", description = "전체 회원 정보 목록을 조회합니다.")
+    @Operation(summary = "관리자용 회원 목록 조회", description = "전체 회원 정보 목록을 조회합니다.(검색, 정렬, 상태/성별/연령대 조건 필터링)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = MemberDto.MyInfoResponse.class))
@@ -240,11 +240,15 @@ public class MemberController {
     })
     @GetMapping("/admin/member-page")
     public ResponseEntity<MultiResponseDto<MemberDto.MyInfoResponse>> getMembers(
-            @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam("page") @Positive int page,
-            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam("size") @Positive int size,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+            @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size,
+            @Parameter(description = "검색어(이름+이메일)") @RequestParam(required = false) String search,
+            @Parameter(description = "정렬(예: memberId/asc, name/desc)") @RequestParam(required = false) String sort,
+            @Parameter(description = "회원 상태", example = "MEMBER_ACTIVE") @RequestParam(required = false) Member.MemberStatus memberStatus,
+            @Parameter(description = "성별", example = "MALE") @RequestParam(required = false) Member.Gender gender,
+            @Parameter(description = "연령대", example = "20대") @RequestParam(required = false) String ageGroup) {
         AuthorizationUtils.verifyAdmin();
-        Page<Member> memberPage = memberService.findMembers(page, size);
+        Page<Member> memberPage = memberService.findMembersWithConditions(page, size, search, sort, memberStatus, gender, ageGroup);
         List<Member> members = memberPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.membersToMemberResponses(members), memberPage),
                 HttpStatus.OK);
@@ -288,7 +292,7 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "관리자용 탈퇴 회원 목록 조회", description = "탈퇴 회원 정보 목록을 조회합니다.")
+    @Operation(summary = "관리자용 탈퇴 회원 목록 조회", description = "탈퇴 회원 정보 목록을 조회합니다. (검색, 정렬, 성별/연령대/탈퇴사유/날짜범위 조건 지정)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = MemberDto.DeletedMemberResponse.class))
@@ -309,16 +313,24 @@ public class MemberController {
     @GetMapping("/admin/deleted-members")
     public ResponseEntity<MultiResponseDto<MemberDto.DeletedMemberResponse>> getDeletedMembers(
             @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
-            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size,
+            @Parameter(description = "검색어(이름+이메일)") @RequestParam(required = false) String search,
+            @Parameter(description = "성별", example = "MALE") @RequestParam(required = false) Member.Gender gender,
+            @Parameter(description = "연령대", example = "20대") @RequestParam(required = false) String ageGroup,
+            @Parameter(description = "탈퇴 사유", example = "서비스 이용 불편") @RequestParam(required = false) String reason,
+            @Parameter(description = "정렬(예: deletedAt/desc, deletedAt/asc)") @RequestParam(required = false, defaultValue = "deletedAt/desc") String sort,
+            @Parameter(description = "탈퇴일 시작(yyyy-MM-dd)", example = "2024-01-01") @RequestParam(required = false) String deletedAtStart,
+            @Parameter(description = "탈퇴일 끝(yyyy-MM-dd)", example = "2024-06-01") @RequestParam(required = false) String deletedAtEnd) {
         AuthorizationUtils.verifyAdmin();
-        Page<MemberDto.DeletedMemberResponse> responsePage = memberService.findDeletedMembers(page, size);
+        Page<MemberDto.DeletedMemberResponse> responsePage = memberService.findDeletedMembersWithConditions(
+                page, size, search, gender, ageGroup, reason, sort, deletedAtStart, deletedAtEnd);
         return new ResponseEntity<>(
                 new MultiResponseDto<>(responsePage.getContent(), responsePage),
                 HttpStatus.OK
         );
     }
 
-    @Operation(summary = "관리자용 정지 회원 목록 조회", description = "정지 회원 정보 목록을 조회합니다.")
+    @Operation(summary = "관리자용 정지 회원 목록 조회", description = "정지 회원 정보 목록을 조회합니다. (검색, 정렬, 성별/연령대/정지일 범위 조건)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = MemberDto.BannedMemberResponse.class))
@@ -337,23 +349,21 @@ public class MemberController {
             )
     })
     @GetMapping("/admin/banned-members")
-    public ResponseEntity<MultiResponseDto<MemberDto.BannedMemberResponse>> getBannedMembers(
+    public ResponseEntity<MultiResponseDto<MemberDto.BannedMemberListResponse>> getBannedMembers(
             @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
-            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size,
+            @Parameter(description = "검색어(이름+이메일)") @RequestParam(required = false) String search,
+            @Parameter(description = "성별", example = "MALE") @RequestParam(required = false) Member.Gender gender,
+            @Parameter(description = "연령대", example = "20대") @RequestParam(required = false) String ageGroup,
+            @Parameter(description = "정렬(예: bannedAt/desc, bannedAt/asc)") @RequestParam(defaultValue = "bannedAt/desc") String sort,
+            @Parameter(description = "정지일 시작(yyyy-MM-dd)", example = "2024-01-01") @RequestParam(required = false) String bannedAtStart,
+            @Parameter(description = "정지일 끝(yyyy-MM-dd)", example = "2024-06-01") @RequestParam(required = false) String bannedAtEnd) {
         AuthorizationUtils.verifyAdmin();
-        Page<Member> bannedMemberPage = memberService.findBannedMembers(page, size);
-        List<MemberDto.BannedMemberResponse> responses = bannedMemberPage.getContent().stream()
-                .map(member -> {
-                    MemberDto.BannedMemberResponse response = new MemberDto.BannedMemberResponse();
-                    response.setMemberId(member.getMemberId());
-                    response.setEmail(member.getEmail());
-                    response.setName(member.getName());
-                    response.setReports(reportService.findCompletedReportsByMemberId(member.getMemberId()));
-                    return response;
-                })
-                .collect(Collectors.toList());
+        Page<MemberDto.BannedMemberListResponse> bannedMemberPage = memberService.findBannedMembersWithConditions(
+                page, size, search, gender, ageGroup, sort, bannedAtStart, bannedAtEnd);
+
         return new ResponseEntity<>(
-                new MultiResponseDto<>(responses, bannedMemberPage),
+                new MultiResponseDto<>(bannedMemberPage.getContent(), bannedMemberPage),
                 HttpStatus.OK);
     }
 
