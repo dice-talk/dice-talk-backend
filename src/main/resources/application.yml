@@ -5,8 +5,8 @@ spring:
     redis:
       host: 172.31.3.55 # 127.0.0.1 # EC2의 내부 IP
       port: 6379
-#      password: # 로컬 테스트용
-      password: ${REDIS_PASSWORD}      # 서버용
+      #      password: # 로컬 테스트용
+      password: ${REDIS_PASSWORD} # 서버용
   h2:
     console:
       enabled: true # H2 콘솔을 활성화합니다.
@@ -103,7 +103,8 @@ springdoc:
   api-docs:
     path: /v3/api-docs
 toss:
-  payments:
-    base-url: https://sandbox.tosspayments.com
-    secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
-    client-key: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm
+  secret-key: test_sk_DpexMgkW36v6aXd6BBd93GbR5ozO
+  client-key: test_ck_Z1aOwX7K8mOyb5YxMMvqVyQxzvNP
+  base-url: https://sandbox.tosspayments.com
+  success-url: http://localhost:3000/payment/success
+  fail-url: http://localhost:3000/payment/fail
