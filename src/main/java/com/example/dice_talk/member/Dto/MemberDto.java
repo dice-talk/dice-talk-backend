@@ -149,6 +149,9 @@ public class MemberDto {
         @Schema(description = "나이대", example = "20대")
         private String ageGroup;
 
+        @Schema(description = "성별", example = "MAIL")
+        private Member.Gender gender;
+
         @Schema(description = "탈퇴 일시", example = "2024-03-20T14:30:00")
         private LocalDateTime deletedAt;
     }

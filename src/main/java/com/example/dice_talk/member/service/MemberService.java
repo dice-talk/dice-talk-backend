@@ -318,6 +318,17 @@ public class MemberService {
         });
     }
 
+    // 탈퇴회원 목록조회 (조건)
+    public Page<MemberDto.DeletedMemberResponse> findDeletedMembersWithConditions(
+            int page, int size, String search, Member.Gender gender, String ageGroup, String reason, String sort,
+            String deletedAtStart, String deletedAtEnd
+    ){
+        Pageable pageable = createPageable(page - 1, size, sort);
+        return deletedMemberRepository.searchDeletedMembersWithMember(
+                search, gender, ageGroup, reason, deletedAtStart, deletedAtEnd, pageable
+        );
+    }
+
     // 정지된 회원 목록 조회
     public Page<Member> findBannedMembers(int page, int size){
         return memberRepository.findAllBannedMembers(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));

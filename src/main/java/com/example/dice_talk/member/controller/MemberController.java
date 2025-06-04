@@ -292,7 +292,7 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "관리자용 탈퇴 회원 목록 조회", description = "탈퇴 회원 정보 목록을 조회합니다.")
+    @Operation(summary = "관리자용 탈퇴 회원 목록 조회", description = "탈퇴 회원 정보 목록을 조회합니다. (검색, 정렬, 성별/연령대/탈퇴사유/날짜범위 조건 지정)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = MemberDto.DeletedMemberResponse.class))
@@ -313,9 +313,17 @@ public class MemberController {
     @GetMapping("/admin/deleted-members")
     public ResponseEntity<MultiResponseDto<MemberDto.DeletedMemberResponse>> getDeletedMembers(
             @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
-            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size,
+            @Parameter(description = "검색어(이름+이메일)") @RequestParam(required = false) String search,
+            @Parameter(description = "성별", example = "MALE") @RequestParam(required = false) Member.Gender gender,
+            @Parameter(description = "연령대", example = "20대") @RequestParam(required = false) String ageGroup,
+            @Parameter(description = "탈퇴 사유", example = "서비스 이용 불편") @RequestParam(required = false) String reason,
+            @Parameter(description = "정렬(예: deletedAt/desc, deletedAt/asc)") @RequestParam(required = false, defaultValue = "deletedAt/desc") String sort,
+            @Parameter(description = "탈퇴일 시작(yyyy-MM-dd)", example = "2024-01-01") @RequestParam(required = false) String deletedAtStart,
+            @Parameter(description = "탈퇴일 끝(yyyy-MM-dd)", example = "2024-06-01") @RequestParam(required = false) String deletedAtEnd) {
         AuthorizationUtils.verifyAdmin();
-        Page<MemberDto.DeletedMemberResponse> responsePage = memberService.findDeletedMembers(page, size);
+        Page<MemberDto.DeletedMemberResponse> responsePage = memberService.findDeletedMembersWithConditions(
+                page, size, search, gender, ageGroup, reason, sort, deletedAtStart, deletedAtEnd);
         return new ResponseEntity<>(
                 new MultiResponseDto<>(responsePage.getContent(), responsePage),
                 HttpStatus.OK
