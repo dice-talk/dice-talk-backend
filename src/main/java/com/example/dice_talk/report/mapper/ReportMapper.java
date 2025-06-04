@@ -24,7 +24,7 @@ public interface ReportMapper {
 
         for(Long reportedMemberId : dto.getReportedMemberIds()) {
             Report report = new Report();
-            report.setReason(dto.getReason());
+            report.setReportReason(dto.getReportReason());
             report.setReporterId(reporterId);
             report.setReportedMemberId(reportedMemberId);
 
@@ -44,7 +44,7 @@ public interface ReportMapper {
         ReportDto.Response response = new ReportDto.Response();
         response.setReportId(report.getReportId());
         response.setReporterId(report.getReporterId());
-        response.setReason(report.getReason());
+        response.setReportReason(report.getReportReason());
         response.setReportStatus(report.getReportStatus());
         return response;
     }
