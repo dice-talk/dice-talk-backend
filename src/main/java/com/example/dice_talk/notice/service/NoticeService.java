@@ -83,6 +83,9 @@ public class NoticeService {
         AuthorizationUtils.verifyAdmin();
 
         Notice findNotice = findVerifiedNotice(patchDto.getNoticeId());
+        if(findNotice.getNoticeStatus() == Notice.NoticeStatus.CLOSED){
+            throw new BusinessLogicException(ExceptionCode.NOTICE_ALREADY_CLOSED);
+        }
 
         Optional.ofNullable(patchDto.getNoticeType()).ifPresent(value -> findNotice.setNoticeType(value));
         Optional.ofNullable(patchDto.getTitle()).ifPresent(value -> findNotice.setTitle(value));

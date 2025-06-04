@@ -21,9 +21,9 @@ public class ReportDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Post {
-        @Schema(description = "신고 사유", example = "부적절한 채팅 내용")
+        @Schema(description = "신고 사유", example = "SPAM")
         @NotBlank(message = "신고 사유는 필수 입력 항목입니다.")
-        private String reason;
+        private Report.ReportReason reportReason;
 
         @Schema(description = "신고자 회원 ID", example = "123")
         private long reporterId;
@@ -44,8 +44,8 @@ public class ReportDto {
         @Schema(description = "신고 ID", example = "1")
         private long reportId;
 
-        @Schema(description = "신고 사유", example = "부적절한 채팅 내용")
-        private String reason;
+        @Schema(description = "신고 사유", example = "SPAM")
+        private Report.ReportReason reportReason;
 
         @Schema(description = "신고자 회원 ID", example = "123")
         private Long reporterId;
@@ -62,6 +62,9 @@ public class ReportDto {
         @Schema(description = "신고된 채팅 목록", implementation = ChatDto.Response.class)
         private List<ChatDto.Response> reportedChats;
 
+        @Schema(description = "신고된 채팅의 채팅방 ID", example = "1")
+        private Long chatRoomId;
+
         @Schema(description = "신고 처리 상태", example = "REPORT_RECEIVED")
         private Report.ReportStatus reportStatus;
 
@@ -74,7 +77,7 @@ public class ReportDto {
         public static Response from(Report report, String reporterEmail, String reportedEmail) {
             Response response = new Response();
             response.setReportId(report.getReportId());
-            response.setReason(report.getReason());
+            response.setReportReason(report.getReportReason());
             response.setReporterId(report.getReporterId());
             response.setReporterEmail(reporterEmail);
             response.setReportedMemberId(report.getReportedMemberId());

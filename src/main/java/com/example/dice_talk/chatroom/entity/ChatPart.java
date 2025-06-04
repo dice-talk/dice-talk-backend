@@ -22,9 +22,6 @@ public class ChatPart extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String nickname;
 
-    @Column(nullable = false)
-    private String profile;
-
     @Enumerated(value = EnumType.STRING)
     private ExitStatus exitStatus = ExitStatus.MEMBER_ENTER;
 
