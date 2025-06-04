@@ -5,6 +5,9 @@ import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.chatroom.dto.ChatRoomDto;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.dto.SingleResponseDto;
+import com.example.dice_talk.item.dto.ItemDto;
+import com.example.dice_talk.item.mapper.ItemMapper;
+import com.example.dice_talk.item.service.ItemService;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notice.dto.NoticeDto;
@@ -46,8 +49,10 @@ public class HomeController {
     private final MemberService memberService;
     private final ThemeMapper themeMapper;
     private final NoticeMapper noticeMapper;
+    private final ItemMapper itemMapper;
     private final NotificationService notificationService;
     private final ChatRoomService chatRoomService;
+    private final ItemService itemService;
 
     @Operation(summary = "어플리케이션 HOME 조회", description = "로그인한 사용자가 어플리케이션 홈 회면을 조회합니다.",
             responses = {
@@ -67,7 +72,8 @@ public class HomeController {
         List<NoticeDto.Response> notices = noticeMapper.noticesToNoticeResponses(noticeService.findBannerEvents());
         boolean hasNewNotifications = notificationService.countUnread(customPrincipal.getMemberId()) > 0;
         Map<String, Long> curIds = chatRoomService.findCurIds(customPrincipal.getMemberId());
+        List<ItemDto.Response> items = itemMapper.itemsToItemResponses(itemService.findItems(1, 100).getContent());
         return new ResponseEntity<>(new HomeResponseDto(themes, notices, hasNewNotifications,
-                curIds.get("curChatRoomId"), curIds.get("curThemeId")), HttpStatus.OK);
+                curIds.get("curChatRoomId"), curIds.get("curThemeId"), items), HttpStatus.OK);
     }
 }

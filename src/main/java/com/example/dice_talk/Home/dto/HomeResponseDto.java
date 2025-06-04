@@ -1,5 +1,6 @@
 package com.example.dice_talk.Home.dto;
 
+import com.example.dice_talk.item.dto.ItemDto;
 import com.example.dice_talk.notice.dto.NoticeDto;
 import com.example.dice_talk.theme.dto.ThemeDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,11 +26,15 @@ public class HomeResponseDto {
     @Schema(description = "현재 참여중인 채팅방의 테마 ID")
     private long curThemeId;
 
-    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications, long curChatRoomId, long curThemeId) {
+    @Schema(description = "전체 아이템 리스트")
+    private List<ItemDto.Response> items;
+
+    public HomeResponseDto(List<ThemeDto.Response> themes, List<NoticeDto.Response> notices, boolean hasNewNotifications, long curChatRoomId, long curThemeId, List<ItemDto.Response> items) {
         this.themes = themes;
         this.notices = notices;
         this.hasNewNotifications = hasNewNotifications;
         this.curChatRoomId = curChatRoomId;
         this.curThemeId = curThemeId;
+        this.items = items;
     }
 }
