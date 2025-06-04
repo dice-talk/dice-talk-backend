@@ -80,6 +80,9 @@ public class MemberDto {
         @Schema(description = "회원 상태", example = "MEMBER_ACTIVE")
         private Member.MemberStatus memberStatus;
 
+        @Schema(description = "나이대", example = "20대")
+        private String ageGroup;
+
         @Schema(description = "알림 동의 여부", example = "true")
         private String notification;
     }
@@ -98,6 +101,9 @@ public class MemberDto {
 
         @Schema(description = "채팅방 참여 상태", example = "ROOM_ENTER")
         private RoomParticipation exitStatus;
+
+        @Schema(description = "나이대", example = "20대")
+        private String ageGroup;
 
         @Schema(description = "다이스 보유량", example = "42")
         private int totalDice;
@@ -140,6 +146,9 @@ public class MemberDto {
         @Schema(description = "탈퇴 사유", example = "서비스 이용 불편")
         private String deleteReason;
 
+        @Schema(description = "나이대", example = "20대")
+        private String ageGroup;
+
         @Schema(description = "탈퇴 일시", example = "2024-03-20T14:30:00")
         private LocalDateTime deletedAt;
     }
@@ -167,6 +176,9 @@ public class MemberDto {
 
         @Schema(description = "회원 상태", example = "MEMBER_ACTIVE")
         private Member.MemberStatus memberStatus;
+
+        @Schema(description = "나이대", example = "20대")
+        private String ageGroup;
 
         @Schema(description = "신고 당한 내역")
         private List<ReportDto.Response> reports;

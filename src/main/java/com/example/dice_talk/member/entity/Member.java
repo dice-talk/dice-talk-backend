@@ -41,6 +41,10 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String region;
 
+    // 일반 VARCHAR 컬럼이기 때문에, insertable/updatable 제어 불필요 (생성, 수정 시 직접 건드리지 않기 떄문에)
+    @Column(name = "age_group", length = 10)
+    private String ageGroup;
+
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 

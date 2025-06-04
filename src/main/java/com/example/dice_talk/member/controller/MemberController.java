@@ -220,7 +220,7 @@ public class MemberController {
                 HttpStatus.OK);
     }
 
-    @Operation(summary = "관리자용 회원 목록 조회", description = "전체 회원 정보 목록을 조회합니다.")
+    @Operation(summary = "관리자용 회원 목록 조회", description = "전체 회원 정보 목록을 조회합니다.(검색, 정렬, 상태/성별/연령대 조건 필터링)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = MemberDto.MyInfoResponse.class))
@@ -240,11 +240,15 @@ public class MemberController {
     })
     @GetMapping("/admin/member-page")
     public ResponseEntity<MultiResponseDto<MemberDto.MyInfoResponse>> getMembers(
-            @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam("page") @Positive int page,
-            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam("size") @Positive int size,
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+            @Parameter(description = "페이지 번호(1 이상)", example = "1") @RequestParam(value = "page", defaultValue = "1") @Positive int page,
+            @Parameter(description = "페이지 크기(1 이상)", example = "10") @RequestParam(value = "size", defaultValue = "10") @Positive int size,
+            @Parameter(description = "검색어(이름+이메일)") @RequestParam(required = false) String search,
+            @Parameter(description = "정렬(예: memberId/asc, name/desc)") @RequestParam(required = false) String sort,
+            @Parameter(description = "회원 상태", example = "MEMBER_ACTIVE") @RequestParam(required = false) Member.MemberStatus memberStatus,
+            @Parameter(description = "성별", example = "MALE") @RequestParam(required = false) Member.Gender gender,
+            @Parameter(description = "연령대", example = "20대") @RequestParam(required = false) String ageGroup) {
         AuthorizationUtils.verifyAdmin();
-        Page<Member> memberPage = memberService.findMembers(page, size);
+        Page<Member> memberPage = memberService.findMembersWithConditions(page, size, search, sort, memberStatus, gender, ageGroup);
         List<Member> members = memberPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.membersToMemberResponses(members), memberPage),
                 HttpStatus.OK);
