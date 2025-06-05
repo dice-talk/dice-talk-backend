@@ -146,5 +146,31 @@ public class RoomEventController {
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.roomEventsToResponses(roomEvents), eventPage), HttpStatus.OK);
     }
 
+    @Operation(summary = "하트 히스토리 삭제", description = "본인의 특정 하트 히스토리를 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":400,\"message\":\"Bad Request\"}"))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 접근",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":401,\"message\":\"Authentication is required\"}"))),
+            @ApiResponse(responseCode = "403", description = "삭제 권한 없음",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SwaggerErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"status\":403,\"message\":\"Access not allowed\"}")))
+    })
+    @DeleteMapping("/history/{room-event-id}")
+    public ResponseEntity<Void> deleteRoomEvent(
+            @Parameter(description = "삭제할 룸 이벤트 ID", required = true)
+            @PathVariable("room-event-id") Long roomEventId,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal
+    ){
+        roomEventService.deleteRoomEvent(roomEventId, customPrincipal.getMemberId());
+        return ResponseEntity.noContent().build();
+    }
+
 
 }
