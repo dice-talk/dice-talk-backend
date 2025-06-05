@@ -186,6 +186,21 @@ public class QuestionService {
         return questionRepository.findAllActiveByMember_MemberId(memberId, pageable);
     }
 
+    // 비회원 질문 목록 조회
+    public Page<Question> findGuestQuestions(
+            int page, int size, Question.QuestionStatus status, String search, String searchType, String sort
+    ){
+        if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
+        if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
+
+        Sort st = "asc".equalsIgnoreCase(sort) ?
+                Sort.by("questionId").ascending() :
+                Sort.by("questionId").descending();
+        Pageable pageable = PageRequest.of(page - 1, size, st);
+
+        return questionRepository.searchGuestQuestions(status, search, searchType, pageable);
+    }
+
     public Question findQuestion(Long questionId) {
         // Authentication 통해서 memberId와 관리자인지 받아와서 권한 없는 글에 접근 시 예외처리
         return questionRepository.findById(questionId)
