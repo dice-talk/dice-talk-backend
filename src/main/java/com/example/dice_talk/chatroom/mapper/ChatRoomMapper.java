@@ -53,7 +53,6 @@ public interface ChatRoomMapper {
         ChatRoomDto.SingleResponse response = new ChatRoomDto.SingleResponse();
         response.setChatRoomId(chatRoom.getChatRoomId());
         response.setRoomType(chatRoom.getRoomType());
-        response.setNotice(chatRoom.getNotice());
         response.setRoomStatus(chatRoom.getRoomStatus());
         response.setThemeName(chatRoom.getTheme().getName());
         response.setCreatedAt(chatRoom.getCreatedAt());

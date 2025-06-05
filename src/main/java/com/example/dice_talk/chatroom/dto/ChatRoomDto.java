@@ -37,9 +37,6 @@ public class ChatRoomDto {
     public static class Patch{
         @Schema(description = "채팅방 ID", example = "1")
         private Long chatRoomId;
-
-        @Schema(description = "채팅방 공지 내용", example = "공지사항입니다.")
-        private String notice;
     }
 
     @Getter
@@ -52,9 +49,6 @@ public class ChatRoomDto {
 
         @Schema(description = "채팅방 유형", example = "COUPLE")
         private ChatRoom.RoomType roomType;
-
-        @Schema(description = "채팅방 공지", example = "공지입니다.")
-        private String notice;
 
         @Schema(description = "채팅방 상태", example = "ROOM_ACTIVE")
         private ChatRoom.RoomStatus roomStatus;

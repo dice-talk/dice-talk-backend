@@ -26,9 +26,6 @@ public class ChatRoom extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private RoomType roomType = RoomType.GROUP;
 
-    @Column
-    private String notice;
-
     @Enumerated(value = EnumType.STRING)
     private RoomStatus roomStatus = RoomStatus.ROOM_ACTIVE;
 
