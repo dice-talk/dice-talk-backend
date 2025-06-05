@@ -111,12 +111,12 @@ public class  ChatRoomService {
 
     // 특정 채팅방이 존재하는지 확인 후 업데이트
     // 트랜잭션 격리를 `SERIALIZABLE`로 설정 -> 동시성 문제 방지
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-    public ChatRoom updateChatRoom(ChatRoom chatRoom) {
-        ChatRoom findChatRoom = findVerifiedChatRoom(chatRoom.getChatRoomId()); //기존 채팅방 확인
-        Optional.ofNullable(chatRoom.getNotice()).ifPresent(notice -> findChatRoom.setNotice(notice)); //notice 수정
-        return chatRoomRepository.save(findChatRoom);
-    }
+//    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+//    public ChatRoom updateChatRoom(ChatRoom chatRoom) {
+//        ChatRoom findChatRoom = findVerifiedChatRoom(chatRoom.getChatRoomId()); //기존 채팅방 확인
+//        Optional.ofNullable(chatRoom.getNotice()).ifPresent(notice -> findChatRoom.setNotice(notice)); //notice 수정
+//        return chatRoomRepository.save(findChatRoom);
+//    }
 
     public ChatRoom findChatRoom(long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));

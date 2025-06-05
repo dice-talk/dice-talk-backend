@@ -42,6 +42,7 @@ import javax.validation.constraints.Positive;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Question", description = "질문 API")
 @SecurityRequirement(name = "JWT")
@@ -309,5 +310,39 @@ public class QuestionController {
         // URI 만들기
         URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, createdQuestion.getQuestionId());
         return ResponseEntity.created(location).build();
+    }
+
+    @Operation(summary = "비회원 문의 목록 조회", description = "비회원 문의 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @ApiResponse(responseCode = "403", description = "권한 없음")
+    })
+    @GetMapping("/guest")
+    public ResponseEntity<MultiResponseDto<QuestionDto.Response>> getGuestQuestions(
+            @Parameter(description = "페이지 번호 (1부터 시작)", example = "1")
+            @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 크기", example = "10")
+            @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "문의 상태 (QUESTION_GUEST, QUESTION_GUEST_ANSWERED) - 전체 조회 시 파라미터 x")
+            @RequestParam(required = false) Question.QuestionStatus status,
+            @Parameter(description = "검색어")
+            @RequestParam(required = false) String search,
+            @Parameter(description = "검색 유형 (TITLE, CONTENT, AUTHOR, TITLE_AUTHOR)")
+            @RequestParam(required = false, defaultValue = "TITLE") String searchType,
+            @Parameter(description = "정렬 방식 (asc, desc)")
+            @RequestParam(required = false, defaultValue = "desc") String sort
+    ) {
+        Page<Question> questionPage = questionService.findGuestQuestions(
+                page, size, status, search, searchType, sort
+        );
+        List<QuestionDto.Response> responses = questionPage.getContent().stream()
+                .map(question -> questionMapper.questionToQuestionResponse(question))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(
+                new MultiResponseDto<>(responses, questionPage), HttpStatus.OK
+        );
     }
 }

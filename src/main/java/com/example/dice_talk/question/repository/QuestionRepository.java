@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSpecificationExecutor<Question> {
+public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSpecificationExecutor<Question>, QuestionRepositoryCustom {
     @Query("SELECT q FROM Question q WHERE q.questionStatus IN :statuses")
     Page<Question> findByQuestionStatusIn(@Param("statuses") List<Question.QuestionStatus> statuses, Pageable pageable);
 
