@@ -22,7 +22,6 @@ public class ReportDto {
     @NoArgsConstructor
     public static class Post {
         @Schema(description = "신고 사유", example = "SPAM")
-        @NotBlank(message = "신고 사유는 필수 입력 항목입니다.")
         private Report.ReportReason reportReason;
 
         @Schema(description = "신고자 회원 ID", example = "123")
