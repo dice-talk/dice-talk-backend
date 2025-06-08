@@ -186,6 +186,9 @@ public class MemberDto {
         @Schema(description = "나이대", example = "20대")
         private String ageGroup;
 
+        @Schema(description = "정지일", example = "2025-06-07T12:00")
+        private LocalDateTime bannedAt;
+
         @Schema(description = "신고 당한 내역")
         private List<ReportDto.Response> reports;
     }

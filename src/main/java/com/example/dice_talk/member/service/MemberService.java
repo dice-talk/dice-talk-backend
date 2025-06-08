@@ -360,6 +360,7 @@ public class MemberService {
         response.setRegion(member.getRegion());
         response.setMemberStatus(member.getMemberStatus());
         response.setReports(reports);
+        response.setBannedAt(member.getModifiedAt());
 
         return response;
     }
