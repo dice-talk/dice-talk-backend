@@ -121,7 +121,7 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         // 클라이언트가 보낼 수 있는 헤더 명시 (Authorization, Content-Type 등)
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "Cache-Control", "Content-Type", "Refresh"));
-        configuration.setExposedHeaders(Arrays.asList("authorization", "Authorization", "Refresh"));
+        configuration.setExposedHeaders(Arrays.asList("authorization", "Authorization", "Refresh", "Location"));
         configuration.setAllowCredentials(true);
         // UrlBasedCorsConfigurationSource : CorsConfigurationSource의 구현체
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
