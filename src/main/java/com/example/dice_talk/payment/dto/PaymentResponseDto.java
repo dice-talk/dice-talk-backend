@@ -22,10 +22,10 @@ public class PaymentResponseDto {
     @Schema(description = "주문명", example = "다이스 100개 충전")
     private String orderName;   // 예: "밥풀 100개 충전"
 
-    @Schema(description = "결제 성공 시 리다이렉트 URL", example = "http://localhost:3000/payment/success")
+    @Schema(description = "결제 성공 시 리다이렉트 URL", example = "dicetalkts://payment-success")
     private String successUrl;  // 성공 URL
 
-    @Schema(description = "결제 실패 시 리다이렉트 URL", example = "http://localhost:3000/payment/fail")
+    @Schema(description = "결제 실패 시 리다이렉트 URL", example = "dicetalkts://payment-fail")
     private String failUrl;     // 실패 URL
 }
 

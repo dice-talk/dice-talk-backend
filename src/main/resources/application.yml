@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dice-talk
+    name: dicetalkts
   data:
     redis:
       host: 127.0.0.1 #172.31.3.55 # EC2의 내부 IP
@@ -106,4 +106,12 @@ springdoc:
     tagsSorter: alpha # 태그 순 정렬
   api-docs:
     path: /v3/api-docs
+toss:
+  secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
+  # test_sk_DpexMgkW36v6aXd6BBd93GbR5ozO
+  client-key: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm
+  # test_ck_Z1aOwX7K8mOyb5YxMMvqVyQxzvNP
+  # base-url: https://sandbox.tosspayments.com
+  success-url: dicetalkts://payment-success
+  fail-url: dicetalkts://payment-fail
 
