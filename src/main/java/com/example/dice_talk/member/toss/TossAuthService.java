@@ -155,8 +155,8 @@ public class TossAuthService {
 
         Map<String, Object> body = new HashMap<>();
         body.put("requestType", "USER_NONE"); // 사용자가 Toss 페이지/앱에서 직접 정보 입력
-        body.put("successCallbackUrl", "dice-talk://toss-success"); // 인증 성공 시 돌아올 앱 딥링크
-        body.put("failCallbackUrl", "dice-talk://toss-fail");     // 인증 실패 시 돌아올 앱 딥링크
+        body.put("successCallbackUrl", "dicetalkts:://toss-success"); // 인증 성공 시 돌아올 앱 딥링크
+        body.put("failCallbackUrl", "dicetalkts:://toss-fail");     // 인증 실패 시 돌아올 앱 딥링크
 
         // USER_NONE 방식에서는 requestedInfo가 결과 조회 시 어떤 항목을 받고 싶은지를 명시합니다.
         // Toss 테스트 환경에서는 이 정보들을 가상 인물의 암호화된 데이터로 제공합니다.

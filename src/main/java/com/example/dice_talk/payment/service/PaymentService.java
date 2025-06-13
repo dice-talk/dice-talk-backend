@@ -72,7 +72,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public void confirmPayment(TossSuccessDto successDto) {
+    public ConfirmPaymentResponseDto confirmPayment(TossSuccessDto successDto) {
         log.info("결제 승인 요청 - orderId: {}", successDto.getOrderId());
 
         // 1. 결제 정보 조회 및 검증
@@ -143,6 +143,11 @@ public class PaymentService {
             
             log.info("결제 승인 완료 - orderId: {}, amount: {}", 
                     successDto.getOrderId(), successDto.getAmount());
+
+            // 5. 업데이트된 사용자의 최종 다이스 개수를 가져와 DTO로 만들어 반환
+            int updatedTotalDice = payment.getMember().getTotalDice();
+            return new ConfirmPaymentResponseDto(updatedTotalDice);
+
         } else {
             log.error("결제 승인 실패 - orderId: {}, status: {}", 
                     successDto.getOrderId(), response.getStatusCode());
