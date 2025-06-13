@@ -56,6 +56,9 @@ public class RoomEventDto {
         @Schema(description = "채팅방 ID", example = "1011")
         private Long chatRoomId;
 
+        @Schema(description = "테마 ID", example = "1")
+        private Long themeId;
+
         @Schema(description = "이벤트 메시지 내용", example = "더 알아가고 싶어요")
         private String message;
 
