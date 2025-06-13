@@ -54,10 +54,10 @@ public class RoomEventService {
     }
 
     // 하트 히스토리 찾기 ( RoomEvent 중 이벤트가 Heart With Message 이고, receiverId가 전달받은 memberId인 RoomEventList )
-    public Page<RoomEvent> findRoomEventsByEventAndMemberId(long memberId){
+    public Page<RoomEvent> findRoomEventsByEventAndMemberId(long memberId, int page, int size){
         memberService.findVerifiedMember(memberId);
         return roomEventRepository.findAllByEvent_EventNameAndReceiverId("Heart With Message", memberId,
-                PageRequest.of(0, 5, Sort.by("roomEventId").descending()));
+                PageRequest.of(page -1 , size, Sort.by("roomEventId").descending()));
 
     }
 
