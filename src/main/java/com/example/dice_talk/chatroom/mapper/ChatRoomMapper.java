@@ -95,7 +95,20 @@ public interface ChatRoomMapper {
         return dto;
     }
 
+    // 관리자용 목록 조회
+    default ChatRoomDto.AdminMultiResponse chatRoomToAdminMultiResponse(ChatRoom chatRoom) {
+        ChatRoomDto.AdminMultiResponse dto = new ChatRoomDto.AdminMultiResponse();
+        dto.setChatRoomId(chatRoom.getChatRoomId());
+        dto.setRoomStatus(chatRoom.getRoomStatus());
+        dto.setRoomType(chatRoom.getRoomType());
+        dto.setThemeName(chatRoom.getTheme().getName());
+        dto.setCreatedAt(chatRoom.getCreatedAt());
+        dto.setModifiedAt(chatRoom.getModifiedAt());
+        return dto;
+    }
+
     List<ChatRoomDto.MultiResponse> chatRoomsToChatRoomMultiResponses(List<ChatRoom> chatRooms);
+    List<ChatRoomDto.AdminMultiResponse> chatRoomsToAdminMultiResponses(List<ChatRoom> chatRooms);
 
     // ChatPart 응답
     @Mapping(target = "memberId", source = "member.memberId")

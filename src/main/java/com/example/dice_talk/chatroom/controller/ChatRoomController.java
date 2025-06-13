@@ -90,15 +90,29 @@ public class ChatRoomController {
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping
-    public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                                                                    @Positive @RequestParam int page,
-                                                                                    @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
-                                                                                    @Positive @RequestParam int size) {
+    public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@Parameter(description = "테마 명")
+                                                                                    @RequestParam(required = false) String themeName,
+                                                                                    @Parameter(description = "채팅방 상태")
+                                                                                    @RequestParam(required = false) ChatRoom.RoomStatus roomStatus,
+                                                                                    @Parameter(description = "채팅방 유형")
+                                                                                    @RequestParam(required = false) ChatRoom.RoomType roomType,
+                                                                                    @Parameter(description = "채팅방 ID")
+                                                                                    @RequestParam(required = false) Long chatRoomId,
+                                                                                    @Parameter(description = "채팅방 생성일 시작 기준")
+                                                                                    @RequestParam(required = false) String createdAtStart,
+                                                                                    @Parameter(description = "채팅방 생성일 끝 기준")// "2024-06-01T00:00"
+                                                                                    @RequestParam(required = false) String createdAtEnd,   // "2024-06-30T23:59"
+                                                                                    @Parameter(description = "페이지 번호")
+                                                                                    @RequestParam(defaultValue = "1") int page,
+                                                                                    @Parameter(description = "페이지 크기")
+                                                                                    @RequestParam(defaultValue = "10") int size) {
         AuthorizationUtils.isAdmin();
-        Page<ChatRoom> chatRoomPage = chatRoomService.findChatRooms(page, size);
+        Page<ChatRoom> chatRoomPage = chatRoomService.searchChatRooms(
+                themeName, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, page, size
+        );
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(
-                mapper.chatRoomsToChatRoomMultiResponses(chatRooms), chatRoomPage
+                mapper.chatRoomsToAdminMultiResponses(chatRooms), chatRoomPage
         ), HttpStatus.OK);
     }
 
