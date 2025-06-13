@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /*특정 채팅방 조회 시 연관된 메세지도 즉시 로딩*/
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatRoomRepositoryCustom {
 
     /*특정 채팅방 조회 시, 메세지도 함께 로딩
 

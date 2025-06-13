@@ -14,9 +14,11 @@ import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
 import com.example.dice_talk.theme.entity.Theme;
+import com.example.dice_talk.theme.repository.ThemeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,7 @@ public class  ChatRoomService {
     private final RoomEventRepository roomEventRepository;
     private final MemberService memberService;
     private final ExitLogService exitLogService;
+    private final ThemeRepository themeRepository;
 
     public boolean isMemberPossibleToPart(long memberId) {
         memberService.findVerifiedMember(memberId);
@@ -328,5 +331,30 @@ public class  ChatRoomService {
         memberService.findVerifiedMember(memberId);
         return chatPartRepository.findTopByMember_MemberIdAndExitStatusOrderByCreatedAtDesc(memberId, ChatPart.ExitStatus.MEMBER_ENTER)
                 .map(chatPart -> chatPart.getChatRoom().getChatRoomId()).orElse(0L);
+    }
+
+    // 목록조회 로직
+    public Page<ChatRoom> searchChatRooms(
+            String themeName,
+            ChatRoom.RoomStatus roomStatus,
+            ChatRoom.RoomType roomType,
+            Long chatRoomId,
+            String createdAtStart,
+            String createdAtEnd,
+            int page,
+            int size
+    ) {
+        Long themeId = null;
+        if (themeName != null && !themeName.isEmpty()) {
+            themeId = themeRepository.findByName(themeName)
+                    .map(Theme::getThemeId)
+                    .orElse(null);
+            if (themeId == null) {
+                // 없는 테마면 결과 없음 반환
+                return Page.empty();
+            }
+        }
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        return chatRoomRepository.searchChatRooms(themeId, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, pageable);
     }
 }

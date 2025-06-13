@@ -90,4 +90,28 @@ public class ChatRoomDto {
         @Schema(description = "수정일")
         private LocalDateTime modifiedAt;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AdminMultiResponse{
+        @Schema(description = "채팅방 ID", example = "1")
+        private long chatRoomId;
+
+        @Schema(description = "채팅방 유형", example = "COUPLE")
+        private ChatRoom.RoomType roomType;
+
+        @Schema(description = "채팅방 상태", example = "ROOM_DEACTIVE")
+        private ChatRoom.RoomStatus roomStatus;
+
+        @Schema(description = "테마명", example = "하트시그널")
+        private String themeName;
+
+        @Schema(description = "생성일")
+        private LocalDateTime createdAt;
+
+        @Schema(description = "수정일")
+        private LocalDateTime modifiedAt;
+    }
 }
