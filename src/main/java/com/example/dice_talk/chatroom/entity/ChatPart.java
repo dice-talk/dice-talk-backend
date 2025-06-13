@@ -19,8 +19,8 @@ public class ChatPart extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partId;
 
-    @Column(nullable = false, length = 50)
-    private String nickname;
+    @Column(nullable = true)
+    private String nickname = "";
 
     @Enumerated(value = EnumType.STRING)
     private ExitStatus exitStatus = ExitStatus.MEMBER_ENTER;

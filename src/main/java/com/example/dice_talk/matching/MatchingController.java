@@ -1,6 +1,7 @@
 package com.example.dice_talk.matching;
 
 import com.example.dice_talk.auth.CustomPrincipal;
+import com.example.dice_talk.chat.dto.MatchedResult;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -43,18 +45,20 @@ public class MatchingController {
                     )}
     )
     @PostMapping("/join")
-    public ResponseEntity<?> joinMatching(@Parameter(hidden = true) Authentication authentication) {
-        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+    public ResponseEntity<?> joinMatching(@AuthenticationPrincipal CustomPrincipal principal,
+                                          @RequestBody MatchingRequestDto dto) {
         Member member = memberService.findVerifiedMember(principal.getMemberId());
+        Long themeId = Long.valueOf(dto.getThemeId());
+        Optional<MatchedResult> result = matchingQueue.addToQueue(member, themeId, dto.getRegion(), dto.getAgeGroup());
 
-        return matchingQueue.addToQueue(member)
-                .map(result -> ResponseEntity.ok().body(Map.of(
-                        "message", "채팅방이 생성되었습니다.",
-                        "chatRoomId", result.getChatRoomId()
-                )))
-                .orElse(ResponseEntity.ok(Map.of(
-                        "message", "매칭 대기중입니다."
-                )));
+        if (result.isPresent()) {
+            return ResponseEntity.ok(Map.of(
+                    "message", "매칭 성공",
+                    "chatRoomId", result.get().getChatRoomId()
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "대기열에 참가했습니다."));
     }
 
     private final Set<String> usedNicknames = new HashSet<>();

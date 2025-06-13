@@ -13,6 +13,7 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
+import com.example.dice_talk.theme.entity.Theme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -168,18 +169,44 @@ public class  ChatRoomService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND));
     }
 
-    public ChatRoom createRoomForMatchedUsers(List<Member> members) {
+    public ChatRoom createRoomForMatchedUsers(List<Member> members, Long themeId) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setRoomType(ChatRoom.RoomType.GROUP);
         chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
+        Theme theme = new Theme();
+        theme.setThemeId(themeId);
+        chatRoom.setTheme(theme);
         ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
 
+        // 남자 닉네임 그룹
+        List<String> maleNicknameGroup = List.of("한가로운 하나", "세침한 세찌", "단호한데 다정한 다오");
+        // 여자 닉네임 그룹
+        List<String> femaleNicknameGroup = List.of("두 얼굴의 매력 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육땡");
+
+        // 남자 chatPart 그룹
+        List<ChatPart> maleChatPartList = new ArrayList<>();
+        // 여자 chatPart 그룹
+        List<ChatPart> femaleChatPartList = new ArrayList<>();
+
+        // member 리스트를 순회하며 각 회원의 chat_part 만들어주기
         for (Member member : members) {
+            // chatPart 빈객체 생성
             ChatPart chatPart = new ChatPart();
-            chatPart.setNickname(member.getName());
             chatPart.setMember(member);
             chatPart.setChatRoom(savedRoom);
             chatPartRepository.save(chatPart);
+            // 성별이 남자라면 남자 chatPartList 로
+            if(member.getGender() == Member.Gender.MALE) {
+                maleChatPartList.add(chatPart);
+            } else {
+                // 여자라면 femaleChatPartList 에
+                femaleChatPartList.add(chatPart);
+            }
+        }
+        // 각 리스트 순회하며 각 chatPart 에 맞는 닉네임 할당
+        for (int i = 0; i <= 0; i ++) {
+            maleChatPartList.get(i).setNickname(maleNicknameGroup.get(i));
+            femaleChatPartList.get(i).setNickname(femaleNicknameGroup.get(i));
         }
 
         scheduleDeactivationGroup(savedRoom);
@@ -188,10 +215,13 @@ public class  ChatRoomService {
         return savedRoom;
     }
 
-    public ChatRoom createCoupleRoomForMatchedUsers(List<Member> members) {
+    public ChatRoom createCoupleRoomForMatchedUsers(List<Member> members, Long themeId) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setRoomType(ChatRoom.RoomType.COUPLE);
         chatRoom.setRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
+        Theme theme = new Theme();
+        theme.setThemeId(themeId);
+        chatRoom.setTheme(theme);
         ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
 
         for (Member member : members) {
@@ -208,7 +238,7 @@ public class  ChatRoomService {
     }
 
     // RoomEvent 리스트에서 서로 선택한 커플을 찾는 메서드
-    public void processMutualSelections(List<RoomEvent> events) {
+    public void processMutualSelections(List<RoomEvent> events, Long themeId) {
         // 리스트 복사 (원본 리스트 수정 방지)
         List<RoomEvent> workingList = new ArrayList<>(events);
 
@@ -233,7 +263,7 @@ public class  ChatRoomService {
                     List<Member> couple = new ArrayList<>();
                     couple.add(memberService.findVerifiedMember(senderId));
                     couple.add(memberService.findVerifiedMember(receiverId));
-                    createCoupleRoomForMatchedUsers(couple);
+                    createCoupleRoomForMatchedUsers(couple, themeId);
 
                     // 매칭된 이벤트 제거 (j 먼저 제거해야 인덱스가 유효함)
                     workingList.remove(j);
