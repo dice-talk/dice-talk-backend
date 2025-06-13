@@ -90,13 +90,21 @@ public class ChatRoomController {
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping
-    public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@RequestParam(required = false) String themeName,
+    public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@Parameter(description = "테마 명")
+                                                                                    @RequestParam(required = false) String themeName,
+                                                                                    @Parameter(description = "채팅방 상태")
                                                                                     @RequestParam(required = false) ChatRoom.RoomStatus roomStatus,
+                                                                                    @Parameter(description = "채팅방 유형")
                                                                                     @RequestParam(required = false) ChatRoom.RoomType roomType,
+                                                                                    @Parameter(description = "채팅방 ID")
                                                                                     @RequestParam(required = false) Long chatRoomId,
-                                                                                    @RequestParam(required = false) String createdAtStart, // "2024-06-01T00:00"
+                                                                                    @Parameter(description = "채팅방 생성일 시작 기준")
+                                                                                    @RequestParam(required = false) String createdAtStart,
+                                                                                    @Parameter(description = "채팅방 생성일 끝 기준")// "2024-06-01T00:00"
                                                                                     @RequestParam(required = false) String createdAtEnd,   // "2024-06-30T23:59"
+                                                                                    @Parameter(description = "페이지 번호")
                                                                                     @RequestParam(defaultValue = "1") int page,
+                                                                                    @Parameter(description = "페이지 크기")
                                                                                     @RequestParam(defaultValue = "10") int size) {
         AuthorizationUtils.isAdmin();
         Page<ChatRoom> chatRoomPage = chatRoomService.searchChatRooms(
