@@ -20,7 +20,7 @@ public class MemberAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String exception = (String) request.getAttribute("exception");
         String message = authException.getMessage();
 
-        if ("BANNED".equals(exception) || (message != null && message.contains("정지된 회원"))) {
+        if ("BANNED".equals(exception) || (authException != null && authException.getClass().getSimpleName().equals("DisabledException"))) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":403, \"message\":\"정지된 회원입니다.\"}");
