@@ -5,11 +5,14 @@ import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.repository.MemberRepository;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -30,6 +33,14 @@ public class MemberDetailsService implements UserDetailsService {
         Optional<Member> optionalMember = memberRepository.findByEmail(username);
         // 존재하지 않는 회원이면 예외
         Member findMember = optionalMember.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        // 정지 회원이면 예외 발생
+        if(findMember.getMemberStatus() == Member.MemberStatus.MEMBER_BANNED){
+            ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if(attr != null){
+                attr.getRequest().setAttribute("exception", "BANNED");
+            }
+            throw new DisabledException("정지된 회원입니다.");
+        }
         return new MemberDetails(findMember);
     }
 

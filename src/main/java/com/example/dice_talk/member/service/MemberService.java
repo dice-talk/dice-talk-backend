@@ -58,6 +58,7 @@ public class MemberService {
 //        member.setRoles(roles);
         //회원가입 직후 0으로 초기화
         member.setTotalDice(0);
+        member.setAgeGroup(calculateAgeGroup(member.getBirth()));
 
         //저장
         return memberRepository.save(member);
@@ -376,5 +377,30 @@ public class MemberService {
         return asc
                 ? PageRequest.of(page - 1, size, Sort.by(property).ascending())
                 : PageRequest.of(page - 1, size, Sort.by(property).descending());
+    }
+
+    // 나이대 계산
+    private String calculateAgeGroup(String birth) {
+        if (birth == null || birth.isEmpty()) return "알수없음";
+
+        String[] parts = birth.split("-");
+        if (parts.length < 3) return "알수없음";
+
+        int birthYear;
+        try {
+            birthYear = Integer.parseInt(parts[0]);
+        } catch (NumberFormatException e) {
+            return "알수없음";
+        }
+
+        int currentYear = java.time.LocalDate.now().getYear();
+        int age = currentYear - birthYear; // 만 나이
+
+        if (age < 10) return "10대 미만";
+        if (age < 20) return "10대";
+        if (age < 30) return "20대";
+        if (age < 40) return "30대";
+        if (age < 50) return "40대";
+        return "50대 이상";
     }
 }
