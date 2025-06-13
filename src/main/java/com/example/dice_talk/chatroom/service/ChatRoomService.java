@@ -75,7 +75,7 @@ public class  ChatRoomService {
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         List<RoomEvent> curRoomEvents= chatRoom.getRoomEvents();
-        processMutualSelections(curRoomEvents);
+        processMutualSelections(curRoomEvents, chatRoom.getTheme().getThemeId());
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
