@@ -36,6 +36,7 @@ public interface RoomEventMapper {
         response.setSenderId(roomEvent.getSenderId());
         response.setChatRoomId(roomEvent.getChatRoom().getChatRoomId());
         response.setRoomEventType(roomEvent.getRoomEventType());
+        response.setThemeId(roomEvent.getChatRoom().getTheme().getThemeId());
         response.setCreatedAt(roomEvent.getCreatedAt());
         response.setModifiedAt(roomEvent.getModifiedAt());
         if (roomEvent.getRoomEventType().equals(RoomEvent.RoomEventType.PICK_MESSAGE)) {
