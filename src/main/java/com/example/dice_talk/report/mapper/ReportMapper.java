@@ -44,8 +44,8 @@ public interface ReportMapper {
         ReportDto.Response response = new ReportDto.Response();
         response.setReportId(report.getReportId());
         response.setReporterId(report.getReporterId());
-        response.setReportReason(report.getReportReason());
-        response.setReportStatus(report.getReportStatus());
+        response.setReportReason(report.getReportReason().getDescription());
+        response.setReportStatus(report.getReportStatus().getStatus());
         return response;
     }
 
