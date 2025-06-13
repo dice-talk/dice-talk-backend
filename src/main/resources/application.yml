@@ -3,7 +3,8 @@ spring:
     name: dicetalkts
   data:
     redis:
-      host: 127.0.0.1 #172.31.3.55 # EC2의 내부 IP
+#      host: 127.0.0.1 # 172.31.3.55 # EC2의 내부 IP
+      host: 172.31.3.55
       port: 6379
       password: # 로컬 테스트용
 #      password: ${REDIS_PASSWORD}      # 서버용
@@ -29,9 +30,7 @@ spring:
     show-sql: true # JPA에서 실행되는 SQL 쿼리를 콘솔에 출력합니다.
     properties:
       hibernate:
-        #        dialect: org.hibernate.dialect.H2Dialect
         dialect: org.hibernate.dialect.MySQL8Dialect
-
         format_sql: true # SQL 쿼리를 포맷하여 가독성을 높입니다.
         highlight_sql: true # SQL 쿼리에서 중요한 부분을 강조합니다.
         color-codes: true # SQL 쿼리의 컬러 코드를 사용합니다.

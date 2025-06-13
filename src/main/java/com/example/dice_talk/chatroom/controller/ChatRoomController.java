@@ -56,29 +56,29 @@ public class ChatRoomController {
 //        return ResponseEntity.created(location).build();
 //    }
 
-    @Operation(summary = "채팅방 공지 수정", description = "관리자가 기존에 등록된 채팅방의 공지를 수정합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "채팅방 수정 성공",
-                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
-                    @ApiResponse(responseCode = "403", description = "수정 권한 없음",
-                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                                    examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}"))),
-                    @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방 수정 요청",
-                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
-                                    examples = @ExampleObject(value = "{\"error\": \"NOT_FOUND\", \"message\": \"The requested resource could not be found.\"}")))}
-    )
-    @PatchMapping("/{chat-room-id}")
-    public ResponseEntity<SingleResponseDto<String>> patchChatRoom(@Parameter(description = "수정할 채팅방의 ID", example = "12")
-                                                                   @PathVariable("chat-room-id") @Positive long chatRoomId,
-                                                                   @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                                                           description = "채팅방 수정 요청 본문", required = true,
-                                                                           content = @Content(schema = @Schema(implementation = ChatRoomDto.Patch.class)))
-                                                                   @Valid @RequestBody ChatRoomDto.Patch dto,
-                                                                   @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        dto.setChatRoomId(chatRoomId);
-        ChatRoom chatRoom = chatRoomService.updateChatRoom(mapper.chatRoomPatchToChatRoom(dto));
-        return new ResponseEntity(new SingleResponseDto<>(chatRoom.getNotice()), HttpStatus.OK);
-    }
+//    @Operation(summary = "채팅방 공지 수정", description = "관리자가 기존에 등록된 채팅방의 공지를 수정합니다.",
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "채팅방 수정 성공",
+//                            content = @Content(schema = @Schema(implementation = ChatRoomDto.SingleResponse.class))),
+//                    @ApiResponse(responseCode = "403", description = "수정 권한 없음",
+//                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+//                                    examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}"))),
+//                    @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방 수정 요청",
+//                            content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class),
+//                                    examples = @ExampleObject(value = "{\"error\": \"NOT_FOUND\", \"message\": \"The requested resource could not be found.\"}")))}
+//    )
+//    @PatchMapping("/{chat-room-id}")
+//    public ResponseEntity<SingleResponseDto<String>> patchChatRoom(@Parameter(description = "수정할 채팅방의 ID", example = "12")
+//                                                                   @PathVariable("chat-room-id") @Positive long chatRoomId,
+//                                                                   @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//                                                                           description = "채팅방 수정 요청 본문", required = true,
+//                                                                           content = @Content(schema = @Schema(implementation = ChatRoomDto.Patch.class)))
+//                                                                   @Valid @RequestBody ChatRoomDto.Patch dto,
+//                                                                   @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+//        dto.setChatRoomId(chatRoomId);
+//        ChatRoom chatRoom = chatRoomService.updateChatRoom(mapper.chatRoomPatchToChatRoom(dto));
+//        return new ResponseEntity(new SingleResponseDto<>(chatRoom.getNotice()), HttpStatus.OK);
+//    }
 
     // 채팅방 전체조회 (관리자용)
     @Operation(summary = "전체 채팅방 목록 조회", description = "관리자가 전체 채팅방 목록을 조회합니다.",

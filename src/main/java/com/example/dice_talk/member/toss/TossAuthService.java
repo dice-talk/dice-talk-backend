@@ -164,7 +164,7 @@ public class TossAuthService {
                 "NAME",         // 이름
                 "BIRTHDATE",    // 생년월일 (Toss API 문서에서 정확한 키워드 확인 필요)
                 "GENDER",       // 성별
-                "PHONE", // 휴대폰 번호 (Toss API 문서에서 정확한 키워드 확인 필요)
+//                "PHONE", // 휴대폰 번호 (Toss API 문서에서 정확한 키워드 확인 필요)
                 "CI"            // CI (연계정보)
         );
         body.put("requestedInfo", requestedInfo);

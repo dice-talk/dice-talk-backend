@@ -113,6 +113,14 @@ public class MemberService {
         return memberRepository.findAll(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));
     }
 
+    // 관리자용 조건 목록 조회
+    public Page<Member> findMembersWithConditions(
+            int page, int size, String search, String sort, Member.MemberStatus memberStatus, Member.Gender gender, String ageGroup
+    ){
+        Pageable pageable = createPageable(page, size, sort);
+        return memberRepository.searchMembers(search, memberStatus, gender, ageGroup, pageable);
+    }
+
     //회원 탈퇴
     public void deleteMember(long memberId, long loginId, String reason) {
         //로그인한 사용자와 동일한지(관리자, 해당 사용자 권한)
@@ -310,9 +318,24 @@ public class MemberService {
         });
     }
 
+    // 탈퇴회원 목록조회 (조건)
+    public Page<MemberDto.DeletedMemberResponse> findDeletedMembersWithConditions(
+            int page, int size, String search, Member.Gender gender, String ageGroup, String reason, String sort,
+            String deletedAtStart, String deletedAtEnd
+    ){
+        Pageable pageable = createPageable(page, size, sort);
+        return deletedMemberRepository.searchDeletedMembersWithMember(
+                search, gender, ageGroup, reason, deletedAtStart, deletedAtEnd, pageable
+        );
+    }
+
     // 정지된 회원 목록 조회
-    public Page<Member> findBannedMembers(int page, int size){
-        return memberRepository.findAllBannedMembers(PageRequest.of(page - 1, size, Sort.by("memberId").descending()));
+    public Page<MemberDto.BannedMemberListResponse> findBannedMembersWithConditions(
+            int page, int size, String search, Member.Gender gender, String ageGroup, String sort, String bannedAtStart, String bannedAtEnd){
+        Pageable pageable = createPageable(page, size, sort);
+        return memberRepository.searchBannedMembers(
+                search, gender, ageGroup, bannedAtStart, bannedAtEnd, pageable
+        );
     }
 
     // 정지된 회원 조회를 위한 검증 메서드
@@ -337,7 +360,21 @@ public class MemberService {
         response.setRegion(member.getRegion());
         response.setMemberStatus(member.getMemberStatus());
         response.setReports(reports);
+        response.setBannedAt(member.getModifiedAt());
 
         return response;
+    }
+
+    // 파라미터에서 Sort 값 파싱해서 Pageable 객체 생성
+    private Pageable createPageable(int page, int size, String sort) {
+        if (sort == null || sort.isEmpty()) {
+            return PageRequest.of(page - 1, size, Sort.by("memberId").descending());
+        }
+        String[] parts = sort.split("/");
+        String property = parts[0].trim();
+        boolean asc = parts.length > 1 && "asc".equalsIgnoreCase(parts[1].trim());
+        return asc
+                ? PageRequest.of(page - 1, size, Sort.by(property).ascending())
+                : PageRequest.of(page - 1, size, Sort.by(property).descending());
     }
 }

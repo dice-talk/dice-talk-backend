@@ -7,10 +7,13 @@ import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.roomevent.entity.RoomEvent;
 import com.example.dice_talk.roomevent.repository.RoomEventRepository;
+import com.example.dice_talk.utils.AuthorizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -56,5 +59,12 @@ public class RoomEventService {
         return roomEventRepository.findAllByEvent_EventNameAndReceiverId("Heart With Message", memberId,
                 PageRequest.of(0, 5, Sort.by("roomEventId").descending()));
 
+    }
+
+    @Transactional
+    public void deleteRoomEvent(Long roomEventId, Long loginedId){
+        RoomEvent re = findVerifiedEvent(roomEventId);
+        AuthorizationUtils.isAdminOrOwner(re.getReceiverId(), loginedId);
+        roomEventRepository.delete(re);
     }
 }
