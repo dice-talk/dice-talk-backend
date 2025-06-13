@@ -90,12 +90,18 @@ public class ChatRoomController {
                                     examples = @ExampleObject(value = "{\"error\": \"FORBIDDEN\", \"message\": \"Access not allowed\"}")))}
     )
     @GetMapping
-    public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@Parameter(name = "page", description = "조회할 페이지 번호 (1부터 시작)", example = "1")
-                                                                                    @Positive @RequestParam int page,
-                                                                                    @Parameter(name = "size", description = "한 페이지당 항목 수", example = "10")
-                                                                                    @Positive @RequestParam int size) {
+    public ResponseEntity<MultiResponseDto<ChatRoomDto.MultiResponse>> getChatRooms(@RequestParam(required = false) String themeName,
+                                                                                    @RequestParam(required = false) ChatRoom.RoomStatus roomStatus,
+                                                                                    @RequestParam(required = false) ChatRoom.RoomType roomType,
+                                                                                    @RequestParam(required = false) Long chatRoomId,
+                                                                                    @RequestParam(required = false) String createdAtStart, // "2024-06-01T00:00"
+                                                                                    @RequestParam(required = false) String createdAtEnd,   // "2024-06-30T23:59"
+                                                                                    @RequestParam(defaultValue = "1") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size) {
         AuthorizationUtils.isAdmin();
-        Page<ChatRoom> chatRoomPage = chatRoomService.findChatRooms(page, size);
+        Page<ChatRoom> chatRoomPage = chatRoomService.searchChatRooms(
+                themeName, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, page, size
+        );
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(
                 mapper.chatRoomsToChatRoomMultiResponses(chatRooms), chatRoomPage
