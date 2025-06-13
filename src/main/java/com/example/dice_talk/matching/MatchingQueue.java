@@ -23,64 +23,80 @@ public class MatchingQueue {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Queue<Member> waitingQueue = new ConcurrentLinkedQueue<>();
-    private final Set<Long> waitingMemberIds = new HashSet<>();
+//    private final Set<Long> waitingMemberIds = new HashSet<>();
+    private final Map<String, Queue<Member>> waitingQueues = new HashMap<>();
+    private final Map<String, Set<Long>> waitingMemberIds = new HashMap<>();
     private final int MATCH_SIZE = 2;
 
     public static final String REDIS_CHANNEL = "match-status";
 
-    public synchronized Optional<MatchedResult> addToQueue(Member member) {
-        if (waitingMemberIds.contains(member.getMemberId())) {
+    public synchronized Optional<MatchedResult> addToQueue(Member member, Long themeId, String region, String ageGroup) {
+        String key = themeId + "::" + region + "::" + ageGroup;
+
+        waitingQueues.putIfAbsent(key, new ConcurrentLinkedQueue<>());
+        waitingMemberIds.putIfAbsent(key, new HashSet<>());
+
+        Queue<Member> queue = waitingQueues.get(key);
+        Set<Long> memberIds = waitingMemberIds.get(key);
+
+        if (memberIds.contains(member.getMemberId())) {
             return Optional.empty();
         }
 
-        waitingQueue.offer(member);
-        waitingMemberIds.add(member.getMemberId());
+        queue.offer(member);
+        memberIds.add(member.getMemberId());
 
-        // ✅ JSON 형태로 대기 상태 전송
-        Map<String, Object> queueMessage = new HashMap<>();
-        queueMessage.put("type", "QUEUE_STATUS");
-        queueMessage.put("message", "대기 인원: " + waitingQueue.size());
-        queueMessage.put("participants", waitingQueue.stream()
-                .map(Member::getName)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+        // 대기 상태 전송
+        sendStatusToRedis(queue, key);
 
-        try {
-            String json = objectMapper.writeValueAsString(queueMessage);
-            redisTemplate.convertAndSend(REDIS_CHANNEL, json); // ✅ 문자열로 전송
-        } catch (Exception e) {
-            e.printStackTrace(); // or log
-        }
-
-        if (waitingQueue.size() >= MATCH_SIZE) {
+        if (queue.size() >= MATCH_SIZE) {
             List<Member> matched = new ArrayList<>();
             for (int i = 0; i < MATCH_SIZE; i++) {
-                Member m = waitingQueue.poll();
-                waitingMemberIds.remove(m.getMemberId());
+                Member m = queue.poll();
+                memberIds.remove(m.getMemberId());
                 matched.add(m);
             }
 
-            // ✅ 채팅방 생성
-            ChatRoom chatRoom = chatRoomService.createRoomForMatchedUsers(matched);
-
-            // ✅ 매칭 완료 메시지도 JSON으로 전송
-            Map<String, Object> matchedMessage = new HashMap<>();
-            matchedMessage.put("type", "MATCHED");
-            matchedMessage.put("message", "채팅방이 생성되었습니다.");
-            matchedMessage.put("chatRoomId", chatRoom.getChatRoomId()); // 실제 생성된 채팅방 ID 넣어주세요
-
-            try {
-                String json = objectMapper.writeValueAsString(matchedMessage);
-                redisTemplate.convertAndSend(REDIS_CHANNEL, json);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (queue.isEmpty()) {
+                waitingQueues.remove(key);
+                waitingMemberIds.remove(key);
             }
 
-//            return Optional.of(matched);
+            ChatRoom chatRoom = chatRoomService.createRoomForMatchedUsers(matched, themeId);
+            sendMatchedMessageToRedis(chatRoom.getChatRoomId());
+
             return Optional.of(new MatchedResult(matched, chatRoom.getChatRoomId()));
         }
 
         return Optional.empty();
+    }
+
+    private void sendStatusToRedis(Queue<Member> queue, String key) {
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "QUEUE_STATUS");
+        message.put("key", key);
+        message.put("message", "대기 인원: " + queue.size());
+        message.put("participants", queue.stream()
+                .map(Member::getName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+        try {
+            redisTemplate.convertAndSend(REDIS_CHANNEL, objectMapper.writeValueAsString(message));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMatchedMessageToRedis(Long chatRoomId) {
+        Map<String, Object> matchedMessage = new HashMap<>();
+        matchedMessage.put("type", "MATCHED");
+        matchedMessage.put("message", "채팅방이 생성되었습니다.");
+        matchedMessage.put("chatRoomId", chatRoomId);
+        try {
+            redisTemplate.convertAndSend(REDIS_CHANNEL, objectMapper.writeValueAsString(matchedMessage));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

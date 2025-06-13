@@ -17,14 +17,22 @@ import java.io.IOException;
 public class MemberAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        Exception exception = (Exception) request.getAttribute("exception");
-        ErrorResponder.sendErrorResponse(response, HttpStatus.UNAUTHORIZED);
+        String exception = (String) request.getAttribute("exception");
+        String message = authException.getMessage();
+
+        if ("BANNED".equals(exception) || (authException != null && authException.getClass().getSimpleName().equals("DisabledException"))) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":403, \"message\":\"정지된 회원입니다.\"}");
+        } else {
+            ErrorResponder.sendErrorResponse(response, HttpStatus.UNAUTHORIZED);
+        }
 
         logExceptionMessage(authException, exception);
     }
 
-    private void logExceptionMessage(AuthenticationException authException, Exception exception){
-        String message = exception != null ? exception.getMessage() : authException.getMessage();
+    private void logExceptionMessage(AuthenticationException authException, String exception){
+        String message = exception != null ? exception : authException.getMessage();
         log.warn("Unauthorized error happened: {}", message);
     }
 }

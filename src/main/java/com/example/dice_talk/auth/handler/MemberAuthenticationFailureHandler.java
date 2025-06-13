@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -20,8 +21,14 @@ public class MemberAuthenticationFailureHandler implements AuthenticationFailure
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         log.error("# Authentication failed: {}", exception.getMessage());
 
+        if (exception instanceof DisabledException || request.getAttribute("exception").equals("BANNED")){
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":403, \"message\":\"정지된 회원입니다.\"}");
+        } else {
         // sendErrorResponse() 메서드를 호출해 출력 스트림에 Error 정보 담음.
         sendErrorResponse(response);
+        }
     }
 
     private void sendErrorResponse(HttpServletResponse response) throws IOException {

@@ -140,8 +140,13 @@ public class RoomEventController {
     })
     // 하트 히스토리 조회
     @GetMapping("/history")
-    public ResponseEntity<MultiResponseDto<RoomEventDto.Response>> getMyHeartHistory(@Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
-        Page<RoomEvent> eventPage = roomEventService.findRoomEventsByEventAndMemberId(customPrincipal.getMemberId());
+    public ResponseEntity<MultiResponseDto<RoomEventDto.Response>> getMyHeartHistory(
+            @Parameter(description = "페이지 번호", example = "1")
+            @Positive @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 크기", example = "10")
+            @Positive @RequestParam(defaultValue = "10") int size,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) {
+        Page<RoomEvent> eventPage = roomEventService.findRoomEventsByEventAndMemberId(customPrincipal.getMemberId(), page, size);
         List<RoomEvent> roomEvents = eventPage.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(mapper.roomEventsToResponses(roomEvents), eventPage), HttpStatus.OK);
     }

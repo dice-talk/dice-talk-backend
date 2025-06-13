@@ -9,10 +9,14 @@ import com.example.dice_talk.chatroom.config.StompHandler;
 import com.example.dice_talk.chatroom.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -97,5 +101,39 @@ public class ChatController {
         messagingTemplate.convertAndSend("/sub/chat/" + roomId, responseChat);
         log.info("메시지 전송: {}", responseChat);
     }
+
+    // --- 테스트용 임시 HTTP 엔드포인트 ---
+    @PostMapping("/http/chat/{roomId}/sendMessage") // WebSocket 경로와 다르게 설정
+    public ResponseEntity<ChatDto.Response> sendMessageViaHttp(
+            @PathVariable long roomId,
+            @RequestBody ChatDto.Post chatDto) { // HTTP 요청 본문으로 ChatDto.Post를 받음
+
+        // chatDto에 chatRoomId 설정 (경로 변수로부터)
+        // ChatDto.Post에 chatRoomId 필드가 없다면, Chat 객체 생성 시 수동으로 설정 필요
+        // chatDto.setChatRoomId(roomId); // ChatDto.Post에 setter가 있다면 사용
+
+        Chat chat = mapper.chatPostToChat(chatDto);
+        // Chat 엔티티 생성 시 chatRoomId를 설정해야 함.
+        // 만약 chatPostToChat 매퍼가 chatDto의 chatRoomId를 사용하지 않는다면,
+        // ChatRoom 객체를 조회해서 chat 엔티티에 직접 설정해야 합니다.
+        // 예: ChatRoom chatRoom = chatRoomService.findVerifiedChatRoom(roomId); // ChatRoomService에 해당 메소드가 있다고 가정
+        //     chat.setChatRoom(chatRoom);
+        //     chat.setChatRoomId(roomId) // Chat 엔티티에 직접 ID를 저장하는 필드가 있다면
+
+        // ChatDto.Post에 chatRoomId 필드가 있고, mapper.chatPostToChat에서 이를 사용한다면 위 주석은 불필요.
+        // 하지만 chatDto에 memberId와 nickname도 올바르게 채워져서 와야 합니다.
+
+        // 가장 중요한 것은 ChatService.createChat(chat)이 호출될 때,
+        // Chat 객체 내에 member (발신자) 정보와 chatRoom 정보가 올바르게 설정되어 있어야
+        // 푸시 알림 수신자 결정 및 알림 내용 구성이 제대로 됩니다.
+
+        Chat savedChat = chatService.createChat(chat); // 이 호출을 통해 푸시 알림 로직 실행
+        ChatDto.Response responseChat = mapper.chatToChatResponse(savedChat);
+        // responseChat.setNickname(chatDto.getNickname()); // Chat 엔티티에 nickname이 있으므로 savedChat.getNickname() 사용
+
+        log.info("HTTP 테스트 - 메시지 생성됨 (푸시 알림 시도됨): {}", responseChat);
+        return ResponseEntity.ok(responseChat);
+    }
+    // --- 테스트용 임시 HTTP 엔드포인트 끝 ---
 }
 

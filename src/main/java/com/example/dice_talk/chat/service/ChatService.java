@@ -4,8 +4,13 @@ import com.example.dice_talk.chat.dto.UserInfo;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.repository.ChatRepository;
 import com.example.dice_talk.chatroom.config.SessionRegistry;
+import com.example.dice_talk.chatroom.entity.ChatPart;
+import com.example.dice_talk.chatroom.repository.ChatPartRepository;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
+import com.example.dice_talk.member.entity.Member;
+import com.example.dice_talk.pushNotification.entity.QPushNotificationToken;
+import com.example.dice_talk.pushNotification.service.PushNotificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -13,8 +18,11 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.example.dice_talk.chatroom.config.StompHandler.saveUserInfo;
 
@@ -26,6 +34,8 @@ public class ChatService {
     private final SimpUserRegistry simpUserRegistry;
     private final SimpMessagingTemplate messagingTemplate;
     private final SessionRegistry sessionRegistry;
+    private final PushNotificationTokenService pushNotificationTokenService;
+    private final ChatPartRepository chatPartRepository;
 
     //사용자가 채팅방에 입장할 때 호출되는 메서드
     public void enterChatRoom(long roomId, Long memberId, String sessionId) {
@@ -43,8 +53,63 @@ public class ChatService {
 
     //메세지 생성 -> Repository 에 저장, DB에 저장된 메세지를 반환하여 클라이언트에 응답
     public Chat createChat(Chat chat) {
-        return chatRepository.save(chat);
+        Chat savedChat = chatRepository.save(chat);
+        // --- 푸시 알림 발송 로직 추가 ---
+        if (savedChat != null && savedChat.getMember() != null && savedChat.getChatRoom() != null) {
+            Long chatRoomId = savedChat.getChatRoom().getChatRoomId(); // Chat 엔티티에 ChatRoom 객체가 있고, 그 안에 ID가 있다고 가정
+            Long senderMemberId = savedChat.getMember().getMemberId();   // Chat 엔티티에 Member 객체가 있고, 그 안에 ID가 있다고 가정
+            String senderNickname = savedChat.getNickname(); // 발신자 닉네임
+            String messageContent = savedChat.getMessage();              // 메시지 내용
+
+            // 1. 해당 채팅방에 참여하고 있고, 메시지 발신자가 아닌 다른 사용자들의 memberId 목록을 가져온다.
+            List<Long> recipientMemberIds = getRecipientMemberIdsInChatRoom(chatRoomId, senderMemberId);
+
+            // 2. 각 수신자에게 푸시 알림 발송
+            if (!recipientMemberIds.isEmpty()) {
+                String notificationTitle = "새 메시지: " + senderNickname;
+                for (Long recipientId : recipientMemberIds) {
+                    pushNotificationTokenService.sendNotificationToUser(
+                            recipientId,
+                            notificationTitle,
+                            messageContent,
+                            String.valueOf(chatRoomId) // 알림 데이터로 채팅방 ID 전달
+                    );
+                }
+            }
+        }
+        // --- 푸시 알림 발송 로직 끝 ---
+        return savedChat;
     }
+
+    /**
+     * 특정 채팅방의 참여자 중 발신자를 제외한 모든 사용자의 ID 목록을 반환합니다.
+     * 이 메소드는 실제 프로젝트의 채팅방 참여자 관리 방식에 따라 구현되어야 합니다.
+     * @param chatRoomId 채팅방 ID
+     * @param senderMemberId 발신자 ID
+     * @return 수신자 ID 목록
+     */
+    private List<Long> getRecipientMemberIdsInChatRoom(Long chatRoomId, Long senderMemberId) {
+        List<ChatPart> participantsInRoom = chatPartRepository.findByChatRoom_ChatRoomIdAndExitStatus(
+                chatRoomId,
+                ChatPart.ExitStatus.MEMBER_ENTER
+        );
+
+        if (participantsInRoom == null || participantsInRoom.isEmpty()) {
+            System.out.println("[Push 알림] " + chatRoomId + "번 채팅방에 현재 참여 중인 사용자가 없습니다.");
+            return Collections.emptyList();
+        }
+
+        // 참여자 목록에서 발신자를 제외하고 memberId만 추출하여 리스트로 만듭니다.
+        return participantsInRoom.stream()
+                .map(ChatPart::getMember) // ChatPart에서 Member 객체를 가져옴
+                .filter(member -> member != null) // 혹시 Member 객체가 null인 경우 방지
+                .map(Member::getMemberId)   // Member 객체에서 memberId를 가져옴
+                .filter(memberId -> !memberId.equals(senderMemberId)) // 발신자 ID는 제외
+                .distinct() // 중복 제거
+                .collect(Collectors.toList());
+    }
+
+
     //메세지 찾기
     public Chat findChat(long chatId) {
         return chatRepository.findById(chatId).orElseThrow(

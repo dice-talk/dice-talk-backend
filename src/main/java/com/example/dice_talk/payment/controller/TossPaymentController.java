@@ -61,10 +61,10 @@ public class TossPaymentController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @PostMapping("/confirm")
-    public ResponseEntity<Void> confirmPayment(
+    public ResponseEntity<ConfirmPaymentResponseDto> confirmPayment(
             @Parameter(description = "결제 승인 정보") @RequestBody TossSuccessDto dto) {
-        paymentService.confirmPayment(dto);
-        return ResponseEntity.ok().build();
+        ConfirmPaymentResponseDto responseDto = paymentService.confirmPayment(dto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @Operation(summary = "결제 실패", description = "결제 실패 시 결제 상태를 실패로 업데이트합니다.")
