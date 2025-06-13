@@ -44,7 +44,7 @@ public class ReportDto {
         private long reportId;
 
         @Schema(description = "신고 사유", example = "SPAM")
-        private Report.ReportReason reportReason;
+        private String reportReason;
 
         @Schema(description = "신고자 회원 ID", example = "123")
         private Long reporterId;
@@ -65,7 +65,7 @@ public class ReportDto {
         private Long chatRoomId;
 
         @Schema(description = "신고 처리 상태", example = "REPORT_RECEIVED")
-        private Report.ReportStatus reportStatus;
+        private String reportStatus;
 
         @Schema(description = "신고 접수 일시", example = "2025-05-28T00:00")
         private LocalDateTime createdAt;
@@ -76,12 +76,12 @@ public class ReportDto {
         public static Response from(Report report, String reporterEmail, String reportedEmail) {
             Response response = new Response();
             response.setReportId(report.getReportId());
-            response.setReportReason(report.getReportReason());
+            response.setReportReason(report.getReportReason().getDescription());
             response.setReporterId(report.getReporterId());
             response.setReporterEmail(reporterEmail);
             response.setReportedMemberId(report.getReportedMemberId());
             response.setReportedEmail(reportedEmail);
-            response.setReportStatus(report.getReportStatus());
+            response.setReportStatus(report.getReportStatus().getStatus());
             response.setCreatedAt(report.getCreatedAt());
             response.setModifiedAt(report.getModifiedAt());
             return response;

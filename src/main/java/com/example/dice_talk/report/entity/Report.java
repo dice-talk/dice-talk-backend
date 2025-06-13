@@ -42,6 +42,7 @@ public class Report extends BaseEntity {
         REPORT_COMPLETED("처리 완료"),
         REPORT_DELETED("신고 삭제");
 
+        @Getter
         private String status;
 
         ReportStatus(String status) {
