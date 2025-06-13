@@ -112,7 +112,7 @@ public class ChatRoomController {
         );
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(
-                mapper.chatRoomsToChatRoomMultiResponses(chatRooms), chatRoomPage
+                mapper.chatRoomsToAdminMultiResponses(chatRooms), chatRoomPage
         ), HttpStatus.OK);
     }
 
