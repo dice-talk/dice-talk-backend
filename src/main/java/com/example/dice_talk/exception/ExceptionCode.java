@@ -28,6 +28,7 @@ public enum ExceptionCode {
     CHAT_NOT_FOUND(404, "Chat not found"),
     UNAUTHORIZED(401, "Unauthorized"),
     REPORT_ALREADY_COMPLETED(409, "Report Already Completed"),
+    REPORT_ALREADY_REJECTED(409, "Report Already Rejected"),
     AUTH_INVALID_PASSWORD(401, "Auth Invalid Password"),
     NOTIFICATION_NOT_FOUND(404, "Notification not found"),
     INVALID_TOKEN(401, "Invalid Token"),

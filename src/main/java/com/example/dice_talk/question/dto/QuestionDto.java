@@ -90,8 +90,8 @@ public class QuestionDto {
         @Schema(description = "질문 내용", example = "언제 오픈하나요?")
         private String content;
 
-        @Schema(description = "질문 상태", example = "QUESTION_REGISTERED")
-        private Question.QuestionStatus questionStatus;
+        @Schema(description = "질문 상태", example = "질문 등록 상태")
+        private String questionStatus;
 
         @Schema(description = "회원 ID", example = "2")
         private Long memberId;

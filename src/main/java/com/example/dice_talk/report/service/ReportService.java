@@ -64,6 +64,9 @@ public class ReportService {
     // 신고 반려
     public Report rejectReport(long reportId) {
         Report report = findVerifiedReport(reportId);
+        if (report.getReportStatus() == Report.ReportStatus.REPORT_REJECTED) {
+            throw new BusinessLogicException(ExceptionCode.REPORT_ALREADY_COMPLETED);
+        }
         report.setReportStatus(Report.ReportStatus.REPORT_REJECTED);
         return reportRepository.save(report);
     }

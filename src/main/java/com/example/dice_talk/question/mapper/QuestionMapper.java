@@ -24,6 +24,7 @@ public interface QuestionMapper {
     @Mapping(target = "memberId", source = "member.memberId")
     @Mapping(target = "questionImages", source = "images")
     @Mapping(target = "email", source = "member.email")
+    @Mapping(target = "questionStatus", source = "questionStatus.status")
     QuestionDto.Response questionToQuestionResponse(Question question);
 
     List<QuestionDto.Response> questionsToQuestionResponses(List<Question> questions);
