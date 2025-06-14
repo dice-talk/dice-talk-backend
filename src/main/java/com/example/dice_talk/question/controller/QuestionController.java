@@ -219,7 +219,7 @@ public class QuestionController {
                                                                                @Positive @RequestParam(defaultValue = "10") int size,
                                                                                @Parameter(description = "질문 상태", example = "QUESTION_REGISTERED")
                                                                                @RequestParam(required = false) Question.QuestionStatus status,
-                                                                               @Parameter(description = "정렬 타입", example = "latest")
+                                                                               @Parameter(description = "정렬 타입", example = "asc/desc")
                                                                                @RequestParam(defaultValue = "asc/desc") String sort,
                                                                                @Parameter(description = "검색 범위", example = "TITLE_AUTHOR")
                                                                                @RequestParam(defaultValue = "TITLE_AUTHOR") QuestionSearchType searchType,
