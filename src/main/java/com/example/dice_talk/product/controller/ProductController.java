@@ -80,7 +80,7 @@ public class ProductController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postProduct(@Parameter(description = "상품 생성 DTO 문자열(JSON)")
-                                            @RequestParam("productPostDto") String productPostDtoString,
+                                            @RequestPart("productPostDto") String productPostDtoString,
                                             @Parameter(description = "상품 이미지 파일", required = false)
                                             @RequestPart(value = "image", required = false) MultipartFile imageFile) throws IOException {
         AuthorizationUtils.isAdmin();
@@ -125,7 +125,7 @@ public class ProductController {
             @Parameter(description = "상품 ID", example = "1")
             @PathVariable("product-id") @Positive long productId,
             @Parameter(description = "상품 수정 DTO 문자열(JSON)")
-            @RequestParam("productPatchDto") String productPatchDtoString,
+            @RequestPart("productPatchDto") String productPatchDtoString,
             @Parameter(description = "상품 이미지 파일", required = false)
             @RequestPart(value = "image", required = false) MultipartFile imageFile) throws IOException {
         AuthorizationUtils.isAdmin();
