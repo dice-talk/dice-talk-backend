@@ -220,11 +220,11 @@ public class QuestionController {
                                                                                @Parameter(description = "질문 상태", example = "QUESTION_REGISTERED")
                                                                                @RequestParam(required = false) Question.QuestionStatus status,
                                                                                @Parameter(description = "정렬 타입", example = "latest")
-                                                                               @RequestParam(defaultValue = "latest") String sortOrder,
+                                                                               @RequestParam(defaultValue = "asc/desc") String sort,
                                                                                @Parameter(description = "검색 범위", example = "TITLE_AUTHOR")
                                                                                @RequestParam(defaultValue = "TITLE_AUTHOR") QuestionSearchType searchType,
                                                                                @RequestParam(required = false) String keyword) {
-        Page<Question> questionPage = questionService.findQuestions(page, size, status, sortOrder, searchType, keyword);
+        Page<Question> questionPage = questionService.findQuestions(page, size, status, sort, searchType, keyword);
         List<QuestionDto.Response> responses =
                 questionMapper.questionsToQuestionResponses(questionPage.getContent());
         return new ResponseEntity<>(new MultiResponseDto<>
