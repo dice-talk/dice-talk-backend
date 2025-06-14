@@ -119,15 +119,15 @@ public class QuestionService {
         return questionRepository.save(findQuestion);
     }
 
-    public Page<Question> findQuestions(int page, int size, Question.QuestionStatus status, String sortOrder, QuestionSearchType searchType, String keyword) {
+    public Page<Question> findQuestions(int page, int size, Question.QuestionStatus status, String sort, QuestionSearchType searchType, String keyword) {
         if (page < 1) throw new IllegalArgumentException("페이지는 1 이상이어야 합니다.");
         if (size < 1) throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
 
         // Pageable 생성(createdAt 기준 최신순, 오래된 순)
-        Sort sort = "oldest".equalsIgnoreCase(sortOrder)
-                ? Sort.by("createdAt").ascending()
-                : Sort.by("createdAt").descending();
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Sort s = "asc".equalsIgnoreCase(sort)
+                ? Sort.by("questionId").ascending()
+                : Sort.by("questionId").descending();
+        Pageable pageable = PageRequest.of(page - 1, size, s);
 
         // Specification 빌드
         Specification<Question> spec = Specification.where(null);
