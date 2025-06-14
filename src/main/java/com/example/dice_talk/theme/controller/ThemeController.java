@@ -69,7 +69,7 @@ public class ThemeController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postTheme(@Parameter(description = "테마 생성 DTO 문자열(JSON)")
-                                          @Valid @RequestParam("themePostDto") String themePostDtoString,
+                                          @RequestPart("themePostDto") String themePostDtoString,
                                           @Parameter(description = "테마 이미지 파일", required = false)
                                           @RequestPart(value = "image", required = false) MultipartFile imageFile) throws IOException {
         AuthorizationUtils.isAdmin();
@@ -99,7 +99,7 @@ public class ThemeController {
             @Parameter(description = "테마 ID", example = "1")
             @PathVariable("theme-id") @Positive long themeId,
             @Parameter(description = "테마 수정 DTO 문자열(JSON)")
-            @Valid @RequestParam("themePatchDto") String themePatchDtoString,
+            @RequestPart("themePatchDto") String themePatchDtoString,
             @Parameter(description = "테마 이미지 파일", required = false)
             @RequestPart(value = "image", required = false) MultipartFile imageFile
     ) throws IOException {

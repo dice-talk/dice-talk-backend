@@ -61,7 +61,7 @@ public class AnswerController {
     public ResponseEntity<Void> postAnswer(@Parameter(description = "답변을 등록할 질문글의 ID", example = "22")
                                            @PathVariable("question-id") Long questionId,
                                            @Parameter(description = "답변 JSON 문자열", example = "{\"content\": \"답변입니다.\"}")
-                                           @RequestParam(value = "answerPostDto") String answerPostDtoString,
+                                           @RequestPart(value = "answerPostDto") String answerPostDtoString,
                                            @Parameter(description = "첨부 이미지 목록", example = "image1.jpg", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
                                            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
                                            @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
@@ -95,7 +95,7 @@ public class AnswerController {
     public ResponseEntity<Void> patchAnswer(@Parameter(description = "수정할 답변의 ID", example = "101")
                                             @PathVariable("answer-id") @Positive long answerId,
                                             @Parameter(description = "수정할 답변 본문 및 정보가 담긴 JSON 문자열", example = "{\"content\": \"수정된 답변입니다.\", \"isPublic\": true}")
-                                            @RequestParam("answerPatchDto") String answerPatchDtoString,
+                                            @RequestPart("answerPatchDto") String answerPatchDtoString,
                                             @Parameter(description = "답변에 첨부할 이미지 파일 목록 (선택)", example = "image1.jpg, image2.png", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
                                             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) throws IOException {
         AuthorizationUtils.isAdmin();

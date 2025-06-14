@@ -88,7 +88,7 @@ public class QuestionController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postQuestion(@Parameter(description = "질문 생성 DTO 문자열(JSON)")
-                                             @RequestParam("questionPostDto") String questionPostDtoString,
+                                             @RequestPart("questionPostDto") String questionPostDtoString,
                                              @Parameter(description = "질문 이미지 파일 목록", required = false)
                                              @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
                                              @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {
@@ -139,7 +139,7 @@ public class QuestionController {
             @Parameter(description = "질문 ID", example = "1")
             @PathVariable("question-id") @Positive long questionId,
             @Parameter(description = "질문 수정 DTO 문자열(JSON)")
-            @RequestParam("questionPatchDto") String questionPatchDtoString,
+            @RequestPart("questionPatchDto") String questionPatchDtoString,
             @Parameter(description = "질문 이미지 파일 목록", required = false)
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomPrincipal customPrincipal) throws IOException {

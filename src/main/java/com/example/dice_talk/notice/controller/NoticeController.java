@@ -80,11 +80,11 @@ public class NoticeController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postNotice(
             @Parameter(description = "공지 생성 DTO 문자열(JSON)")
-            @RequestParam("noticePostDto") String noticePostDtoString,
+            @RequestPart("noticePostDto") String noticePostDtoString,
             @Parameter(description = "공지 이미지 파일 목록", required = false)
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @Parameter(description = "썸네일 플래그 문자열 목록(JSON)", required = false)
-            @RequestParam(value = "thumbnailFlags", required = false) List<String> thumbnailFlagsStr
+            @RequestPart(value = "thumbnailFlags", required = false) List<String> thumbnailFlagsStr
     ) throws IOException {
 
         // JSON -> DTO 수동 파싱
@@ -137,11 +137,11 @@ public class NoticeController {
             @Parameter(description = "공지 ID", example = "1")
             @PathVariable("notice-id") @Positive long noticeId,
             @Parameter(description = "공지 수정 DTO 문자열(JSON)")
-            @RequestParam("noticePatchDto") String noticePatchDtoString,
+            @RequestPart("noticePatchDto") String noticePatchDtoString,
             @Parameter(description = "공지 이미지 파일 목록", required = false)
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @Parameter(description = "썸네일 여부 목록", required = false)
-            @RequestParam(value = "thumbnailFlags", required = false) List<Boolean> thumbnailFlags
+            @RequestPart(value = "thumbnailFlags", required = false) List<Boolean> thumbnailFlags
     ) throws IOException {
 
         NoticeDto.Patch patchDto = jsonParserUtil.parse(noticePatchDtoString, NoticeDto.Patch.class);
