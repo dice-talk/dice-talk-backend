@@ -82,6 +82,7 @@ public class ProductService {
         return productRepository.findAll(PageRequest.of(page - 1, size, Sort.by("price").ascending()));
     }
 
+    @Transactional
     public void deleteProduct(long productId) {
         //관리지만 삭제 가능
         AuthorizationUtils.verifyAdmin();

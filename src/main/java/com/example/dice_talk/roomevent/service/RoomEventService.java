@@ -53,12 +53,11 @@ public class RoomEventService {
                 new BusinessLogicException(ExceptionCode.EVENT_NOT_FOUND));
     }
 
-    // 하트 히스토리 찾기 ( RoomEvent 중 이벤트가 Heart With Message 이고, receiverId가 전달받은 memberId인 RoomEventList )
+    // 하트 히스토리 찾기 ( RoomEvent 중 이벤트 이름이 '' 이고, receiverId가 전달받은 memberId인 RoomEventList )
     public Page<RoomEvent> findRoomEventsByEventAndMemberId(long memberId, int page, int size){
         memberService.findVerifiedMember(memberId);
-        return roomEventRepository.findAllByEvent_EventNameAndReceiverId("Heart With Message", memberId,
+        return roomEventRepository.findAllByEvent_EventNameAndReceiverId("시크릿 메시지", memberId,
                 PageRequest.of(page -1 , size, Sort.by("roomEventId").descending()));
-
     }
 
     @Transactional

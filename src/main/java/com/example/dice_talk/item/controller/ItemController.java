@@ -64,7 +64,7 @@ public class ItemController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> postItem(@Parameter(name = "itemPostDto", description = "등록할 아이템 정보가 포함된 JSON 문자열",
                                                  example = "{\"itemName\": \"채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"dicePrice\": 700}")
-                                         @Valid @RequestParam String itemPostDtoString,
+                                         @RequestPart String itemPostDtoString,
                                          @Parameter(name = "image", description = "아이템 이미지 파일", example = "thumbnail.jpg",
                                                  content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
                                          @RequestPart(value = "image", required = false) MultipartFile imageFile) throws IOException {
@@ -90,7 +90,7 @@ public class ItemController {
                                                                          @PathVariable("item-id") @Positive long itemId,
                                                                          @Parameter(name = "itemPatchDto", description = "수정할 아이템 정보가 포함된 JSON 문자열",
                                                                                  example = "{\"itemName\": \"(단체)채팅방 나가기\", \"description\": \"하루 채팅방 나가기 2회 시 아이템을 사용해야 합니다.\", \"dicePrice\": 900}")
-                                                                         @Valid @RequestParam String itemPatchDtoString,
+                                                                         @RequestPart String itemPatchDtoString,
                                                                          @Parameter(name = "image", description = "아이템 이미지 수정 파일 (선택)", example = "thumbnail.jpg",
                                                                                  content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
                                                                          @RequestPart(value = "image", required = false) MultipartFile imageFile
