@@ -17,7 +17,6 @@ public class SessionRegistry {
     public final ConcurrentHashMap<String, UserInfo> sessionMemberMap = new ConcurrentHashMap<>();
 
 
-
     //사용자가 채팅방에 입장할 때 memberId와 세션 ID 매핑 저장
     //사용자가 채팅방에 처음 입장할 때 호출
     public void registerUserInChatRoom(String chatRoomId, Long memberId, String sessionId) {
@@ -28,6 +27,7 @@ public class SessionRegistry {
         // 세션 정보 맵에 추가
         sessionMemberMap.put(sessionId, new UserInfo(memberId, chatRoomId));
     }
+
     public void registerSession(String sessionId, UserInfo userInfo) {
         sessionMemberMap.put(sessionId, userInfo);
     }
@@ -49,13 +49,15 @@ public class SessionRegistry {
             String chatRoomId = userInfo.getChatRoomId();
             Long memberId = userInfo.getMemberId();
 
-            Map<Long, String> memberSessionMap = roomMemberSessionMap.get(chatRoomId);
-            if (memberSessionMap != null) {
-                memberSessionMap.remove(memberId);
+            if (chatRoomId != null) {
+                Map<Long, String> memberSessionMap = roomMemberSessionMap.get(chatRoomId);
+                if (memberSessionMap != null) {
+                    memberSessionMap.remove(memberId);
 
-                // 채팅방에 사용자가 없으면 채팅방 맵에서 제거
-                if (memberSessionMap.isEmpty()) {
-                    roomMemberSessionMap.remove(chatRoomId);
+                    // 채팅방에 사용자가 없으면 채팅방 맵에서 제거
+                    if (memberSessionMap.isEmpty()) {
+                        roomMemberSessionMap.remove(chatRoomId);
+                    }
                 }
             }
         }
