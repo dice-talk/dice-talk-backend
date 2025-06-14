@@ -3,11 +3,11 @@ spring:
     name: dice-talk
   data:
     redis:
-      host: 127.0.0.1 # 172.31.3.55 # EC2의 내부 IP
-#      host: 172.31.3.55
+#      host: 127.0.0.1 # 172.31.3.55 # EC2의 내부 IP
+      host: 172.31.3.55
       port: 6379
-      password: # 로컬 테스트용
-#      password: ${REDIS_PASSWORD} # 서버용
+#      password: # 로컬 테스트용
+      password: ${REDIS_PASSWORD} # 서버용
   h2:
     console:
       enabled: true # H2 콘솔을 활성화합니다.
@@ -15,8 +15,8 @@ spring:
   jackson:
     time-zone: Asia/Seoul
   datasource:
-#    url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
-    url: jdbc:mysql://localhost:3306/dicetalkdb?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://dicetalkdb.c1is4amuq2m3.ap-northeast-2.rds.amazonaws.com:13306/dicetalkdb?serverTimezone=Asia/Seoul
+#    url: jdbc:mysql://localhost:3306/dicetalkdb?serverTimezone=Asia/Seoul
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -109,10 +109,7 @@ springdoc:
     path: /v3/api-docs
 toss:
   secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
-  # test_sk_DpexMgkW36v6aXd6BBd93GbR5ozO
   client-key: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm
-  # test_ck_Z1aOwX7K8mOyb5YxMMvqVyQxzvNP
-  # base-url: https://sandbox.tosspayments.com
   success-url: dicetalkts://payment-success
   fail-url: dicetalkts://payment-fail
 
