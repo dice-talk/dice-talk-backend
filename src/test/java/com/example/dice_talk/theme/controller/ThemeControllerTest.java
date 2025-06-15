@@ -40,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ThemeController.class)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 @Import({ThemeMapperImpl.class})
 @MockBean(JpaMetamodelMappingContext.class)
 class ThemeControllerTest {
