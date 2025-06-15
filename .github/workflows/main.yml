@@ -62,6 +62,7 @@ jobs:
               'sudo docker pull minjikk/dicetalk:${GITHUB_SHA::7}',
               'sudo docker tag minjikk/dicetalk:${GITHUB_SHA::7} dicetalk',
               'sudo docker run -d --name server --restart=no -p 8080:8080 \\
+                -v /etc/localtime:/etc/localtime:ro \\
                 -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \\
                 -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \\
                 -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \\
