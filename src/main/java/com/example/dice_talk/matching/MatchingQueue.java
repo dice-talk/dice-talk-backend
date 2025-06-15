@@ -26,7 +26,7 @@ public class MatchingQueue {
 //    private final Set<Long> waitingMemberIds = new HashSet<>();
     private final Map<String, Queue<Member>> waitingQueues = new HashMap<>();
     private final Map<String, Set<Long>> waitingMemberIds = new HashMap<>();
-    private final int MATCH_SIZE = 2;
+    private final int MATCH_SIZE = 6;
 
     public static final String REDIS_CHANNEL = "match-status";
 
