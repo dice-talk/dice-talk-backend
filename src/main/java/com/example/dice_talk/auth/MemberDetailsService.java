@@ -46,7 +46,7 @@ public class MemberDetailsService implements UserDetailsService {
 
     public final class MemberDetails extends Member implements UserDetails{
 
-        MemberDetails(Member member){
+        public MemberDetails(Member member){
             setMemberId(member.getMemberId());
             setEmail(member.getEmail());
             setPassword(member.getPassword());
