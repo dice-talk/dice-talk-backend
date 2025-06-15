@@ -4,10 +4,7 @@ import com.example.dice_talk.audit.BaseEntity;
 import com.example.dice_talk.chatroom.entity.ChatPart;
 import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.question.entity.Question;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -18,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
