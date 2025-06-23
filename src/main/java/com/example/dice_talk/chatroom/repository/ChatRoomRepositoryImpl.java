@@ -89,13 +89,12 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
         //변수로 선언 : 	남은 핵심은 Expressions.dateTemplate(...)을 변수로 추출해서 select/groupBy/orderBy에 중복으로 새로 생성
         DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(LocalDate.class, "DATE({0})", chatRoom.createdAt);
 
-        NumberExpression<Integer> countExpr = chatRoom.count().castToNum(Integer.class);
-
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         dateOnly,
-                        countExpr))
+                        chatRoom.count().intValue()
+                ))
                 .from(chatRoom)
                 .where(
                         chatRoom.createdAt.between(start, end),

@@ -299,13 +299,11 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
         DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
                 LocalDate.class, "DATE({0})", report.createdAt);
 
-        NumberExpression<Integer> countExpr = report.count().castToNum(Integer.class);
-
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         dateOnly,
-                        countExpr
+                        report.count().intValue()
                 ))
                 .from(report)
                 .where(report.createdAt.between(start, end))
