@@ -168,6 +168,11 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<DailyCountDto> countSignupsByDate(LocalDateTime start, LocalDateTime end) {
         QMember member = QMember.member;
 
+
+        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+                LocalDate.class, "DATE({0})", member.createdAt);
+
+        NumberExpression<Integer> countExpr = member.count().castToNum(Integer.class);
 //        return queryFactory
 //                .select(Projections.constructor(
 //                        DailyCountDto.class,
@@ -179,11 +184,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 //                .groupBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt))
 //                .orderBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt).asc())
 //                .fetch();
-
-        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
-                LocalDate.class, "date({0})", member.createdAt);
-
-        NumberExpression<Integer> countExpr = member.count().castToNum(Integer.class);
 
         return queryFactory
                 .select(Projections.constructor(

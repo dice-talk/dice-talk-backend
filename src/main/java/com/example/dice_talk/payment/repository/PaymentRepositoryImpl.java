@@ -8,7 +8,9 @@ import com.example.dice_talk.payment.entity.Payment;
 import com.example.dice_talk.payment.entity.QPayment;
 import com.example.dice_talk.product.entity.QProduct;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,17 +88,21 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
     public List<DailyCountDto> countPaymentsByDate(LocalDateTime start, LocalDateTime end) {
         QPayment payment = QPayment.payment;
 
+        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+                LocalDate.class, "DATE({0})", payment.requestedAt);
+
+        NumberExpression<Integer> countExpr = payment.count().castToNum(Integer.class);
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
-                        Expressions.dateTemplate(LocalDate.class, "DATE({0})", payment.requestedAt),
-                        payment.count().castToNum(Integer.class)
+                        dateOnly,
+                        countExpr
                 ))
                 .from(payment)
                 .where(payment.requestedAt.between(start, end)
                         .and(payment.paymentStatus.eq(Payment.PaymentStatus.COMPLETED)))
-                .groupBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", payment.requestedAt))
-                .orderBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", payment.requestedAt).asc())
+                .groupBy(dateOnly)
+                .orderBy(dateOnly.asc())
                 .fetch();
     }
 
