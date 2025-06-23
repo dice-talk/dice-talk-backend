@@ -33,8 +33,17 @@ public class DashboardWeekly {
             example = "[{\"date\": \"2025-05-25\", \"count\": 7}]"
     )
     private List<DailyCountDto> weeklyActiveChatRoomCount;
+
     //주간 신고건 수
-//    private int weeklyReportCount;
+    @Schema(
+            description = "주간 접수된 신고 수",
+            example = "[{\"date\": \"2025-05-25\", \"count\": 4}]"
+    )
+    private List<DailyCountDto> weeklyReportCount;
     //주간 결제건 수
-//    private int weeklyPaymentCount;
+    @Schema(
+            description = "주간 진행된 결제 수",
+            example = "[{\"date\": \"2025-05-25\", \"count\": 8}]"
+    )
+    private List<DailyCountDto> weeklyPaymentCount;
 }

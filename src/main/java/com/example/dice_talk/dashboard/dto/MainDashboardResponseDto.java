@@ -14,17 +14,66 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MainDashboardResponseDto {
-    //회원관리
-    @Schema(description = "오늘 가입한 회원 수", example = "20")
-    private int todayMemberCount;
+
+    //일일 데이터 조회
+    @Schema(
+            description = "오늘 요약 정보",
+            example = "{\"newMemberCount\": 8, \"reportCount\": 3, \"activeChatRoomCount\": 14, \"paymentCount\": 5}"
+    )
+    private TodaySummary todaySummary;
+
+    //주간 데이터
+    @Schema(
+            description = "주간 대시보드 요약",
+            example = "{\"weekStartDate\":\"2025-06-17\"," +
+                    "\"weekEndDate\":\"2025-06-23\"," +
+                    "\"weeklyNewMemberCount\":" +
+                    "[" +
+                    "{\"date\":\"2025-06-17\",\"count\":2}," +
+                    "{\"date\":\"2025-06-18\",\"count\":1}," +
+                    "{\"date\":\"2025-06-19\",\"count\":3}," +
+                    "{\"date\":\"2025-06-20\",\"count\":0}," +
+                    "{\"date\":\"2025-06-21\",\"count\":2}," +
+                    "{\"date\":\"2025-06-22\",\"count\":0}," +
+                    "{\"date\":\"2025-06-23\",\"count\":0}" +
+                    "]," +
+                    "\"weeklyActiveChatRoomCount\":" +
+                    "[" +
+                    "{\"date\":\"2025-06-17\",\"count\":4}," +
+                    "{\"date\":\"2025-06-18\",\"count\":3}," +
+                    "{\"date\":\"2025-06-19\",\"count\":2}," +
+                    "{\"date\":\"2025-06-20\",\"count\":1}," +
+                    "{\"date\":\"2025-06-21\",\"count\":2}," +
+                    "{\"date\":\"2025-06-22\",\"count\":1}," +
+                    "{\"date\":\"2025-06-23\",\"count\":1}" +
+                    "]," +
+                    "\"weeklyReportCount\":" +
+                    "[" +
+                    "{\"date\":\"2025-06-17\",\"count\":1}," +
+                    "{\"date\":\"2025-06-18\",\"count\":0}," +
+                    "{\"date\":\"2025-06-19\",\"count\":1}," +
+                    "{\"date\":\"2025-06-20\",\"count\":0}," +
+                    "{\"date\":\"2025-06-21\",\"count\":0}," +
+                    "{\"date\":\"2025-06-22\",\"count\":1}," +
+                    "{\"date\":\"2025-06-23\",\"count\":0}" +
+                    "]," +
+                    "\"weeklyPaymentCount\":" +
+                    "[" +
+                    "{\"date\":\"2025-06-17\",\"count\":1}," +
+                    "{\"date\":\"2025-06-18\",\"count\":2}," +
+                    "{\"date\":\"2025-06-19\",\"count\":0}," +
+                    "{\"date\":\"2025-06-20\",\"count\":1}," +
+                    "{\"date\":\"2025-06-21\",\"count\":0}," +
+                    "{\"date\":\"2025-06-22\",\"count\":1}," +
+                    "{\"date\":\"2025-06-23\",\"count\":0}" +
+                    "]}"
+    )
+    private DashboardWeekly dashboardWeeklies;
 
     @Schema(description = "오늘 가입한 회원 명단", example = "[{\"name\": \"기로기\"}]")
     private List<String> todayMemberNames;
 
     //QnA 관리
-    @Schema(description = "답변이 없는 질문글 개수", example = "20")
-    private int unansweredQuestionCount;
-
     @Schema(description = "미답변 질문글 & 주간 등록된 질문글 수와 제목", example = "[{\"title\": \"회원가입 버튼 클릭이 안됩니다.\"}]")
     private List<DashboardQuestion> dashboardQuestions;
 
@@ -37,23 +86,9 @@ public class MainDashboardResponseDto {
     @Schema(description = "진행중인 채팅방 수", example = "[{\"activeChatRoom\": 40, \"activeGroupChatRoom\": 33, \"activeCoupleChatRoom\": 7}]")
     private List<DashboardChatRoom> dashboardChatRooms;
 
-    //주간 데이터
-    @Schema(
-            description = "주간 데이터",
-            example = "[" +
-                    "{" +
-                    "\"weekStartDate\": \"2025-05-20\"," +
-                    "\"weekEndDate\": \"2025-05-26\"," +
-                    "\"weeklyNewMemberCount\": [" +
-                    "{\"date\": \"2025-05-20\", \"count\": 5}," +
-                    "{\"date\": \"2025-05-21\", \"count\": 7}" +
-                    "]," +
-                    "\"weeklyActiveChatRoomCount\": [" +
-                    "{\"date\": \"2025-05-20\", \"count\": 4}," +
-                    "{\"date\": \"2025-05-21\", \"count\": 6}" +
-                    "]" +
-                    "}" +
-                    "]"
-    )
-    private List<DashboardWeekly> dashboardWeeklies;
+    //결제 관리
+    @Schema(description = "결제 요약 정보")
+    private List<DashboardPayment> dashboardPayments;
+
+
 }
