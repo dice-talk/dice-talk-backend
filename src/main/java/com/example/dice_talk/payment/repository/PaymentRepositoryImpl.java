@@ -91,12 +91,11 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
         DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
                 LocalDate.class, "DATE({0})", payment.requestedAt);
 
-        NumberExpression<Integer> countExpr = payment.count().castToNum(Integer.class);
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         dateOnly,
-                        countExpr
+                        payment.count().intValue()
                 ))
                 .from(payment)
                 .where(payment.requestedAt.between(start, end)
