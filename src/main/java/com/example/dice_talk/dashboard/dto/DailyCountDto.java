@@ -18,5 +18,5 @@ public class DailyCountDto {
     private LocalDate date;
 
     @Schema(description = "날짜 별 집계 수", example = "11")
-    private int count;
+    private Integer count;
 }
