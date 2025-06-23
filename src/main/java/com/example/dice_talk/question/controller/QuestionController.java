@@ -41,6 +41,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,6 +98,7 @@ public class QuestionController {
         questionPostDto.setMemberId(customPrincipal.getMemberId());
         // mapper로 dto -> entity
         Question question = questionMapper.questionPostToQuestion(questionPostDto);
+        question.setImages(new ArrayList<>());
         // question 만들고
         Question createdQuestion = questionService.createQuestion(question, imageFiles);
         // URI 만들기
