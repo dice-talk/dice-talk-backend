@@ -172,11 +172,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
                 LocalDate.class, "DATE({0})", member.createdAt);
 
+        NumberExpression<Long> countExpr = member.count();
+
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         dateOnly,
-                        member.count().intValue()
+                        countExpr.intValue()
                 ))
                 .from(member)
                 .where(member.createdAt.between(start, end))
