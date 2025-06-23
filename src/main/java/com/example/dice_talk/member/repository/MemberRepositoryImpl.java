@@ -6,7 +6,9 @@ import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.entity.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -166,17 +168,35 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<DailyCountDto> countSignupsByDate(LocalDateTime start, LocalDateTime end) {
         QMember member = QMember.member;
 
+//        return queryFactory
+//                .select(Projections.constructor(
+//                        DailyCountDto.class,
+//                        Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt),
+//                        member.count().castToNum(Integer.class)
+//                ))
+//                .from(member)
+//                .where(member.createdAt.between(start, end))
+//                .groupBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt))
+//                .orderBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt).asc())
+//                .fetch();
+
+        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+                LocalDate.class, "date({0})", member.createdAt);
+
+        NumberExpression<Integer> countExpr = member.count().castToNum(Integer.class);
+
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
-                        Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt),
-                        member.count().castToNum(Integer.class)
+                        dateOnly,
+                        countExpr
                 ))
                 .from(member)
                 .where(member.createdAt.between(start, end))
-                .groupBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt))
-                .orderBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt).asc())
+                .groupBy(dateOnly)
+                .orderBy(dateOnly.asc())
                 .fetch();
+
     }
 
     //웹페이지 : 신규 가입자 이름만 조회
