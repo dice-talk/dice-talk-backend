@@ -3,6 +3,7 @@ package com.example.dice_talk.report.repository;
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.mapper.ChatMapper;
 import com.example.dice_talk.chat.service.ChatService;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
@@ -11,6 +12,8 @@ import com.example.dice_talk.report.dto.ReportDto;
 import com.example.dice_talk.report.entity.QReport;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.mapper.ReportMapper;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +21,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.mail.search.SearchTerm;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -269,5 +274,36 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
                     return response;
                 })
                 .collect(Collectors.toList());
+    }
+
+    //웹페이지 : 금일 신고 건수 조회
+    public int countReports(LocalDateTime start, LocalDateTime end) {
+        QReport report = QReport.report;
+
+        Long count = queryFactory
+                .select(report.count())
+                .from(report)
+                .where(report.createdAt.between(start, end))
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    //웹페이지 : 주간 신고 건수 조회
+    @Override
+    public List<DailyCountDto> countReportsByDate(LocalDateTime start, LocalDateTime end) {
+        QReport report = QReport.report;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DailyCountDto.class,
+                        Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt),
+                        report.count().intValue()
+                ))
+                .from(report)
+                .where(report.createdAt.between(start, end))
+                .groupBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt))
+                .orderBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt).asc())
+                .fetch();
     }
 }

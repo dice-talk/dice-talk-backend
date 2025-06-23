@@ -273,22 +273,20 @@ public class MemberService {
     public List<Member> findAllActiveMember(){
         return memberRepository.findAllByMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
     }
-    //관리자 Web -> 오늘 회원가입한 회원 정보
-    public List<String> findTodayRegisteredMembers(){
 
-        LocalDate today = LocalDate.now();
-        //오늘 가입한 회원 조회
-        List<Member> members = memberRepository.findByCreatedAtBetween(
-                today.atStartOfDay(), today.plusDays(1).atStartOfDay());    //다음날 00:00시까지
-
-        //조회된 회원의 이름만 출력
-        return members.stream()
-                .map(member -> member.getName())
-                .collect(Collectors.toList());
+    //웹페이지 : 금일 신규 가입자 수
+    public int todayNewMemberCount(LocalDateTime start, LocalDateTime end) {
+        return memberRepository.countTotalSignups(start,end);
     }
-
+    //웹페이지 : 금주 신규 가입자 수
     public List<DailyCountDto> weeklyNewMember(LocalDateTime start, LocalDateTime end) {
         return memberRepository.countSignupsByDate(start, end);
+    }
+    //웹페이지 : 신규 가입자 이름
+    public List<String> findTodayRegisteredMembers() {
+        LocalDateTime start = LocalDate.now().atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        return memberRepository.findNamesByCreatedAtBetween(start, end);
     }
 
     //관리자 페이지 요청 여부 확인 (관리자 회원가입 관리)

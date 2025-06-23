@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -143,6 +144,7 @@ public class  ChatRoomService {
 
         // 채팅방 상태 저장
         chatRoomRepository.save(chatRoom);
+
         //채팅방의 모든 사용자의 구독 취소
         chatService.unsubscribeAllUsersFromChatRoom(chatRoomId);
 
@@ -354,7 +356,7 @@ public class  ChatRoomService {
         return dashboardChatRooms;
     }
 
-    //AdminWeb - 주간 진행중인 채팅방
+    //웹페이지 : 주간 진행중인 채팅방
     public List<DailyCountDto> weeklyActiveChatRoom(LocalDateTime start, LocalDateTime end) {
         return chatRoomRepository.countActiveRoomsByDate(start, end);
     }

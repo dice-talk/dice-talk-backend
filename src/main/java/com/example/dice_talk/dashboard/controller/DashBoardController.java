@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-public class AdminDashBoardController {
+public class DashBoardController {
 
     private final DashboardService dashboardService;
 

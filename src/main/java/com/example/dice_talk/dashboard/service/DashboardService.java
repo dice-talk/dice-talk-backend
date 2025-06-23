@@ -4,7 +4,9 @@ import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.dashboard.dto.*;
 import com.example.dice_talk.member.service.MemberService;
 import com.example.dice_talk.notice.service.NoticeService;
+import com.example.dice_talk.payment.service.PaymentService;
 import com.example.dice_talk.question.service.QuestionService;
+import com.example.dice_talk.report.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +27,12 @@ public class DashboardService {
     private final QuestionService questionService;
     private final NoticeService noticeService;
     private final ChatRoomService chatRoomService;
+    private final ReportService reportService;
+    private final PaymentService paymentService;
+
 
     public MainDashboardResponseDto findVerifiedExistsDashBoard() {
-        //회원 관리
+
         //오늘 회원가입한 회원의 이름
         List<String> newMemberNames = memberService.findTodayRegisteredMembers();
 
@@ -40,29 +45,54 @@ public class DashboardService {
         //채팅방 관리 : 잔행중인 채팅방(단체 /1대1)
         List<DashboardChatRoom> chatRooms = chatRoomService.activeChatRoomCount();
 
-        //신고 관리 : 최근 7일간
-
         //결제 관리
+        List<DashboardPayment> dashboardPayments = paymentService.getDashboardPayments();
 
-        //주간 데이터
-
-
-        return dashBoardToResponse(newMemberNames, dashboardQuestions, dashboardNotices, chatRooms) ;
+        return dashBoardToResponse(newMemberNames, dashboardQuestions, dashboardNotices, chatRooms, dashboardPayments) ;
     }
 
     public MainDashboardResponseDto dashBoardToResponse (List<String> memberNames, List<DashboardQuestion> questions,
-                                                         List<DashboardNotice> recentNotices, List<DashboardChatRoom> chatRooms){
+                                                         List<DashboardNotice> recentNotices, List<DashboardChatRoom> chatRooms,
+                                                         List<DashboardPayment> dashboardPayments){
         MainDashboardResponseDto dto = new MainDashboardResponseDto();
-        dto.setTodayMemberCount(memberNames.size());
+        dto.setTodaySummary(buildTodaySummary());
         dto.setTodayMemberNames(memberNames);
         dto.setDashboardQuestions(questions);
         dto.setRecentNotices(recentNotices);
         dto.setDashboardChatRooms(chatRooms);
+        dto.setDashboardPayments(dashboardPayments);
         dto.setDashboardWeeklies(dashboardWeekly());
+
 
         return dto;
     }
 
+    private List<DailyCountDto> getWeeklyReportCounts() {
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.minusDays(6);
+
+        return fillMissingDates(
+                reportService.weeklyReportCount(start.atStartOfDay(), today.atTime(LocalTime.MAX)),
+                start,
+                today
+        );
+    }
+
+
+    //일일데이터 조회
+    public TodaySummary buildTodaySummary() {
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayEnd = todayStart.plusDays(1);
+
+        int newMemberCount = memberService.todayNewMemberCount(todayStart, todayEnd);
+        int reportCount = reportService.todayReportCount(todayStart, todayEnd);
+        int activeChatRoomCount = chatRoomService.countActiveRooms(todayStart, todayEnd);
+        int paymentCount = paymentService.todayPaymentCount(todayStart, todayEnd);
+
+        return new TodaySummary(newMemberCount, reportCount, activeChatRoomCount, paymentCount);
+    }
+
+    //주간 집계 중 데이터 0으로 빠진 날짜 보완 (누락되지 않도록)
     public List<DailyCountDto> fillMissingDates(
             List<DailyCountDto> rawData,
             LocalDate startDate,
@@ -92,14 +122,7 @@ public class DashboardService {
     }
 
     //주간 데이터 적용
-    public List<DashboardWeekly> dashboardWeekly () {
-//        //주간 구하기
-//        LocalDate today = LocalDate.now();
-//        //today를 기준으로 같은 주의 월요일 날짜를 구함
-//        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));  //오늘과 같거나 그 이전 중에서 가까운 월요일로 이동
-//        LocalDateTime weekStart = monday.atStartOfDay();     //이번주 월요일 00:00
-//        LocalDateTime dayAfter = today.plusDays(1).atStartOfDay();  //오늘 기준 다음날 00:00
-
+    public DashboardWeekly dashboardWeekly() {
         // 기준 날짜
         LocalDate today = LocalDate.now();
 
@@ -113,15 +136,18 @@ public class DashboardService {
         //주간 진행중인 채팅방 수
         List<DailyCountDto> chatRoomCountRaw = chatRoomService.weeklyActiveChatRoom(startDateTime, endDateTime);
         //주간 신고건 수
+        List<DailyCountDto> reportCountRaw = reportService.weeklyReportCount(startDateTime, endDateTime);
         //주간 결제건 수
+        List<DailyCountDto> paymentCountRaw = paymentService.weeklyPaymentCount(startDateTime, endDateTime);
 
         // 데이터 없는 날짜에 0 적용
         List<DailyCountDto> memberCount = fillMissingDates(memberCountRaw, startDate, today);
         List<DailyCountDto> chatRoomCount = fillMissingDates(chatRoomCountRaw, startDate, today);
-        //추가
-        List<DashboardWeekly> dashboardWeeklies = new ArrayList<>();
-        dashboardWeeklies.add(new DashboardWeekly(startDate, today, memberCount, chatRoomCount));
+        List<DailyCountDto> reportCount = fillMissingDates(reportCountRaw, startDate, today);
+        List<DailyCountDto> paymentCount = fillMissingDates(paymentCountRaw, startDate, today);
 
-       return dashboardWeeklies;
+        //추가
+       return new DashboardWeekly(startDate, today, memberCount, chatRoomCount, reportCount, paymentCount);
+
     }
 }

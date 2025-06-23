@@ -1,11 +1,12 @@
 package com.example.dice_talk.member.repository;
 
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.entity.QMember;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,4 +147,47 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     }
 
+    //웹페이지 : 금일 신규 가입자 수
+    @Override
+    public int countTotalSignups(LocalDateTime start, LocalDateTime end) {
+        QMember member = QMember.member;
+
+        Long count = queryFactory
+                .select(member.count())
+                .from(member)
+                .where(member.createdAt.between(start, end))
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    //웹페이지 : 주간 신규 가입자 수
+    @Override
+    public List<DailyCountDto> countSignupsByDate(LocalDateTime start, LocalDateTime end) {
+        QMember member = QMember.member;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DailyCountDto.class,
+                        Expressions.dateTemplate(LocalDate.class, "DATE({0})", member.createdAt),
+                        member.count().intValue()
+                ))
+                .from(member)
+                .where(member.createdAt.between(start, end))
+                .groupBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", member.createdAt))
+                .orderBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", member.createdAt).asc())
+                .fetch();
+    }
+
+    //웹페이지 : 신규 가입자 이름만 조회
+    @Override
+    public List<String> findNamesByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
+        QMember member = QMember.member;
+
+        return queryFactory
+                .select(member.name)
+                .from(member)
+                .where(member.createdAt.between(start, end))
+                .fetch();
+    }
 }

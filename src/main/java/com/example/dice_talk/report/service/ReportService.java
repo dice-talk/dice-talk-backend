@@ -2,6 +2,7 @@ package com.example.dice_talk.report.service;
 
 import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.service.ChatService;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.service.MemberService;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -138,5 +141,14 @@ public class ReportService {
                 status,
                 PageRequest.of(page - 1, size, Sort.by("reportId").descending())
         );
+    }
+
+    //웹페이지 : 주간 데이터 조회
+    public List<DailyCountDto> weeklyReportCount(LocalDateTime start, LocalDateTime end) {
+        return reportRepository.countReportsByDate(start, end);
+    }
+    //웹페이지 : 금일 데이터 조회
+    public int todayReportCount(LocalDateTime start, LocalDateTime end) {
+        return reportRepository.countReports(start, end);
     }
 }
