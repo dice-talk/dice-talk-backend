@@ -13,7 +13,9 @@ import com.example.dice_talk.report.entity.QReport;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.mapper.ReportMapper;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -294,16 +296,21 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
     public List<DailyCountDto> countReportsByDate(LocalDateTime start, LocalDateTime end) {
         QReport report = QReport.report;
 
+        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+                LocalDate.class, "DATE({0})", report.createdAt);
+
+        NumberExpression<Integer> countExpr = report.count().castToNum(Integer.class);
+
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
-                        Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt),
-                        report.count().castToNum(Integer.class)
+                        dateOnly,
+                        countExpr
                 ))
                 .from(report)
                 .where(report.createdAt.between(start, end))
-                .groupBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt))
-                .orderBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt).asc())
+                .groupBy(dateOnly)
+                .orderBy(dateOnly.asc())
                 .fetch();
     }
 }
