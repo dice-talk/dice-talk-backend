@@ -109,9 +109,9 @@ public class  ChatRoomService {
         return savedChatRoom;
     }
 
-    //49시간 뒤 그룹 채팅방 비활성화, 이벤트 결과 중 성공 시 1대1채팅방 생성
+    //49시간 뒤 그룹 채팅방 비활성화, 이벤트 결과 중 성공 시 1대1채팅방 생성 - 테스트용 30분 변경
     private void scheduleDeactivationGroup(ChatRoom chatRoom) {
-        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(49);
+        LocalDateTime deactivationTime = LocalDateTime.now().plusMinutes(30);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         List<RoomEvent> curRoomEvents= chatRoom.getRoomEvents();
@@ -120,9 +120,9 @@ public class  ChatRoomService {
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
 
-    //24시간 뒤 1:1 채팅방 비활성화
+    //24시간 뒤 1:1 채팅방 비활성화 - 테스트용 30분 변경
     private void scheduleDeactivationCouple(ChatRoom chatRoom) {
-        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(24);
+        LocalDateTime deactivationTime = LocalDateTime.now().plusMinutes(30);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
