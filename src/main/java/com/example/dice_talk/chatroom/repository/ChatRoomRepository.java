@@ -37,20 +37,21 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatR
     @Query("SELECT cr FROM ChatRoom cr JOIN cr.chatParts cp WHERE cp.member.memberId = :memberId AND cr.roomType = :roomType AND cr.roomStatus = :roomStatus")
     Page<ChatRoom> findAllByMemberIdAndRoomTypeAndRoomStatus(@Param("memberId") Long memberId, @Param("roomType") ChatRoom.RoomType roomType, @Param("roomStatus") ChatRoom.RoomStatus roomStatus, Pageable pageable);
 
+    //
     // 활성(진행 중) 채팅방 리스트 조회
     List<ChatRoom> findAllByRoomStatus(ChatRoom.RoomStatus roomStatus);
     //주간별 활성화된 채팅방 수 조회
-    @Query(value =
-            "SELECT DATE(cr.created_at) AS date, COUNT(*) AS count " +
-                    "FROM chat_room cr " +
-                    "WHERE cr.created_at >= :start " +
-                    "  AND cr.created_at <  :end " +
-                    "  AND cr.room_status = 'ROOM_ACTIVE' " +
-                    "GROUP BY DATE(cr.created_at)",
-            nativeQuery = true
-    )
-    List<DailyCountDto> countActiveRoomsByDate(
-            @Param("start") LocalDateTime start,
-            @Param("end")   LocalDateTime end
-    );
+//    @Query(value =
+//            "SELECT DATE(cr.created_at) AS date, COUNT(*) AS count " +
+//                    "FROM chat_room cr " +
+//                    "WHERE cr.created_at >= :start " +
+//                    "  AND cr.created_at <  :end " +
+//                    "  AND cr.room_status = 'ROOM_ACTIVE' " +
+//                    "GROUP BY DATE(cr.created_at)",
+//            nativeQuery = true
+//    )
+//    List<DailyCountDto> countActiveRoomsByDate(
+//            @Param("start") LocalDateTime start,
+//            @Param("end")   LocalDateTime end
+//    );
 }

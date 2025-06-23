@@ -2,13 +2,17 @@ package com.example.dice_talk.chatroom.repository;
 
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.entity.QChatRoom;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,4 +62,43 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    //웹페이지 : 금일 진행중인 채팅방 수
+    @Override
+    public int countActiveRoomTotal(LocalDateTime start, LocalDateTime end) {
+        QChatRoom chatRoom = QChatRoom.chatRoom;
+
+        Long count = queryFactory
+                .select(chatRoom.count())
+                .from(chatRoom)
+                .where(
+                        chatRoom.createdAt.between(start, end),
+                        chatRoom.roomStatus.eq(ChatRoom.RoomStatus.ROOM_ACTIVE)
+                )
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    //웹페이지 : 진행중인 채팅방 수 조회
+    @Override
+    public List<DailyCountDto> countActiveRoomsByDate(LocalDateTime start, LocalDateTime end) {
+        QChatRoom chatRoom = QChatRoom.chatRoom;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DailyCountDto.class,
+                        Expressions.dateTemplate(LocalDate.class, "DATE({0})", chatRoom.createdAt),
+                        chatRoom.count().intValue()
+                ))
+                .from(chatRoom)
+                .where(
+                        chatRoom.createdAt.between(start, end),
+                        chatRoom.roomStatus.eq(ChatRoom.RoomStatus.ROOM_ACTIVE)
+                )
+                .groupBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", chatRoom.createdAt))
+                .orderBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", chatRoom.createdAt).asc())
+                .fetch();
+    }
+
 }
