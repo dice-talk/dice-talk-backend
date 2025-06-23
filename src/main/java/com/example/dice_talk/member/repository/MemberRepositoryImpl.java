@@ -169,13 +169,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
-                        Expressions.dateTemplate(LocalDate.class, "DATE({0})", member.createdAt),
-                        member.count().intValue()
+                        Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt),
+                        member.count().castToNum(Integer.class)
                 ))
                 .from(member)
                 .where(member.createdAt.between(start, end))
-                .groupBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", member.createdAt))
-                .orderBy(Expressions.dateTemplate(LocalDate.class, "DATE({0})", member.createdAt).asc())
+                .groupBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt))
+                .orderBy(Expressions.dateTemplate(LocalDate.class, "CAST({0} AS DATE)", member.createdAt).asc())
                 .fetch();
     }
 

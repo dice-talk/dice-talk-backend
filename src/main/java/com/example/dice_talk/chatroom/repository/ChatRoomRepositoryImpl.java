@@ -89,7 +89,7 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         Expressions.dateTemplate(LocalDate.class, "DATE({0})", chatRoom.createdAt),
-                        chatRoom.count().intValue()
+                        chatRoom.count().castToNum(Integer.class)
                 ))
                 .from(chatRoom)
                 .where(
