@@ -20,12 +20,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -46,6 +48,41 @@ public class  ChatRoomService {
     private final MemberService memberService;
     private final ExitLogService exitLogService;
     private final ThemeRepository themeRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    // Redis 키 상수로 추가
+    private static final String NICKNAME_POOL_KEY_PREFIX = "nickname:pool";
+    private static final String USED_NICKNAME_KEY_PREFIX = "nickname:used";
+
+    private String getNicknamePoolKey(Long chatRoomId, String gender){
+        return NICKNAME_POOL_KEY_PREFIX + chatRoomId + ":" + gender;
+    }
+
+    private String getUsedNicknameKey(Long chatRoomId, String gender){
+        return USED_NICKNAME_KEY_PREFIX + chatRoomId + ":" + gender;
+    }
+
+    // 채팅방별 닉네임 풀 초기화
+    private void initializeChatRoomNicknamePool(Long chatRoomId){
+        String malePoolKey = getNicknamePoolKey(chatRoomId, "male");
+        String femalePoolKey = getNicknamePoolKey(chatRoomId, "female");
+
+        // 남성 닉네임 풀 초기화
+        if(!redisTemplate.hasKey(malePoolKey)){
+            List<String> maleNicknames = List.of(
+                    "한가로운 하나", "새침한데 솔직한 세찌", "단호하지만 다정한 다오"
+            );
+            redisTemplate.opsForList().rightPushAll(malePoolKey, maleNicknames.toArray());
+        }
+
+        // 여성 닉네임 풀 초기화
+        if(!redisTemplate.hasKey(femalePoolKey)){
+            List<String> femaleNicknames = List.of(
+                    "호이가 계속되면 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육댕"
+            );
+            redisTemplate.opsForList().rightPushAll(femalePoolKey, femaleNicknames.toArray());
+        }
+    }
 
     public boolean isMemberPossibleToPart(long memberId) {
         memberService.findVerifiedMember(memberId);
@@ -106,14 +143,33 @@ public class  ChatRoomService {
 
         // 채팅방 상태 저장
         chatRoomRepository.save(chatRoom);
-
         //채팅방의 모든 사용자의 구독 취소
         chatService.unsubscribeAllUsersFromChatRoom(chatRoomId);
+
+        // Redis 에서 닉네임 풀 정리
+        cleanupChatRoomNicknamePool(chatRoomId);
 
         if (chatRoom.getRoomType().equals(ChatRoom.RoomType.GROUP)) {
             List<RoomEvent> roomEvents = roomEventRepository.findAllByChatRoom_ChatRoomId(chatRoomId);
 
         }
+    }
+
+    // Redis에서 닉네임 풀 정리
+    private void cleanupChatRoomNicknamePool(Long chatRoomId){
+        // 남성 닉네임 풀 정리
+        String malePoolKey = getNicknamePoolKey(chatRoomId, "male");
+        String maleUsedKey = getUsedNicknameKey(chatRoomId, "male");
+
+        // 여성 닉네임 풀 정리
+        String femalePoolKey = getNicknamePoolKey(chatRoomId, "female");
+        String femaleUsedKey = getUsedNicknameKey(chatRoomId, "female");
+
+        // Redis에서 해당 채팅방의 닉네임 풀들 삭제
+        redisTemplate.delete(malePoolKey);
+        redisTemplate.delete(maleUsedKey);
+        redisTemplate.delete(femalePoolKey);
+        redisTemplate.delete(femaleUsedKey);
     }
 
     // 특정 채팅방이 존재하는지 확인 후 업데이트
@@ -184,39 +240,32 @@ public class  ChatRoomService {
         chatRoom.setTheme(theme);
         ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
 
-        // 남자 닉네임 그룹
-        List<String> maleNicknameGroup = List.of("한가로운 하나", "세침한 세찌", "단호한데 다정한 다오");
-        // 여자 닉네임 그룹
-        List<String> femaleNicknameGroup = List.of("두 얼굴의 매력 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육땡");
+        // 닉네임 풀 초기화
+        initializeChatRoomNicknamePool(savedRoom.getChatRoomId());
 
-        // 남자 chatPart 그룹
+        // 성별 분류
         List<ChatPart> maleChatPartList = new ArrayList<>();
-        // 여자 chatPart 그룹
         List<ChatPart> femaleChatPartList = new ArrayList<>();
 
-        // member 리스트를 순회하며 각 회원의 chat_part 만들어주기
+        // chatPart 생성 및 성별 분류
         for (Member member : members) {
-            // chatPart 빈객체 생성
             ChatPart chatPart = new ChatPart();
             chatPart.setMember(member);
             chatPart.setChatRoom(savedRoom);
             chatPartRepository.save(chatPart);
-            // 성별이 남자라면 남자 chatPartList 로
+
+            // 성별 분류
             if(member.getGender() == Member.Gender.MALE) {
                 maleChatPartList.add(chatPart);
             } else {
-                // 여자라면 femaleChatPartList 에
                 femaleChatPartList.add(chatPart);
             }
         }
-        // 각 리스트 순회하며 각 chatPart 에 맞는 닉네임 할당
-        for (int i = 0; i <= 0; i ++) {
-            maleChatPartList.get(i).setNickname(maleNicknameGroup.get(i));
-            femaleChatPartList.get(i).setNickname(femaleNicknameGroup.get(i));
-        }
+        // 자동 닉네임 할당
+        assignNicknamesAutomatically(maleChatPartList, femaleChatPartList, savedRoom.getChatRoomId());
 
-        scheduleDeactivationGroup(savedRoom);
         //채팅방 내 사용자 구독 취소
+        scheduleDeactivationGroup(savedRoom);
 
         return savedRoom;
     }
@@ -357,4 +406,88 @@ public class  ChatRoomService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         return chatRoomRepository.searchChatRooms(themeId, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, pageable);
     }
+
+    // 성별별 닉네임 자동 할당 메서드
+    private void assignNicknamesAutomatically(List<ChatPart> maleChatParts, List<ChatPart> femaleChatParts, Long chatRoomId) {
+        // 남성 닉네임 할당
+        assignNicknamesToChatParts(maleChatParts, "male", chatRoomId);
+
+        // 여성 닉네임 할당
+        assignNicknamesToChatParts(femaleChatParts, "female", chatRoomId);
+    }
+
+    // ChatPart 리스트에 닉네임 할당 메서드
+    private void assignNicknamesToChatParts(List<ChatPart> chatParts, String gender, Long chatRoomId) {
+        if (chatParts.isEmpty()) {
+            return;
+        }
+
+        // 성별에 따른 풀 키와 사용 중인 키 생성
+        String poolKey = getNicknamePoolKey(chatRoomId, gender);
+        String usedKey = getUsedNicknameKey(chatRoomId, gender);
+
+        // Redis에서 사용 가능한 닉네임 가져오기
+        List<String> availableNicknames = getAvailableNicknames(chatParts.size(), poolKey, usedKey);
+
+        if (availableNicknames.size() < chatParts.size()) {
+            throw new BusinessLogicException(ExceptionCode.NICKNAME_SHORTAGE);
+        }
+
+        // 닉네임 할당
+        for (int i = 0; i < chatParts.size(); i++) {
+            ChatPart chatPart = chatParts.get(i);
+            String nickname = availableNicknames.get(i);
+
+            chatPart.setNickname(nickname);
+            chatPartRepository.save(chatPart);
+        }
+    }
+
+    // Redis 에서 사용 가능한 닉네임 가져오는 메서드
+    private List<String> getAvailableNicknames(int count, String poolKey, String usedKey) {
+        List<String> nicknames = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            Object nickname = redisTemplate.opsForList().leftPop(poolKey);
+            if (nickname != null) {
+                String nick = (String) nickname;
+                nicknames.add(nick);
+                // 사용 중인 닉네임으로 등록
+                redisTemplate.opsForSet().add(usedKey, nick);
+            } else {
+                break; // 더 이상 사용 가능한 닉네임이 없음
+            }
+        }
+
+        return nicknames;
+    }
+
+//    // 닉네임 배정 후 풀로 반환
+//    private void returnNickname(String nickname, Long chatRoomId) {
+//        if (nickname != null && !nickname.isEmpty()) {
+//            // 닉네임으로 성별 판단
+//            String gender = determineGenderByNickname(nickname);
+//
+//            String usedKey = getUsedNicknameKey(chatRoomId, gender);
+//            String poolKey = getNicknamePoolKey(chatRoomId, gender);
+//
+//            redisTemplate.opsForSet().remove(usedKey, nickname);
+//            redisTemplate.opsForList().rightPush(poolKey, nickname);
+//        }
+//    }
+//
+//    // 닉네임으로 성별 판단하는 메서드
+//    private String determineGenderByNickname(String nickname) {
+//        List<String> maleNicknames = List.of("한가로운 하나", "새침한데 솔직한 세찌", "단호하지만 다정한 다오");
+//        List<String> femaleNicknames = List.of("호이가 계속되면 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육댕");
+//
+//        if (maleNicknames.contains(nickname)) {
+//            return "male";
+//        } else if (femaleNicknames.contains(nickname)) {
+//            return "female";
+//        } else {
+//            // 기본값 (혹시 모를 경우)
+//            return "male";
+//        }
+//    }
 }
