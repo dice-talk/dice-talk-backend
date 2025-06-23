@@ -341,7 +341,11 @@ public class  ChatRoomService {
 
     }
 
-    //AdminWeb - 진행중인 채팅방
+    //웹페이지 : 금일 진행중인 채팅방 조회
+    public int countActiveRooms(LocalDateTime start, LocalDateTime end) {
+        return chatRoomRepository.countActiveRoomTotal(start,end);
+    }
+    //웹페이지 : 진행중인 채팅방 조회
     public List<DashboardChatRoom> activeChatRoomCount() {
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
         //단체 채팅방
