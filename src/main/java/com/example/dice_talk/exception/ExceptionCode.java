@@ -41,6 +41,7 @@ public enum ExceptionCode {
     BAD_REQUEST(400, "Invalid sort or column"),
     QUESTION_DELETED(404, "Question Deleted"),
     ALREADY_EXITED_TODAY(409, "Member Already Existed Today"),
+    QUEUE_LIMIT_EXCEEDED(400, "대기열 수를 초과하였습니다. 잠시 후 다시 시도해주세요."),
     
     // Payment 관련 예외 코드 추가
     PAYMENT_NOT_FOUND(404, "결제 정보를 찾을 수 없습니다."),
