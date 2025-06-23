@@ -98,8 +98,11 @@ public class DashboardService {
             LocalDate startDate,
             LocalDate endDate
     ) {
-        // 날짜 별 집계 수 형태로 변환
+
+        if(rawData == null) rawData = new ArrayList<>();
+        // 중복 키 방지, NPE 방지, 날짜 별 집계 수 형태로 변환
         Map<LocalDate, Integer> dataMap = rawData.stream()
+                .filter(dto -> dto.getDate() != null)
                 .collect(Collectors.toMap(
                         DailyCountDto::getDate,
                         DailyCountDto::getCount
@@ -108,7 +111,7 @@ public class DashboardService {
         //결과 답을 리스트 생성
         List<DailyCountDto> filled = new ArrayList<>();
         //오늘 기준으로 미래 여부 판단 (미래 데이터는 없으니 0 으로 처리)
-        LocalDate today = LocalDate.now();
+//        LocalDate today = LocalDate.now();
 
         //주간 시작일부터 종료일까지 순회하며 빈 날짜 채움
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
