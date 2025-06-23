@@ -90,7 +90,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         Expressions.dateTemplate(LocalDate.class, "DATE({0})", payment.requestedAt),
-                        payment.count().intValue()
+                        payment.count().castToNum(Integer.class)
                 ))
                 .from(payment)
                 .where(payment.requestedAt.between(start, end)

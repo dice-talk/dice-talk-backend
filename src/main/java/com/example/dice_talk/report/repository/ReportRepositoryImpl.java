@@ -298,7 +298,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         Expressions.dateTemplate(LocalDate.class, "DATE({0})", report.createdAt),
-                        report.count().intValue()
+                        report.count().castToNum(Integer.class)
                 ))
                 .from(report)
                 .where(report.createdAt.between(start, end))
