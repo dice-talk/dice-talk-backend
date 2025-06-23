@@ -1,6 +1,7 @@
 package com.example.dice_talk.payment.repository;
 
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.TopPayerDto;
 import com.example.dice_talk.payment.dto.PaymentAdminResponseDto;
 import com.example.dice_talk.payment.entity.Payment;
 import org.springframework.data.domain.Page;
@@ -19,5 +20,6 @@ public interface PaymentRepositoryCustom {
     //웹페이지
     int countTodayPayments(LocalDateTime start, LocalDateTime end);
     int sumAmountBetween(LocalDateTime start, LocalDateTime end);
+    List<TopPayerDto> findTopPayersByTotalAmount(int topN);
 }
 

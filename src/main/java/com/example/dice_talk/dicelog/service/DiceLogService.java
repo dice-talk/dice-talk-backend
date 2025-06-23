@@ -117,6 +117,6 @@ public class DiceLogService {
     public int countItemUsesToday() {
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
         LocalDateTime todayEnd = todayStart.plusDays(1);
-        return diceLogRepository.countByCreatedAtBetweenAndType(todayStart, todayEnd, DiceLog.LogType.DICE_USED);
+        return diceLogRepository.countByCreatedAtBetweenAndLogType(todayStart, todayEnd, DiceLog.LogType.DICE_USED);
     }
 }

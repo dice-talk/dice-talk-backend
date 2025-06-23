@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Schema(name = "DashboardPayment", description = "대시보드 결제 요약 정보 DTO")
 @Getter
 @Setter
@@ -22,4 +24,8 @@ public class DashboardPayment {
 
     @Schema(description = "금일 아이템 사용 건수", example = "18")
     private int todayItemUsageCount;
+
+    @Schema(description = "가장 많이 결제한 사용자 TOP 3",
+            example = "[{\"memberId\": 1, \"email\": \"top1@example.com\", \"totalAmount\": 150000}]")
+    private List<TopPayerDto> topPayers;
 }

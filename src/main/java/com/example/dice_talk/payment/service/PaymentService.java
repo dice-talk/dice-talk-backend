@@ -3,6 +3,7 @@ package com.example.dice_talk.payment.service;
 import com.example.dice_talk.config.TossPaymentConfig;
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.dashboard.dto.DashboardPayment;
+import com.example.dice_talk.dashboard.dto.TopPayerDto;
 import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.dicelog.service.DiceLogService;
 import com.example.dice_talk.exception.BusinessLogicException;
@@ -294,8 +295,11 @@ public class PaymentService {
         int monthlyTotalAmount = paymentRepository.sumAmountBetween(monthStart, todayEnd);
         int todayItemUsageCount = diceLogService.countItemUsesToday(); // 금일 사용된 아이템 건수
 
+        //결제 많이한 top 3 회원 조회
+        List<TopPayerDto> topPayers = paymentRepository.findTopPayersByTotalAmount(3);
+
         List<DashboardPayment> result = new ArrayList<>();
-        result.add(new DashboardPayment(todayTotalAmount, monthlyTotalAmount, todayItemUsageCount));
+        result.add(new DashboardPayment(todayTotalAmount, monthlyTotalAmount, todayItemUsageCount, topPayers));
         return result;
     }
 

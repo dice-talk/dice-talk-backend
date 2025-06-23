@@ -1,6 +1,7 @@
 package com.example.dice_talk.payment.repository;
 
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.TopPayerDto;
 import com.example.dice_talk.member.entity.QMember;
 import com.example.dice_talk.payment.dto.PaymentAdminResponseDto;
 import com.example.dice_talk.payment.entity.Payment;
@@ -80,7 +81,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
     }
 
 
-    //주간 결제 데이터 조회
+    //웹페이지 : 주간 결제 데이터 조회
     @Override
     public List<DailyCountDto> countPaymentsByDate(LocalDateTime start, LocalDateTime end) {
         QPayment payment = QPayment.payment;
@@ -99,6 +100,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
                 .fetch();
     }
 
+    //웹페이지 : 일일 결제 건수
     @Override
     public int countTodayPayments(LocalDateTime start, LocalDateTime end) {
         QPayment payment = QPayment.payment;
@@ -112,6 +114,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
         return count != null ? count.intValue() : 0;
     }
 
+    //웹페이지 : 결제 총 합
     @Override
     public int sumAmountBetween(LocalDateTime start, LocalDateTime end) {
         QPayment payment = QPayment.payment;
@@ -124,5 +127,27 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
                 .fetchOne();
 
         return sum != null ? sum : 0;
+    }
+
+    //웹페이지 : 결제 많이한 사용자
+    @Override
+    public List<TopPayerDto> findTopPayersByTotalAmount(int topN) {
+        QPayment payment = QPayment.payment;
+        QMember member = QMember.member;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        TopPayerDto.class,
+                        member.memberId,
+                        member.email,
+                        payment.amount.sum().intValue()
+                ))
+                .from(payment)
+                .join(payment.member, member)
+                .where(payment.paymentStatus.eq(Payment.PaymentStatus.COMPLETED))
+                .groupBy(member.memberId, member.email)
+                .orderBy(payment.amount.sum().desc())
+                .limit(topN)
+                .fetch();
     }
 }

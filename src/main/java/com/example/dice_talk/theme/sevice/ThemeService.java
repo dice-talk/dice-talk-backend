@@ -46,6 +46,8 @@ public class ThemeService {
                 .ifPresent(themeName -> findTheme.setName(themeName));
         Optional.ofNullable(theme.getDescription())
                 .ifPresent(description -> findTheme.setDescription(description));
+        Optional.ofNullable(theme.getThemeStatus())
+                .ifPresent(themeStatus -> findTheme.setThemeStatus(themeStatus));
         if(file != null && !file.isEmpty()){
             String imageUrl = s3Uploader.upload(file, "theme-image");
             s3Uploader.moveToDeletedFolder(findTheme.getImage(), "deleted-theme-image");
