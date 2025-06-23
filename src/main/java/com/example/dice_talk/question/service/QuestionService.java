@@ -44,6 +44,7 @@ public class QuestionService {
         this.questionImageRepository = questionImageRepository;
     }
 
+    @Transactional
     public Question createQuestion(Question question, List<MultipartFile> imageFiles) throws IOException {
         memberService.findVerifiedMember(question.getMember().getMemberId());
         question.setQuestionStatus(Question.QuestionStatus.QUESTION_REGISTERED);
