@@ -71,7 +71,7 @@ public class  ChatRoomService {
         // 남성 닉네임 풀 초기화
         if(!redisTemplate.hasKey(malePoolKey)){
             List<String> maleNicknames = List.of(
-                    "한가로운 하나", "새침한데 솔직한 세찌", "단호하지만 다정한 다오"
+                    "한가로운 하나", "세침한 세찌", "단호한데 다정한 다오"
             );
             redisTemplate.opsForList().rightPushAll(malePoolKey, maleNicknames.toArray());
         }
@@ -79,7 +79,7 @@ public class  ChatRoomService {
         // 여성 닉네임 풀 초기화
         if(!redisTemplate.hasKey(femalePoolKey)){
             List<String> femaleNicknames = List.of(
-                    "호이가 계속되면 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육댕"
+                    "두 얼굴의 매력 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육댕"
             );
             redisTemplate.opsForList().rightPushAll(femalePoolKey, femaleNicknames.toArray());
         }
