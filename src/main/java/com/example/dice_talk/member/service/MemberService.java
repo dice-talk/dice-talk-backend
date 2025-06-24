@@ -53,6 +53,7 @@ public class MemberService {
         //비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(member.getPassword());
         member.setPassword(encryptedPassword);
+        member.setMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
 //        //role 초기화
 //        List<String> roles = authorityUtils.createRoles(member.getEmail());
 //        member.setRoles(roles);
