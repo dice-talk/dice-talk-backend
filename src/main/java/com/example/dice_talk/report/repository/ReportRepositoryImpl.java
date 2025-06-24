@@ -4,6 +4,7 @@ import com.example.dice_talk.chat.entity.Chat;
 import com.example.dice_talk.chat.mapper.ChatMapper;
 import com.example.dice_talk.chat.service.ChatService;
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.QDailyCountDto;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
@@ -301,11 +302,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
 
 //        NumberExpression<Long> countExpr = report.count();
         return queryFactory
-                .select(Projections.constructor(
-                        DailyCountDto.class,
-                        dateOnly,
-                        report.count()
-                ))
+                .select(new QDailyCountDto(dateOnly, report.count()))
                 .from(report)
                 .where(report.createdAt.between(start, end))
                 .groupBy(dateOnly)

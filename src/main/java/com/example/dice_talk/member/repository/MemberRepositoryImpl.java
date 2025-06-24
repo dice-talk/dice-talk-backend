@@ -1,6 +1,7 @@
 package com.example.dice_talk.member.repository;
 
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.QDailyCountDto;
 import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.entity.QMember;
@@ -174,11 +175,12 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 //        NumberExpression<Long> countExpr = member.count();
 
         return queryFactory
-                .select(Projections.constructor(
-                        DailyCountDto.class,
-                        dateOnly,
-                        member.count()
-                        ))
+//                .select(Projections.constructor(
+//                        DailyCountDto.class,
+//                        dateOnly,
+//                        member.count()
+//                        ))
+                .select(new QDailyCountDto(dateOnly, member.count()))
                 .from(member)
                 .where(member.createdAt.between(start, end))
                 .groupBy(dateOnly)

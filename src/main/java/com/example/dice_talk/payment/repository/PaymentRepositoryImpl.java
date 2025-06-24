@@ -1,6 +1,7 @@
 package com.example.dice_talk.payment.repository;
 
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.QDailyCountDto;
 import com.example.dice_talk.dashboard.dto.TopPayerDto;
 import com.example.dice_talk.member.entity.QMember;
 import com.example.dice_talk.payment.dto.PaymentAdminResponseDto;
@@ -94,11 +95,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
 //        NumberExpression<Long> countExpr = payment.count();
 
         return queryFactory
-                .select(Projections.constructor(
-                        DailyCountDto.class,
-                        dateOnly,
-                        payment.count()
-                ))
+                .select(new QDailyCountDto(dateOnly, payment.count()))
                 .from(payment)
                 .where(payment.requestedAt.between(start, end)
                         .and(payment.paymentStatus.eq(Payment.PaymentStatus.COMPLETED)))
