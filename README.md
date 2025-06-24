@@ -1,48 +1,51 @@
 ## Dice_Talk
+
 <br>
 <img src="images/logo.png">
 
 ### 프로젝트 소개
+
 - React-Native 기반의 채팅 애플리케이션입니다.
 - WebSocket 을 활용하였습니다.
 - 개발 기간 : 2025.03.12 ~ 04.01
 - Repo : https://github.com/dice-talk
-<br>
+  <br>
 
 ### 백엔드 개발환경
+
 - 개발도구: Intellij IDEA
 - 언어: Java 11 Open JDK
 - 빌드도구: Gradle
 - 개발
-    - Spring Boot: 2.7.0
-    - Spring Data
-        - Spring Data JPA
-        - Spring Data Redis
-    - Spring Security
-    - JPA
-    - WebSocket
-        - STOMP
-    - Mail
-      - JavaMailSender
-     
+  - Spring Boot: 2.7.0
+  - Spring Data
+    - Spring Data JPA
+    - Spring Data Redis
+  - Spring Security
+  - JPA
+  - WebSocket
+    - STOMP
+  - Mail
+    - JavaMailSender
 - 데이터베이스
-    - MySQL
-    - Redis
+  - MySQL
+  - Redis
 - ERD
-    - DB Diagram
+  - DB Diagram
 - 프론트 개발 환경 및 언어
-    - 언어:
-        - HTML
-        - CSS
-        - JavaScript
-    - 라이브러리 및 프레임워크:
-        - React-Native
+  - 언어:
+    - HTML
+    - CSS
+    - JavaScript
+  - 라이브러리 및 프레임워크:
+    - React-Native
 - 형상관리 및 이슈관리
-    - GitHub
+  - GitHub
 - 기타
-    - Discord
+  - Discord
 
 ### 개발언어
+
 <span>
 <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
 <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
@@ -68,7 +71,6 @@
   <br>
   <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
 
-
 ### etc
 
 <span>
@@ -84,8 +86,8 @@
 </span>
 <br>
 
-
 ## [ERD] (https://dbdiagram.io/d/67d3773075d75cc8440765fb)
+
  <img src="images/ERD.svg">
 <br>
 <br>
@@ -94,15 +96,15 @@
 ## [Kanban Board]
 
 Github Kanban
+
 - Github의 Project 기능 중 Kanban 보드를 활용하여 프로젝트를 관리했습니다.
 - Todo, InProgress, Done 의 열로 작업을 구분해 현재 작업 상황을 실시간으로 확인할 수 있도록 했습니다.
-<br>
+  <br>
 
 <img width="1713" alt="image" src="https://github.com/orgs/dice-talk/projects/1/views/1">
 
 <br>
 <br>
-
 
 ## [서비스 구현 내용]
 
@@ -114,7 +116,6 @@ Github Kanban
 .
 .
 
-
 <br>
 <br>
 
@@ -125,59 +126,67 @@ Github Kanban
 각자의 담당 영역에서 전문성을 발휘해 구현을 진행했으며, 설계 과정에서 나온 다양한 아이디어와 피드백을 반영하여 프로젝트의 완성도를 높이는 데 기여했습니다.
 
 ## 남택호
+
 [문의, 채팅방 내 이벤트, 상품]
 
 > ### 문의[BE]
+
 - a
 
 > ### 채팅방 내 이벤트[BE]
 
 > ### 상품[BE]
 
-
 ---
+
 <br/>
 
 ## 강민지
+
 [문의, 채팅방 내 이벤트, 상품]
 
 > ### 문의[BE]
+
 - a
 
 > ### 채팅방 내 이벤트[BE]
 
 > ### 상품[BE]
 
-
 ---
+
 <br/>
 
 ## 구본석
+
 [문의, 채팅방 내 이벤트, 상품]
 
 > ### 문의[BE]
+
 - a
 
 > ### 채팅방 내 이벤트[BE]
 
 > ### 상품[BE]
 
-
 ---
+
 <br/>
 
 ## 여승아
+
 [문의, 채팅방 내 이벤트, 상품]
 
 > ### 문의[BE]
+
 - a
 
 > ### 채팅방 내 이벤트[BE]
 
 > ### 상품[BE]
 
-
 ---
+
 <br>
 <br>
 <br>
@@ -185,12 +194,15 @@ Github Kanban
 ## 개발 문서
 
 ### 요구사항 정의서
+
 [Dice-talk 요구사항 정의서](https://docs.google.com/spreadsheets/d/14orXcMEgo9tlzh9eWYJSkyu-Uous_H_OzISLSq_iwy8/edit?gid=705078625#gid=705078625)
 
 ### API 명세서
+
 [Dice-talk API 명세서](https://docs.google.com/spreadsheets/d/1YLdlEZhYzl-SDKHhMZTkL_pLAH-pKINngES_pOtNp0g/edit?gid=2058485160#gid=2058485160)
 
 ### 발표자료
+
 [Dice-talk 발표자료]()
 
 <br>
@@ -199,21 +211,25 @@ Github Kanban
 ## 프로젝트 회고
 
 ### 남택호
+
 > asdf
 
 <br>
 
 ### 강민지
+
 > asdf
 
 <br>
 
 ### 구본석
+
 > asdf
 
 <br>
 
 ### 여승아
+
 > asdf
 
 <br>
