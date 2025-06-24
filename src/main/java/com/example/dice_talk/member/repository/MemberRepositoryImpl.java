@@ -168,18 +168,17 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<DailyCountDto> countSignupsByDate(LocalDateTime start, LocalDateTime end) {
         QMember member = QMember.member;
 
-
         DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
                 LocalDate.class, "DATE({0})", member.createdAt);
 
-        NumberExpression<Long> countExpr = member.count();
+//        NumberExpression<Long> countExpr = member.count();
 
         return queryFactory
                 .select(Projections.constructor(
                         DailyCountDto.class,
                         dateOnly,
-                        countExpr.intValue()
-                ))
+                        member.count()
+                        ))
                 .from(member)
                 .where(member.createdAt.between(start, end))
                 .groupBy(dateOnly)
