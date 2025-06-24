@@ -101,7 +101,7 @@ public class DashboardService {
 
         if(rawData == null) rawData = new ArrayList<>();
         // 중복 키 방지, NPE 방지, 날짜 별 집계 수 형태로 변환
-        Map<LocalDate, Integer> dataMap = rawData.stream()
+        Map<LocalDate, Long> dataMap = rawData.stream()
                 .filter(dto -> dto.getDate() != null)
                 .collect(Collectors.toMap(
                         DailyCountDto::getDate,
@@ -116,7 +116,7 @@ public class DashboardService {
         //주간 시작일부터 종료일까지 순회하며 빈 날짜 채움
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             //해당 날짜의 count 값 (없으면 0으로 채움)
-            int count = dataMap.getOrDefault(date, 0);
+            Long count = dataMap.getOrDefault(date, 0L);
             //DailyCountDto 객체 생성하여 결과 리스트에 추가
             filled.add(new DailyCountDto(date, count));
         }
