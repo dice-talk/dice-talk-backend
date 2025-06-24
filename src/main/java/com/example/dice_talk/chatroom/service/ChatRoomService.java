@@ -110,9 +110,9 @@ public class  ChatRoomService {
         return savedChatRoom;
     }
 
-    //49시간 뒤 그룹 채팅방 비활성화, 이벤트 결과 중 성공 시 1대1채팅방 생성
+    //49시간 뒤 그룹 채팅방 비활성화, 이벤트 결과 중 성공 시 1대1채팅방 생성 - 테스트용 30분 변경
     private void scheduleDeactivationGroup(ChatRoom chatRoom) {
-        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(49);
+        LocalDateTime deactivationTime = LocalDateTime.now().plusMinutes(30);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         List<RoomEvent> curRoomEvents= chatRoom.getRoomEvents();
@@ -121,9 +121,9 @@ public class  ChatRoomService {
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
 
-    //24시간 뒤 1:1 채팅방 비활성화
+    //24시간 뒤 1:1 채팅방 비활성화 - 테스트용 30분 변경
     private void scheduleDeactivationCouple(ChatRoom chatRoom) {
-        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(24);
+        LocalDateTime deactivationTime = LocalDateTime.now().plusMinutes(30);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
@@ -215,6 +215,15 @@ public class  ChatRoomService {
         if(exitLogService.hasLeftToday(memberId)){
             throw new BusinessLogicException(ExceptionCode.ALREADY_EXITED_TODAY);
         }
+
+        String nickname = foundChatPart.getNickname();
+
+        // 퇴장 메세지 전송 ( 닉네임 있는 경우만 )
+        if (nickname != null && !nickname.isEmpty()){
+            chatService.sendExitMessage(chatRoomId, nickname);
+        }
+
+        // ChatPart 상태 업데이트
         foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
         exitLogService.createExitLog(memberId);
         chatPartRepository.save(foundChatPart);
@@ -224,6 +233,14 @@ public class  ChatRoomService {
     public void forceExitChatPart(long chatRoomId, long memberId) {
         Optional<ChatPart> chatPart = chatPartRepository.findByChatRoom_ChatRoomIdAndMember_MemberId(chatRoomId, memberId);
         ChatPart foundChatPart = chatPart.orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+
+        String nickname = foundChatPart.getNickname();
+
+        // 퇴장 메세지 전송 ( 닉네임 있는 경우만 )
+        if (nickname != null && !nickname.isEmpty()){
+            chatService.sendExitMessage(chatRoomId, nickname);
+        }
+
         foundChatPart.setExitStatus(ChatPart.ExitStatus.MEMBER_EXIT);
         chatPartRepository.save(foundChatPart);
     }

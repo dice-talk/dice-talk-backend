@@ -1,17 +1,24 @@
 package com.example.dice_talk.chat.service;
 
+import com.example.dice_talk.chat.dto.ChatDto;
 import com.example.dice_talk.chat.dto.UserInfo;
 import com.example.dice_talk.chat.entity.Chat;
+import com.example.dice_talk.chat.mapper.ChatMapper;
 import com.example.dice_talk.chat.repository.ChatRepository;
 import com.example.dice_talk.chatroom.config.SessionRegistry;
 import com.example.dice_talk.chatroom.entity.ChatPart;
+import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.repository.ChatPartRepository;
+import com.example.dice_talk.chatroom.repository.ChatRoomRepository;
+import com.example.dice_talk.chatroom.service.ChatRoomService;
 import com.example.dice_talk.exception.BusinessLogicException;
 import com.example.dice_talk.exception.ExceptionCode;
 import com.example.dice_talk.member.entity.Member;
+import com.example.dice_talk.member.repository.MemberRepository;
 import com.example.dice_talk.pushNotification.entity.QPushNotificationToken;
 import com.example.dice_talk.pushNotification.service.PushNotificationTokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
@@ -26,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.example.dice_talk.chatroom.config.StompHandler.saveUserInfo;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -36,6 +44,8 @@ public class ChatService {
     private final SessionRegistry sessionRegistry;
     private final PushNotificationTokenService pushNotificationTokenService;
     private final ChatPartRepository chatPartRepository;
+    private final MemberRepository memberRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     //사용자가 채팅방에 입장할 때 호출되는 메서드
     public void enterChatRoom(long roomId, Long memberId, String sessionId) {
@@ -48,6 +58,25 @@ public class ChatService {
 
         // 해당 채팅방을 구독 중인 모든 클라이언트에게 입장 메시지 전송
         messagingTemplate.convertAndSend("/sub/chat/" + roomId, "Dice 분들이 모두 입장하였습니다.");
+    }
+
+    // 시스템 사용자 조회 또는 생성 메서드
+    private Member getOrCreateSystemMember(){
+        return memberRepository.findByEmail("system@dice-talk.com").orElseGet(() -> {
+            // 시스템 사용자가 없으면 생성
+            Member systemMember = new Member();
+            systemMember.setEmail("system@dice-talk.com");
+            systemMember.setName("시스템");
+            systemMember.setPassword("System1!");
+            systemMember.setGender(Member.Gender.MALE);
+            systemMember.setRegion("다이스톡 본사");
+            systemMember.setBirth("2000-01-01");
+            systemMember.setNotification(false);
+            systemMember.setCi("000000-000000");
+            systemMember.setAgeGroup("0");
+            systemMember.setTotalDice(0);
+            return memberRepository.save(systemMember);
+        });
     }
 
 
@@ -81,13 +110,7 @@ public class ChatService {
         return savedChat;
     }
 
-    /**
-     * 특정 채팅방의 참여자 중 발신자를 제외한 모든 사용자의 ID 목록을 반환합니다.
-     * 이 메소드는 실제 프로젝트의 채팅방 참여자 관리 방식에 따라 구현되어야 합니다.
-     * @param chatRoomId 채팅방 ID
-     * @param senderMemberId 발신자 ID
-     * @return 수신자 ID 목록
-     */
+    // 본인 제외한 채팅방 참여자 아이디 목록 반환
     private List<Long> getRecipientMemberIdsInChatRoom(Long chatRoomId, Long senderMemberId) {
         List<ChatPart> participantsInRoom = chatPartRepository.findByChatRoom_ChatRoomIdAndExitStatus(
                 chatRoomId,
@@ -176,6 +199,33 @@ public class ChatService {
                     "/topic/chat/" + chatRoomId,
                     "채팅방이 종료되었습니다."
             );
+        }
+    }
+
+    // 퇴장 메세지 전송 메서드
+    public void sendExitMessage(Long chatRoomId, String nickname){
+        try{
+            Member system = getOrCreateSystemMember();
+
+            // 퇴장 메세지 생성
+            Chat exitChat = new Chat();
+            exitChat.setMessage(nickname + " 님이 퇴장하셨습니다.");
+            exitChat.setNickname("시스템");
+            exitChat.setMember(system);
+
+            // ChatRoom 설정
+            exitChat.setChatRoom(chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHATROOM_NOT_FOUND)));
+
+            // DB에 저장
+            Chat savedExitChat = chatRepository.save(exitChat);
+
+            // 접속자에게 전송
+            ChatDto.Response exitMessage = new ChatDto.Response(
+                    savedExitChat.getChatId(), savedExitChat.getMessage(), savedExitChat.getMember().getMemberId(), savedExitChat.getNickname(), savedExitChat.getChatRoom().getChatRoomId(), savedExitChat.getCreatedAt());
+            messagingTemplate.convertAndSend("/sub/chat/" + chatRoomId, exitMessage);
+            log.info("퇴장 메세지 전송 : {}님이 {}번 채팅방에서 퇴장", nickname, chatRoomId);
+        } catch (Exception e){
+            log.error("퇴장 메세지 전송 실패 : {}", e.getMessage());
         }
     }
 
