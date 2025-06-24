@@ -8,6 +8,7 @@ import com.example.dice_talk.payment.dto.PaymentAdminResponseDto;
 import com.example.dice_talk.payment.entity.Payment;
 import com.example.dice_talk.payment.entity.QPayment;
 import com.example.dice_talk.product.entity.QProduct;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -19,9 +20,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.example.dice_talk.report.entity.QReport.report;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -89,19 +94,42 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
     public List<DailyCountDto> countPaymentsByDate(LocalDateTime start, LocalDateTime end) {
         QPayment payment = QPayment.payment;
 
-        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
-                LocalDate.class, "DATE({0})", payment.requestedAt);
 
-//        NumberExpression<Long> countExpr = payment.count();
+        DateExpression<Date> dateOnly = Expressions.dateTemplate(
+                Date.class, "DATE({0})", payment.requestedAt);
 
-        return queryFactory
-                .select(new QDailyCountDto(dateOnly, payment.count()))
+        List<Tuple> tuples = queryFactory
+                .select(dateOnly, payment.count())
                 .from(payment)
                 .where(payment.requestedAt.between(start, end)
                         .and(payment.paymentStatus.eq(Payment.PaymentStatus.COMPLETED)))
                 .groupBy(dateOnly)
                 .orderBy(dateOnly.asc())
                 .fetch();
+
+        return tuples.stream()
+                .map(t -> {
+                    Date sqlDate = t.get(dateOnly);
+                    Long cnt = t.get(payment.count());
+                    LocalDate date = (sqlDate != null ? sqlDate.toLocalDate() : null);
+                    return new DailyCountDto(
+                            date,
+                            (cnt != null ? cnt : 0L)
+                    );
+                }).collect(Collectors.toList());
+//        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+//                LocalDate.class, "DATE({0})", payment.requestedAt);
+//
+////        NumberExpression<Long> countExpr = payment.count();
+//
+//        return queryFactory
+//                .select(new QDailyCountDto(dateOnly, payment.count()))
+//                .from(payment)
+//                .where(payment.requestedAt.between(start, end)
+//                        .and(payment.paymentStatus.eq(Payment.PaymentStatus.COMPLETED)))
+//                .groupBy(dateOnly)
+//                .orderBy(dateOnly.asc())
+//                .fetch();
     }
 
     //웹페이지 : 일일 결제 건수

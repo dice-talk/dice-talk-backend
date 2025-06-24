@@ -6,6 +6,7 @@ import com.example.dice_talk.member.Dto.MemberDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.member.entity.QMember;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import javax.persistence.EntityManager;
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
@@ -169,23 +171,43 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<DailyCountDto> countSignupsByDate(LocalDateTime start, LocalDateTime end) {
         QMember member = QMember.member;
 
-        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
-                LocalDate.class, "DATE({0})", member.createdAt);
 
-//        NumberExpression<Long> countExpr = member.count();
+        DateExpression<Date> dateOnly = Expressions.dateTemplate(
+                Date.class, "DATE({0})", member.createdAt);
 
-        return queryFactory
-//                .select(Projections.constructor(
-//                        DailyCountDto.class,
-//                        dateOnly,
-//                        member.count()
-//                        ))
-                .select(new QDailyCountDto(dateOnly, member.count()))
+        List<Tuple> tuples = queryFactory
+                .select(dateOnly, member.count())
                 .from(member)
                 .where(member.createdAt.between(start, end))
                 .groupBy(dateOnly)
                 .orderBy(dateOnly.asc())
                 .fetch();
+
+        List<DailyCountDto> result = tuples.stream()
+                .map(t -> {
+                    Date sqlDate = t.get(dateOnly);
+                    Long cnt = t.get(member.count());
+                    LocalDate date = (sqlDate != null ? sqlDate.toLocalDate() : null);
+                    Long count = (cnt != null ? cnt : 0L);
+                    return new DailyCountDto(date, count);
+                }).collect(Collectors.toList());
+
+        return result;
+//        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+//                LocalDate.class, "DATE({0})", member.createdAt);
+//
+//        return queryFactory
+//                .select(Projections.constructor(
+//                        DailyCountDto.class,
+//                        dateOnly,
+//                        member.count()
+//                        ))
+////                .select(new QDailyCountDto(dateOnly, member.count()))
+//                .from(member)
+//                .where(member.createdAt.between(start, end))
+//                .groupBy(dateOnly)
+//                .orderBy(dateOnly.asc())
+//                .fetch();
 
     }
 
