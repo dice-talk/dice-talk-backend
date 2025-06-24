@@ -17,10 +17,10 @@ public class DailyCountDto {
     private LocalDate date;
 
     @Schema(description = "날짜 별 집계 수", example = "11")
-    private Long count;
+    private long count;
 
     @QueryProjection
-    public DailyCountDto(LocalDate date, Long count) {
+    public DailyCountDto(LocalDate date, long count) {
         this.date = date;
         this.count = count;
     }
