@@ -60,7 +60,7 @@ dependencies {
 	implementation "com.querydsl:querydsl-apt:${querydslVersion}"
 	// QueryDSL JPA 어노테이션 프로세서 추가
 	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jpa"
-	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}"
+//	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}"
 	implementation 'javax.persistence:javax.persistence-api:2.2'
 	annotationProcessor 'javax.persistence:javax.persistence-api:2.2'
 
@@ -90,4 +90,19 @@ tasks.withType(JavaCompile).configureEach { task ->
 					.dir("generated/sources/annotationProcessor/java/main")
 					.get()
 					.asFile
+}
+// compileQuerydsl 커스텀 태스크 등록
+tasks.register("compileQuerydsl", JavaCompile) {
+	group = "build"
+	description = "Compile the Querydsl Q-types"
+
+	source = sourceSets.main.java
+	classpath = sourceSets.main.compileClasspath
+	destinationDirectory.set(file("$buildDir/generated/sources/annotationProcessor/java/main"))
+
+	options.annotationProcessorPath = configurations.annotationProcessor
+	options.compilerArgs += [
+			"-proc:only",
+			"-processor", "com.querydsl.apt.jpa.JPAAnnotationProcessor"
+	]
 }

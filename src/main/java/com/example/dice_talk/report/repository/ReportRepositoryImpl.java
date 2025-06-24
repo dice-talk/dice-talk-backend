@@ -13,6 +13,7 @@ import com.example.dice_talk.report.dto.ReportDto;
 import com.example.dice_talk.report.entity.QReport;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.mapper.ReportMapper;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.mail.search.SearchTerm;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -297,16 +299,39 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
     public List<DailyCountDto> countReportsByDate(LocalDateTime start, LocalDateTime end) {
         QReport report = QReport.report;
 
-        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
-                LocalDate.class, "DATE({0})", report.createdAt);
 
-//        NumberExpression<Long> countExpr = report.count();
-        return queryFactory
-                .select(new QDailyCountDto(dateOnly, report.count()))
+        DateExpression<Date> dateOnly = Expressions.dateTemplate(
+                Date.class, "DATE({0})", report.createdAt);
+
+        List<Tuple> tuples = queryFactory
+                .select(dateOnly, report.reportId.count())
                 .from(report)
                 .where(report.createdAt.between(start, end))
                 .groupBy(dateOnly)
                 .orderBy(dateOnly.asc())
                 .fetch();
+
+        return tuples.stream()
+                .map(t -> {
+                    Date sqlDate = t.get(dateOnly);
+                    Long cnt = t.get(report.reportId.count());
+                    LocalDate date = (sqlDate != null ? sqlDate.toLocalDate() : null);
+                    return new DailyCountDto(
+                            date,
+                            cnt != null ? cnt : 0L
+                    );
+                }).collect(Collectors.toList());
     }
+//        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
+//                LocalDate.class, "DATE({0})", report.createdAt);
+//
+////        NumberExpression<Long> countExpr = report.count();
+//        return queryFactory
+//                .select(new QDailyCountDto(dateOnly, report.count()))
+//                .from(report)
+//                .where(report.createdAt.between(start, end))
+//                .groupBy(dateOnly)
+//                .orderBy(dateOnly.asc())
+//                .fetch();
+//    }
 }
