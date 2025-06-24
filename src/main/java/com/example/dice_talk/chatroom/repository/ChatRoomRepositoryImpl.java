@@ -3,6 +3,7 @@ package com.example.dice_talk.chatroom.repository;
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.entity.QChatRoom;
 import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.QDailyCountDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
@@ -92,11 +93,7 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
 //        NumberExpression<Long> countExpr = chatRoom.count();
 
         return queryFactory
-                .select(Projections.constructor(
-                        DailyCountDto.class,
-                        dateOnly,
-                        chatRoom.count()
-                ))
+                .select(new QDailyCountDto(dateOnly, chatRoom.count()))
                 .from(chatRoom)
                 .where(
                         chatRoom.createdAt.between(start, end),
