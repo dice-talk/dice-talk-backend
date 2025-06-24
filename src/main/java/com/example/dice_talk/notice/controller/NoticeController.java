@@ -84,7 +84,7 @@ public class NoticeController {
             @Parameter(description = "공지 이미지 파일 목록", required = false)
             @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             @Parameter(description = "썸네일 플래그 문자열 목록(JSON)", required = false)
-            @RequestPart(value = "thumbnailFlags", required = false) List<String> thumbnailFlagsStr
+            @RequestParam(value = "thumbnailFlags", required = false) List<String> thumbnailFlagsStr
     ) throws IOException {
 
         // JSON -> DTO 수동 파싱
