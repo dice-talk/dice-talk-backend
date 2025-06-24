@@ -19,6 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Service
 public class DiceLogService {
     private final DiceLogRepository diceLogRepository;
@@ -108,5 +111,12 @@ public class DiceLogService {
         int totalDice = findDiceLog.getMember().getTotalDice() +findDiceLog.getQuantity();
         findDiceLog.getMember().setTotalDice(totalDice);
         return diceLog;
+    }
+
+    //웹페이지 : 일일 아이템 사용 건 수 조회
+    public int countItemUsesToday() {
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayEnd = todayStart.plusDays(1);
+        return diceLogRepository.countByCreatedAtBetweenAndLogType(todayStart, todayEnd, DiceLog.LogType.DICE_USED);
     }
 }

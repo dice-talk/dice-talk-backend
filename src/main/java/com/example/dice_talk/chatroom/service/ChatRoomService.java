@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -109,9 +110,9 @@ public class  ChatRoomService {
         return savedChatRoom;
     }
 
-    //49시간 뒤 그룹 채팅방 비활성화, 이벤트 결과 중 성공 시 1대1채팅방 생성 - 테스트용 30분 변경
+    //49시간 뒤 그룹 채팅방 비활성화, 이벤트 결과 중 성공 시 1대1채팅방 생성
     private void scheduleDeactivationGroup(ChatRoom chatRoom) {
-        LocalDateTime deactivationTime = LocalDateTime.now().plusMinutes(30);
+        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(49);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         List<RoomEvent> curRoomEvents= chatRoom.getRoomEvents();
@@ -120,9 +121,9 @@ public class  ChatRoomService {
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
     }
 
-    //24시간 뒤 1:1 채팅방 비활성화 - 테스트용 30분 변경
+    //24시간 뒤 1:1 채팅방 비활성화
     private void scheduleDeactivationCouple(ChatRoom chatRoom) {
-        LocalDateTime deactivationTime = LocalDateTime.now().plusMinutes(30);
+        LocalDateTime deactivationTime = LocalDateTime.now().plusHours(24);
         Date triggerTime = Date.from(deactivationTime.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> deactivateChatRoom(chatRoom.getChatRoomId()), triggerTime);
@@ -143,6 +144,7 @@ public class  ChatRoomService {
 
         // 채팅방 상태 저장
         chatRoomRepository.save(chatRoom);
+
         //채팅방의 모든 사용자의 구독 취소
         chatService.unsubscribeAllUsersFromChatRoom(chatRoomId);
 
@@ -356,7 +358,11 @@ public class  ChatRoomService {
 
     }
 
-    //AdminWeb - 진행중인 채팅방
+    //웹페이지 : 금일 진행중인 채팅방 조회
+    public int countActiveRooms(LocalDateTime start, LocalDateTime end) {
+        return chatRoomRepository.countActiveRoomTotal(start,end);
+    }
+    //웹페이지 : 진행중인 채팅방 조회
     public List<DashboardChatRoom> activeChatRoomCount() {
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByRoomStatus(ChatRoom.RoomStatus.ROOM_ACTIVE);
         //단체 채팅방
@@ -371,7 +377,7 @@ public class  ChatRoomService {
         return dashboardChatRooms;
     }
 
-    //AdminWeb - 주간 진행중인 채팅방
+    //웹페이지 : 주간 진행중인 채팅방
     public List<DailyCountDto> weeklyActiveChatRoom(LocalDateTime start, LocalDateTime end) {
         return chatRoomRepository.countActiveRoomsByDate(start, end);
     }

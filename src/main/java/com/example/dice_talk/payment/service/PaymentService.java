@@ -1,6 +1,9 @@
 package com.example.dice_talk.payment.service;
 
 import com.example.dice_talk.config.TossPaymentConfig;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
+import com.example.dice_talk.dashboard.dto.DashboardPayment;
+import com.example.dice_talk.dashboard.dto.TopPayerDto;
 import com.example.dice_talk.dicelog.entity.DiceLog;
 import com.example.dice_talk.dicelog.service.DiceLogService;
 import com.example.dice_talk.exception.BusinessLogicException;
@@ -14,6 +17,10 @@ import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpHeaders;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,7 +48,7 @@ public class PaymentService {
 
     @Transactional
     public Payment requestTossPayment(PaymentRequestDto dto, Long memberId) {
-        log.info("결제 요청 시작 - memberId: {}, amount: {}, diceAmount: {}", 
+        log.info("결제 요청 시작 - memberId: {}, amount: {}, diceAmount: {}",
                 memberId, dto.getAmount(), dto.getDiceAmount());
 
         Member member = memberService.findVerifiedMember(memberId);
@@ -67,7 +72,7 @@ public class PaymentService {
 
         Payment savedPayment = paymentRepository.save(payment);
         log.info("결제 요청 완료 - orderId: {}", savedPayment.getOrderId());
-        
+
         return savedPayment;
     }
 
@@ -95,14 +100,14 @@ public class PaymentService {
 
         // 결제 시간 검증
         if (ChronoUnit.MINUTES.between(payment.getRequestedAt(), LocalDateTime.now()) > PAYMENT_TIMEOUT_MINUTES) {
-            log.error("결제 시간 초과 - orderId: {}, requestedAt: {}", 
+            log.error("결제 시간 초과 - orderId: {}, requestedAt: {}",
                     successDto.getOrderId(), payment.getRequestedAt());
             throw new BusinessLogicException(ExceptionCode.PAYMENT_TIMEOUT);
         }
 
         // 결제 금액 검증
         if (payment.getAmount() != successDto.getAmount()) {
-            log.error("결제 금액 불일치 - orderId: {}, expected: {}, actual: {}", 
+            log.error("결제 금액 불일치 - orderId: {}, expected: {}, actual: {}",
                     successDto.getOrderId(), payment.getAmount(), successDto.getAmount());
             throw new BusinessLogicException(ExceptionCode.PAYMENT_AMOUNT_MISMATCH);
         }
@@ -138,10 +143,10 @@ public class PaymentService {
             diceLog.setInfo("다이스 " + payment.getDiceAmount() + "개 충전");
             diceLog.setMember(payment.getMember());
             diceLog.setProduct(payment.getProduct());
-            
+
             diceLogService.createDiceLogCharge(diceLog, payment.getMember().getMemberId());
-            
-            log.info("결제 승인 완료 - orderId: {}, amount: {}", 
+
+            log.info("결제 승인 완료 - orderId: {}, amount: {}",
                     successDto.getOrderId(), successDto.getAmount());
 
             // 5. 업데이트된 사용자의 최종 다이스 개수를 가져와 DTO로 만들어 반환
@@ -149,7 +154,7 @@ public class PaymentService {
             return new ConfirmPaymentResponseDto(updatedTotalDice);
 
         } else {
-            log.error("결제 승인 실패 - orderId: {}, status: {}", 
+            log.error("결제 승인 실패 - orderId: {}, status: {}",
                     successDto.getOrderId(), response.getStatusCode());
             throw new BusinessLogicException(ExceptionCode.PAYMENT_FAILED);
         }
@@ -157,7 +162,7 @@ public class PaymentService {
 
     @Transactional
     public void failPayment(TossFailDto tossFailDto) {
-        log.info("결제 실패 처리 - orderId: {}, message: {}", 
+        log.info("결제 실패 처리 - orderId: {}, message: {}",
                 tossFailDto.getOrderId(), tossFailDto.getMessage());
 
         Payment payment = paymentRepository.findByOrderId(tossFailDto.getOrderId())
@@ -170,13 +175,13 @@ public class PaymentService {
         payment.setPaymentStatus(Payment.PaymentStatus.FAILED);
         payment.setPaymentKey(tossFailDto.getPaymentKey());
         paymentRepository.save(payment);
-        
+
         log.info("결제 실패 처리 완료 - orderId: {}", tossFailDto.getOrderId());
     }
 
     @Transactional
     public void cancelPayment(TossCancelDto cancelDto) {
-        log.info("결제 취소 요청 - orderId: {}, reason: {}", 
+        log.info("결제 취소 요청 - orderId: {}, reason: {}",
                 cancelDto.getOrderId(), cancelDto.getCancelReason());
 
         Payment payment = paymentRepository.findByOrderId(cancelDto.getOrderId())
@@ -188,7 +193,7 @@ public class PaymentService {
         payment.setPaymentStatus(Payment.PaymentStatus.CANCELED);
         payment.setRefundReason(cancelDto.getCancelReason());
         paymentRepository.save(payment);
-        
+
         log.info("결제 취소 완료 - orderId: {}", cancelDto.getOrderId());
     }
 
@@ -203,7 +208,7 @@ public class PaymentService {
                 });
 
         if (payment.getPaymentStatus() != Payment.PaymentStatus.COMPLETED) {
-            log.error("환불 불가능한 결제 상태 - orderId: {}, status: {}", 
+            log.error("환불 불가능한 결제 상태 - orderId: {}, status: {}",
                     orderId, payment.getPaymentStatus());
             throw new BusinessLogicException(ExceptionCode.INVALID_REFUND_STATUS);
         }
@@ -229,10 +234,10 @@ public class PaymentService {
             payment.setPaymentStatus(Payment.PaymentStatus.REFUNDED);
             payment.setRefundReason(reason);
             paymentRepository.save(payment);
-            
+
             log.info("환불 처리 완료 - orderId: {}", orderId);
         } else {
-            log.error("환불 처리 실패 - orderId: {}, status: {}", 
+            log.error("환불 처리 실패 - orderId: {}, status: {}",
                     orderId, response.getStatusCode());
             throw new BusinessLogicException(ExceptionCode.REFUND_FAILED);
         }
@@ -241,7 +246,7 @@ public class PaymentService {
     @Transactional(readOnly = true)
     public List<PaymentHistoryDto> historyPayment(long memberId) {
         log.info("결제 내역 조회 - memberId: {}", memberId);
-        
+
         List<Payment> payments = paymentRepository.findAllByMember_MemberId(memberId);
 
         List<PaymentHistoryDto> response = payments.stream()
@@ -260,4 +265,42 @@ public class PaymentService {
         log.info("결제 내역 조회 완료 - memberId: {}, count: {}", memberId, response.size());
         return response;
     }
+
+    //웹페이지 : 결제건 목록 조회
+    public Page<PaymentAdminResponseDto> getAdminPayments(String email, String productName,
+                                                          Payment.PaymentStatus status,
+                                                          LocalDateTime start, LocalDateTime end,
+                                                          int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "requestedAt"));
+        return paymentRepository.findPaymentsForAdmin(email, productName, status,  start, end, pageable);
+    }
+
+    //웹페이지 : 주간 결제 건수 조회
+    public List<DailyCountDto> weeklyPaymentCount(LocalDateTime start, LocalDateTime end) {
+        return paymentRepository.countPaymentsByDate(start, end);
+    }
+
+    //웹페이지 : 일일 결제건수 조회
+    public int todayPaymentCount(LocalDateTime start, LocalDateTime end) {
+        return paymentRepository.countTodayPayments(start, end);
+    }
+
+    //웹페이지 : 결제건, 사용건 조회
+    public List<DashboardPayment> getDashboardPayments() {
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayEnd = todayStart.plusDays(1);
+        LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+
+        int todayTotalAmount = paymentRepository.sumAmountBetween(todayStart, todayEnd);
+        int monthlyTotalAmount = paymentRepository.sumAmountBetween(monthStart, todayEnd);
+        int todayItemUsageCount = diceLogService.countItemUsesToday(); // 금일 사용된 아이템 건수
+
+        //결제 많이한 top 3 회원 조회
+        List<TopPayerDto> topPayers = paymentRepository.findTopPayersByTotalAmount(3);
+
+        List<DashboardPayment> result = new ArrayList<>();
+        result.add(new DashboardPayment(todayTotalAmount, monthlyTotalAmount, todayItemUsageCount, topPayers));
+        return result;
+    }
+
 }

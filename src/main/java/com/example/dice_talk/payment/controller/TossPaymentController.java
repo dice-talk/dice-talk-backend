@@ -2,21 +2,27 @@ package com.example.dice_talk.payment.controller;
 
 import com.example.dice_talk.auth.CustomPrincipal;
 import com.example.dice_talk.config.TossPaymentConfig;
+import com.example.dice_talk.dto.MultiResponseDto;
 import com.example.dice_talk.member.entity.Member;
 import com.example.dice_talk.payment.dto.*;
 import com.example.dice_talk.payment.entity.Payment;
 import com.example.dice_talk.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "결제", description = "토스 결제 관련 API")
@@ -105,4 +111,36 @@ public class TossPaymentController {
         List<PaymentHistoryDto> historyDtos = paymentService.historyPayment(customPrincipal.getMemberId());
         return ResponseEntity.ok(historyDtos);
     }
+
+    @Operation(summary = "결제 내역(관리자) 조회", description = "조건에 따라 관리자가 결제 내역을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "결제 내역 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    @Parameters({
+            @Parameter(name = "email", description = "회원 이메일"),
+            @Parameter(name = "productName", description = "상품 이름"),
+            @Parameter(name = "status", description = "결제 상태", schema = @Schema(implementation = Payment.PaymentStatus.class)),
+            @Parameter(name = "start", description = "조회 시작일 (ISO 형식)", example = "2025-06-01T00:00:00"),
+            @Parameter(name = "end", description = "조회 종료일 (ISO 형식)", example = "2025-06-15T23:59:59"),
+            @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+            @Parameter(name = "size", description = "페이지 크기", example = "10")
+    })
+    @GetMapping("/admin")
+    public ResponseEntity<MultiResponseDto<PaymentAdminResponseDto>> getPayments(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) Payment.PaymentStatus status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<PaymentAdminResponseDto> result = paymentService.getAdminPayments(
+                email, productName, status, start, end, page, size
+        );
+        return ResponseEntity.ok(new MultiResponseDto<>(result.getContent(), result));
+    }
+
 }

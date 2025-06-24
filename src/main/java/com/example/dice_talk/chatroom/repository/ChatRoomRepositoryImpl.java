@@ -2,13 +2,19 @@ package com.example.dice_talk.chatroom.repository;
 
 import com.example.dice_talk.chatroom.entity.ChatRoom;
 import com.example.dice_talk.chatroom.entity.QChatRoom;
+import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.DateExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,4 +64,47 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    //웹페이지 : 금일 진행중인 채팅방 수
+    @Override
+    public int countActiveRoomTotal(LocalDateTime start, LocalDateTime end) {
+        QChatRoom chatRoom = QChatRoom.chatRoom;
+
+        Long count = queryFactory
+                .select(chatRoom.count())
+                .from(chatRoom)
+                .where(
+                        chatRoom.createdAt.between(start, end),
+                        chatRoom.roomStatus.eq(ChatRoom.RoomStatus.ROOM_ACTIVE)
+                )
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    //웹페이지 : 진행중인 채팅방 수 조회
+    @Override
+    public List<DailyCountDto> countActiveRoomsByDate(LocalDateTime start, LocalDateTime end) {
+        QChatRoom chatRoom = QChatRoom.chatRoom;
+        //변수로 선언 : 	남은 핵심은 Expressions.dateTemplate(...)을 변수로 추출해서 select/groupBy/orderBy에 중복으로 새로 생성
+        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(LocalDate.class, "DATE({0})", chatRoom.createdAt);
+
+//        NumberExpression<Long> countExpr = chatRoom.count();
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DailyCountDto.class,
+                        dateOnly,
+                        chatRoom.count()
+                ))
+                .from(chatRoom)
+                .where(
+                        chatRoom.createdAt.between(start, end),
+                        chatRoom.roomStatus.eq(ChatRoom.RoomStatus.ROOM_ACTIVE)
+                )
+                .groupBy(dateOnly)
+                .orderBy(dateOnly.asc())
+                .fetch();
+    }
+
 }
