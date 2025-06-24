@@ -501,7 +501,7 @@ public class  ChatRoomService {
 //
 //    // 닉네임으로 성별 판단하는 메서드
 //    private String determineGenderByNickname(String nickname) {
-//        List<String> maleNicknames = List.of("한가로운 하나", "새침한데 솔직한 세찌", "단호하지만 다정한 다오");
+//        List<String> maleNicknames = List.of("한가로운 하나", "세침한 세찌", "단호하지만 다정한 다오");
 //        List<String> femaleNicknames = List.of("호이가 계속되면 두리", "네모지만 부드러운 네몽", "육감적인 직감파 육댕");
 //
 //        if (maleNicknames.contains(nickname)) {
