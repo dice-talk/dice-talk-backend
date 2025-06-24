@@ -57,8 +57,10 @@ dependencies {
   
 	// QueryDSL JPA 모듈 추가
 	implementation "com.querydsl:querydsl-jpa:${querydslVersion}"
+	implementation "com.querydsl:querydsl-apt:${querydslVersion}"
 	// QueryDSL JPA 어노테이션 프로세서 추가
 	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jpa"
+	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}"
 	implementation 'javax.persistence:javax.persistence-api:2.2'
 	annotationProcessor 'javax.persistence:javax.persistence-api:2.2'
 
