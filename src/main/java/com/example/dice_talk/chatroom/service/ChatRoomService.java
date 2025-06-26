@@ -414,7 +414,8 @@ public class  ChatRoomService {
             String createdAtStart,
             String createdAtEnd,
             int page,
-            int size
+            int size,
+            String sort
     ) {
         Long themeId = null;
         if (themeName != null && !themeName.isEmpty()) {
@@ -426,7 +427,12 @@ public class  ChatRoomService {
                 return Page.empty();
             }
         }
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        Pageable pageable;
+        if(sort.equalsIgnoreCase("ASC")){
+            pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").ascending());
+        } else {
+            pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        }
         return chatRoomRepository.searchChatRooms(themeId, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, pageable);
     }
 
