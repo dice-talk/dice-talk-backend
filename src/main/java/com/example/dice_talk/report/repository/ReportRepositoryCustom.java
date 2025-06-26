@@ -31,5 +31,5 @@ public interface ReportRepositoryCustom {
     List<DailyCountDto> countReportsByDate(LocalDateTime start, LocalDateTime end);
 
     // 관리자 신고 목록 조회 필터링, 검색
-    Page<ReportDto.Response> searchByIdOrEmailAndStatus(String search, String reportStatus, Pageable pageable);
+    Page<ReportDto.Response> searchByIdOrEmailAndStatus(String search, Report.ReportStatus reportStatus, String sort, Pageable pageable);
 }

@@ -15,6 +15,7 @@ import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.mapper.ReportMapper;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -337,13 +338,13 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 //                .fetch();
 //    }
     @Override
-    public Page<ReportDto.Response> searchByIdOrEmailAndStatus(String search, String reportStatus, Pageable pageable) {
+    public Page<ReportDto.Response> searchByIdOrEmailAndStatus(String search, Report.ReportStatus reportStatus, String sort, Pageable pageable) {
         QReport report = QReport.report;
         BooleanBuilder builder = new BooleanBuilder();
 
         // 신고 상태 조건
-        if (reportStatus != null && !reportStatus.isBlank()) {
-            builder.and(report.reportStatus.eq(Report.ReportStatus.valueOf(reportStatus)));
+        if (reportStatus != null) {
+            builder.and(report.reportStatus.eq(reportStatus));
         }
 
         // ID/이메일(일부) 조건
@@ -363,6 +364,14 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                     return new PageImpl<>(List.of(), pageable, 0);
                 }
             }
+        }
+
+        // 정렬 조건 처리
+        OrderSpecifier<?> orderSpecifier;
+        if ("ASC".equalsIgnoreCase(sort)) {
+            orderSpecifier = report.createdAt.asc();
+        } else {
+            orderSpecifier = report.createdAt.desc();
         }
 
         // 1. Report 조회

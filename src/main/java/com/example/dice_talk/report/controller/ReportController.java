@@ -159,9 +159,10 @@ public class ReportController {
     public ResponseEntity<MultiResponseDto<ReportDto.Response>> getReports(
             @RequestParam int page,
             @RequestParam int size,
-            @RequestParam Report.ReportStatus reportStatus,
-            @RequestParam(required = false) String search) {
-        Page<ReportDto.Response> pageReports = reportService.searchReports(page, size, reportStatus, search);
+            @RequestParam(required = false) Report.ReportStatus reportStatus,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "DESC") String sort) {
+        Page<ReportDto.Response> pageReports = reportService.searchReports(page, size, reportStatus, search, sort);
         List<ReportDto.Response> reports = pageReports.getContent();
 
         return new ResponseEntity<>(
