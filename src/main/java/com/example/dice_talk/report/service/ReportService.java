@@ -14,6 +14,7 @@ import com.example.dice_talk.report.repository.ReportRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -150,5 +151,11 @@ public class ReportService {
     //웹페이지 : 금일 데이터 조회
     public int todayReportCount(LocalDateTime start, LocalDateTime end) {
         return reportRepository.countReports(start, end);
+    }
+
+    // 신고 목록 조회
+    public Page<ReportDto.Response> searchReports(int page, int size, String reportStatus, String search) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("reportId").descending());
+        return reportRepository.searchByIdOrEmailAndStatus(reportStatus, search,  pageable);
     }
 }

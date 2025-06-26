@@ -158,8 +158,10 @@ public class ReportController {
     @GetMapping
     public ResponseEntity<MultiResponseDto<ReportDto.Response>> getReports(
             @RequestParam int page,
-            @RequestParam int size) {
-        Page<ReportDto.Response> pageReports = reportService.findReportsWithEmail(page, size);
+            @RequestParam int size,
+            @RequestParam Report.ReportStatus reportStatus,
+            @RequestParam(required = false) String search) {
+        Page<ReportDto.Response> pageReports = reportService.searchReports(page, size, reportStatus, search);
         List<ReportDto.Response> reports = pageReports.getContent();
 
         return new ResponseEntity<>(

@@ -21,4 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     @Query("SELECT m FROM Member m WHERE m.memberStatus = 'MEMBER_BANNED'")
     Page<Member> findAllBannedMembers(Pageable pageable);
+
+    List<Member> findByEmailContaining(String emailPart);
 }
