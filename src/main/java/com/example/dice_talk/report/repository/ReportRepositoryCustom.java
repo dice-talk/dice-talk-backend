@@ -29,4 +29,7 @@ public interface ReportRepositoryCustom {
     int countReports(LocalDateTime start, LocalDateTime end);
     //웹페이지 : 주간 신고 건수 조회
     List<DailyCountDto> countReportsByDate(LocalDateTime start, LocalDateTime end);
+
+    // 관리자 신고 목록 조회 필터링, 검색
+    Page<ReportDto.Response> searchByIdOrEmailAndStatus(String search, Report.ReportStatus reportStatus, String sort, Pageable pageable);
 }

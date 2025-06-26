@@ -13,7 +13,9 @@ import com.example.dice_talk.report.dto.ReportDto;
 import com.example.dice_talk.report.entity.QReport;
 import com.example.dice_talk.report.entity.Report;
 import com.example.dice_talk.report.mapper.ReportMapper;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -35,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class ReportRepositoryImpl implements ReportRepositoryCustom{
+public class ReportRepositoryImpl implements ReportRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private final MemberRepository memberRepository;
     private final ChatService chatService;
@@ -325,7 +327,8 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
 //        DateExpression<LocalDate> dateOnly = Expressions.dateTemplate(
 //                LocalDate.class, "DATE({0})", report.createdAt);
 //
-////        NumberExpression<Long> countExpr = report.count();
+
+    /// /        NumberExpression<Long> countExpr = report.count();
 //        return queryFactory
 //                .select(new QDailyCountDto(dateOnly, report.count()))
 //                .from(report)
@@ -334,4 +337,77 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom{
 //                .orderBy(dateOnly.asc())
 //                .fetch();
 //    }
+    @Override
+    public Page<ReportDto.Response> searchByIdOrEmailAndStatus(String search, Report.ReportStatus reportStatus, String sort, Pageable pageable) {
+        QReport report = QReport.report;
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 신고 상태 조건
+        if (reportStatus != null) {
+            builder.and(report.reportStatus.eq(reportStatus));
+        }
+
+        // ID/이메일(일부) 조건
+        if (search != null && !search.isBlank()) {
+            if (search.matches("\\d+")) {
+                // 숫자면 memberId로만 검색
+                Long id = Long.valueOf(search);
+                builder.and(report.reporterId.eq(id).or(report.reportedMemberId.eq(id)));
+            } else {
+                // 문자면 이메일 일부로 memberId 리스트 조회
+                List<Member> members = memberRepository.findByEmailContaining(search);
+                List<Long> memberIds = members.stream().map(Member::getMemberId).collect(Collectors.toList());
+                if (!memberIds.isEmpty()) {
+                    builder.and(report.reporterId.in(memberIds).or(report.reportedMemberId.in(memberIds)));
+                } else {
+                    // 검색 결과 없으면 빈 결과 반환
+                    return new PageImpl<>(List.of(), pageable, 0);
+                }
+            }
+        }
+
+        // 정렬 조건 처리
+        OrderSpecifier<?> orderSpecifier;
+        if ("ASC".equalsIgnoreCase(sort)) {
+            orderSpecifier = report.createdAt.asc();
+        } else {
+            orderSpecifier = report.createdAt.desc();
+        }
+
+        // 1. Report 조회
+        List<Report> reports = queryFactory
+                .selectFrom(report)
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(report.createdAt.desc())
+                .fetch();
+
+        // 2. Member ID 수집
+        Set<Long> memberIds = reports.stream()
+                .flatMap(r -> Arrays.asList(r.getReporterId(), r.getReportedMemberId()).stream())
+                .collect(Collectors.toSet());
+
+        // 3. Member 정보 한 번에 조회
+        Map<Long, String> memberEmailMap = memberRepository.findAllById(memberIds).stream()
+                .collect(Collectors.toMap(Member::getMemberId, Member::getEmail));
+
+        // 4. DTO 변환
+        List<ReportDto.Response> reportDtos = reports.stream()
+                .map(r -> ReportDto.Response.from(
+                        r,
+                        memberEmailMap.get(r.getReporterId()),
+                        memberEmailMap.get(r.getReportedMemberId())
+                ))
+                .collect(Collectors.toList());
+
+        // 5. 전체 개수 조회
+        Long total = queryFactory
+                .select(report.count())
+                .from(report)
+                .where(builder)
+                .fetchOne();
+
+        return new PageImpl<>(reportDtos, pageable, total);
+    }
 }
