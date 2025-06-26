@@ -6,6 +6,7 @@ import com.example.dice_talk.dashboard.dto.DailyCountDto;
 import com.example.dice_talk.dashboard.dto.QDailyCountDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -14,6 +15,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import javax.persistence.EntityManager;
 import java.sql.Date;
@@ -53,12 +55,21 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
             builder.and(chatRoom.createdAt.loe(LocalDateTime.parse(createdAtEnd)));
         }
 
+        OrderSpecifier<?> orderSpecifier = chatRoom.createdAt.desc();
+        if (pageable.getSort().isSorted()) {
+            for (Sort.Order order : pageable.getSort()) {
+                if (order.getProperty().equals("createdAt")) {
+                    orderSpecifier = order.isAscending() ? chatRoom.createdAt.asc() : chatRoom.createdAt.desc();
+                }
+            }
+        }
+
         List<ChatRoom> content = queryFactory
                 .selectFrom(chatRoom)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(chatRoom.createdAt.desc())
+                .orderBy(orderSpecifier)
                 .fetch();
 
         long total = queryFactory
