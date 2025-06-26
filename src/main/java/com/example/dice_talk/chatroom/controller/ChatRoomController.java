@@ -102,13 +102,15 @@ public class ChatRoomController {
                                                                                     @RequestParam(required = false) String createdAtStart,
                                                                                     @Parameter(description = "채팅방 생성일 끝 기준")// "2024-06-01T00:00"
                                                                                     @RequestParam(required = false) String createdAtEnd,   // "2024-06-30T23:59"
+                                                                                    @Parameter(description = "정렬기준", example = "DESC / ASC")
+                                                                                    @RequestParam(required = false, defaultValue = "DESC") String sort,
                                                                                     @Parameter(description = "페이지 번호")
                                                                                     @RequestParam(defaultValue = "1") int page,
                                                                                     @Parameter(description = "페이지 크기")
                                                                                     @RequestParam(defaultValue = "10") int size) {
         AuthorizationUtils.isAdmin();
         Page<ChatRoom> chatRoomPage = chatRoomService.searchChatRooms(
-                themeName, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, page, size
+                themeName, roomStatus, roomType, chatRoomId, createdAtStart, createdAtEnd, page, size, sort
         );
         List<ChatRoom> chatRooms = chatRoomPage.getContent();
         return new ResponseEntity(new MultiResponseDto<>(
