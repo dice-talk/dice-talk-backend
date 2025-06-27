@@ -15,6 +15,7 @@ import com.example.dice_talk.payment.entity.Payment;
 import com.example.dice_talk.payment.repository.PaymentRepository;
 import com.example.dice_talk.product.entity.Product;
 import com.example.dice_talk.product.service.ProductService;
+import com.example.dice_talk.utils.SortUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -270,8 +271,9 @@ public class PaymentService {
     public Page<PaymentAdminResponseDto> getAdminPayments(String email, String productName,
                                                           Payment.PaymentStatus status,
                                                           LocalDateTime start, LocalDateTime end,
-                                                          int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "requestedAt"));
+                                                          int page, int size, String sort) {
+        Sort sortOrder = SortUtil.parseSortParam(sort);
+        Pageable pageable = PageRequest.of(page, size, sortOrder);
         return paymentRepository.findPaymentsForAdmin(email, productName, status,  start, end, pageable);
     }
 
