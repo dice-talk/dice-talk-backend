@@ -9,24 +9,26 @@ import com.example.dice_talk.payment.entity.Payment;
 import com.example.dice_talk.payment.entity.QPayment;
 import com.example.dice_talk.product.entity.QProduct;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.dice_talk.report.entity.QReport.report;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,6 +45,32 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
         QMember member = QMember.member;
         QProduct product = QProduct.product;
 
+//        List<PaymentAdminResponseDto> results = queryFactory
+//                .select(Projections.constructor(PaymentAdminResponseDto.class,
+//                        payment.orderId,
+//                        member.email,
+//                        member.memberId,
+//                        product.productName,
+//                        payment.amount,
+//                        payment.diceAmount,
+//                        payment.paymentStatus.stringValue(),
+//                        payment.requestedAt,
+//                        payment.completedAt
+//                ))
+//                .from(payment)
+//                .join(payment.member, member)
+//                .join(payment.product, product)
+//                .where(
+//                        email != null ? member.email.contains(email) : null,
+//                        productName != null ? product.productName.contains(productName) : null,
+//                        status != null ? payment.paymentStatus.eq(status) : null,
+//                        start != null ? payment.requestedAt.goe(start) : null,
+//                        end != null ? payment.requestedAt.loe(end) : null
+//                )
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .orderBy(payment.requestedAt.desc())
+//                .fetch();
         List<PaymentAdminResponseDto> results = queryFactory
                 .select(Projections.constructor(PaymentAdminResponseDto.class,
                         payment.orderId,
@@ -67,7 +95,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(payment.requestedAt.desc())
+                .orderBy(toOrderSpecifiers(pageable.getSort()).toArray(new OrderSpecifier[0])) // ✅ 동적 정렬
                 .fetch();
 
         Long countResult = queryFactory
@@ -86,6 +114,36 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
 
         long count = countResult != null ? countResult : 0L;
         return new PageImpl<>(results, pageable, count);
+    }
+
+    private List<OrderSpecifier<?>> toOrderSpecifiers(Sort sort) {
+        QPayment payment = QPayment.payment;
+        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+
+        for (Sort.Order order : sort) {
+            String property = order.getProperty();
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+
+            switch (property) {
+                case "requestedAt":
+                    orderSpecifiers.add(new OrderSpecifier<>(direction, payment.requestedAt));
+                    break;
+                case "completedAt":
+                    orderSpecifiers.add(new OrderSpecifier<>(direction, payment.completedAt));
+                    break;
+                case "amount":
+                    orderSpecifiers.add(new OrderSpecifier<>(direction, payment.amount));
+                    break;
+                case "paymentStatus":
+                    orderSpecifiers.add(new OrderSpecifier<>(direction, payment.paymentStatus));
+                    break;
+                default:
+                    // 무시하거나 기본값 처리
+                    break;
+            }
+        }
+
+        return orderSpecifiers;
     }
 
 

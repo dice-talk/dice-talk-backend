@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -135,10 +136,11 @@ public class TossPaymentController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "reqAt,desc") String sort
+            ) {
         Page<PaymentAdminResponseDto> result = paymentService.getAdminPayments(
-                email, productName, status, start, end, page, size
+                email, productName, status, start, end, page, size, sort
         );
         return ResponseEntity.ok(new MultiResponseDto<>(result.getContent(), result));
     }
