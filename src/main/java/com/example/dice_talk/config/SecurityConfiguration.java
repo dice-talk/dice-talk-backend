@@ -82,6 +82,11 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.PATCH, "/qna/members/**").authenticated()
                         .antMatchers(HttpMethod.DELETE, "/qna/members/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/qna/members").permitAll()
+                        .antMatchers(HttpMethod.POST, "/admin/register").permitAll()
+                        .antMatchers(HttpMethod.OPTIONS, "/admin/register").permitAll()
+                        .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .antMatchers(HttpMethod.OPTIONS, "/auth/login").permitAll()
+
                         // Question
                         .antMatchers(HttpMethod.POST, "/qna/questions").hasRole("USER")
                         .antMatchers(HttpMethod.PATCH, "/qna/questions/**").authenticated()
